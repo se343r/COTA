@@ -1700,6 +1700,84 @@ def api_testocr_batch_classes():
     _batch_classes_cache[batch] = classes
     return jsonify(classes)
 
+@app.route("/api/testocr/batch_stats")
+def api_testocr_batch_stats():
+    from flask import request
+    batch = request.args.get("batch", "2")
+    _, eval_file = get_validate_info(batch)
+    if not eval_file.exists():
+        return jsonify({"total_images": 0})
+        
+    import json
+    with open(eval_file, "r", encoding="utf-8") as f:
+        records = json.load(f)
+        
+    total_images = len(records)
+    digit_total = 0
+    digit_correct = 0
+    
+    dec_tp, dec_fp, dec_fn, dec_tn = 0, 0, 0, 0
+    half_tp, half_fp, half_fn, half_tn = 0, 0, 0, 0
+    
+    mismatches = []
+    
+    for name, rec in records.items():
+        details = rec.get("digit_details", [])
+        img_has_error = False
+        for i, d in enumerate(details):
+            if d.get("is_spurious"):
+                continue
+            digit_total += 1
+            act_char = str(d.get("actual", "")).strip()
+            pred_char = str(d.get("pred", "")).strip()
+            char_ok = (act_char == pred_char) if (pred_char and act_char) else True
+            if char_ok:
+                digit_correct += 1
+            else:
+                img_has_error = True
+                
+            act_dec = bool(d.get("is_decimal", False))
+            pred_dec = bool(d.get("pred_is_decimal", False))
+            if act_dec and pred_dec: dec_tp += 1
+            elif not act_dec and pred_dec: dec_fp += 1; img_has_error = True
+            elif act_dec and not pred_dec: dec_fn += 1; img_has_error = True
+            else: dec_tn += 1
+            
+            act_half = bool(d.get("is_half", False))
+            pred_half = bool(d.get("pred_is_half", False))
+            if act_half and pred_half: half_tp += 1
+            elif not act_half and pred_half: half_fp += 1; img_has_error = True
+            elif act_half and not pred_half: half_fn += 1; img_has_error = True
+            else: half_tn += 1
+            
+        if img_has_error:
+            mismatches.append(name)
+            
+    def calc_metrics(tp, fp, fn, tn):
+        tot = tp + fp + fn + tn
+        acc = (tp + tn) / max(1, tot)
+        prec = tp / max(1, tp + fp)
+        rec = tp / max(1, tp + fn)
+        f1 = 2 * prec * rec / max(1e-6, prec + rec)
+        return {
+            "tp": tp, "fp": fp, "fn": fn, "tn": tn, "total": tot,
+            "acc": round(acc * 100, 1),
+            "precision": round(prec * 100, 1),
+            "recall": round(rec * 100, 1),
+            "f1": round(f1 * 100, 1)
+        }
+
+    return jsonify({
+        "total_images": total_images,
+        "digit_accuracy": round(digit_correct / max(1, digit_total) * 100, 1),
+        "digit_correct": digit_correct,
+        "digit_total": digit_total,
+        "decimal": calc_metrics(dec_tp, dec_fp, dec_fn, dec_tn),
+        "half": calc_metrics(half_tp, half_fp, half_fn, half_tn),
+        "mismatches": mismatches
+    })
+
+
 
 @app.route("/api/testocr/images")
 def api_testocr_images():

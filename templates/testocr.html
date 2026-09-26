@@ -17,14 +17,14 @@
   .conf-row { font-size:12px; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:4px; min-height:24px; }
   .canvas-wrap { flex:1; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#070a0d; border-radius:8px; }
   canvas { max-width:100%; max-height:100%; display:block; }
-  .eval-panel { width:360px; flex-shrink:0; background:var(--panel); border-left:1px solid var(--line); padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .eval-panel { width:400px; flex-shrink:0; background:var(--panel); border-left:1px solid var(--line); padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
   .eval-section { background:#1e252e; border:1px solid var(--line); border-radius:6px; padding:10px; }
   .eval-section > b { font-size:12px; display:block; margin-bottom:8px; }
-  .digit-cards { display:flex; gap:6px; flex-wrap:wrap; }
-  .digit-card { background:#2a333f; border:1px solid #3c495a; border-radius:6px; padding:8px; text-align:center; }
-  .digit-card .pred { font-size:26px; color:var(--accent); font-weight:bold; line-height:1; }
-  .digit-card input[type=text] { width:34px; padding:3px; text-align:center; font-size:18px; font-weight:bold; background:#0f1216; color:#37c978; border:1px solid #37c978; border-radius:4px; margin-top:4px; display:block; }
-  .digit-card label { display:block; margin-top:5px; font-size:11px; color:#ffb340; cursor:pointer; }
+  .digit-cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(115px, 1fr)); gap:6px; }
+  .digit-card { background:#2a333f; border:1px solid #3c495a; border-radius:6px; padding:6px; text-align:center; transition:border-color 0.2s; }
+  .digit-card .pred { font-size:24px; color:var(--accent); font-weight:bold; line-height:1; margin:2px 0; }
+  .digit-card input[type=text] { width:42px; padding:2px 4px; text-align:center; font-size:18px; font-weight:bold; background:#0f1216; color:#37c978; border:1px solid #37c978; border-radius:4px; margin:3px auto; display:block; }
+  .digit-card label { display:block; font-size:10px; color:#ffb340; cursor:pointer; }
   button { background:#33415a; color:white; border:none; padding:7px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px; }
   button:hover { background:var(--accent); }
   .btn-save { background:#1a5a3a; color:white; width:100%; padding:10px; font-size:14px; border-radius:6px; }
@@ -56,6 +56,7 @@
         <input type="checkbox" id="skip-elec" checked onchange="onToggleSkipElec()"> ⚙️ Bỏ qua điện tử
       </label>
       <button onclick="runInference()" style="background:#1a5a3a; margin-left:6px;">🚀 Detect</button>
+      <button onclick="showBatchStats()" style="background:#1f6feb; color:#fff;" title="Xem thống kê tổng quan độ chính xác của Batch">📊 Thống kê</button>
       <button onclick="clearBatchEvals()" style="background:#5a1a1a; color:#ff9999; border:none; padding:5px 8px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;" title="Xóa toàn bộ đánh giá của batch này để chấm lại từ đầu">🗑️ Xóa đánh giá batch</button>
       <button onclick="clearResults()" style="background:#2a333f; color:#8b98a8;">🧹 Xóa vẽ</button>
     </div>
@@ -93,7 +94,10 @@
   </div>
 
   <div class="eval-section">
-    <b style="color:#37c978;">🎯 OCR từng số (Sửa nếu sai | ⚠️ Half-digit)</b>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <b style="color:#37c978; margin:0;">🎯 OCR, Số đỏ & Mid-roll</b>
+      <div id="live-eval-summary" style="font-size:11px; color:#8b98a8; font-weight:bold;"></div>
+    </div>
     <div class="digit-cards" id="digit-eval-container"></div>
   </div>
 
@@ -104,12 +108,24 @@
 
 </div>
 
+<!-- Modal Thống Kê Batch -->
+<div id="stats-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#171c23; border:1px solid #3c495a; border-radius:8px; width:540px; max-width:92%; max-height:85vh; overflow-y:auto; padding:20px; color:#dfe6ee; box-shadow:0 8px 32px rgba(0,0,0,0.85);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid #2a333f; padding-bottom:10px;">
+      <h3 style="margin:0; font-size:16px; color:#4da3ff;">📊 Thống kê Độ chính xác Batch</h3>
+      <button onclick="closeStatsModal()" style="background:transparent; border:none; color:#8b98a8; font-size:18px; cursor:pointer; padding:0 4px;">✕</button>
+    </div>
+    <div id="stats-modal-body">Đang tải dữ liệu...</div>
+  </div>
+</div>
+
 <script>
 let images = [];
 let currentIdx = -1;
 let currentImgObj = null;
 let savedEvals = {};
 let imageClassMap = {};
+let currentInferDigits = [];
 const urlParams = new URLSearchParams(window.location.search);
 let currentBatch = urlParams.get('batch') || "2";
 
@@ -289,6 +305,8 @@ async function runInference() {
     let confHtml = "";
     let cardsHtml = "";
 
+    currentInferDigits = res.digits || [];
+
     res.digits.forEach((d, i) => {
       if (d.is_decimal && !finalStr.includes(".")) {
         finalStr += ".";
@@ -326,18 +344,45 @@ async function runInference() {
       const isMid = d.is_mid_roll ? "checked" : "";
       const isDec = d.is_decimal ? "checked" : "";
       const midInfoBadge = (d.is_mid_roll && d.mid_roll_info) 
-        ? `<div style="color:#ffb340;font-size:10px;margin-top:2px;font-weight:bold;">⚠️ Roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2})</div>` 
+        ? `<div style="color:#ffb340;font-size:9px;margin-top:1px;font-weight:bold;">⚠️ Roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2})</div>` 
         : "";
 
       cardsHtml += `
-        <div class="digit-card" id="card-${i}" style="${d.is_decimal ? 'border-color:#ff5c5c;' : (d.is_mid_roll ? 'border-color:#ffb340;' : '')}">
-          <div class="pred" style="${d.is_decimal ? 'color:#ff5c5c;' : (d.is_mid_roll ? 'color:#ffb340;' : '')}">${d.char}</div>
+        <div class="digit-card" id="card-${i}" style="${d.is_decimal ? 'border-color:#ff7b7b;' : (d.is_mid_roll ? 'border-color:#ffb340;' : '#3c495a')}">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px; font-size:10px;">
+            <span style="color:#8b98a8;">#${i+1}</span>
+            <span id="char-match-${i}" style="font-weight:bold; color:#37c978;">✓ Đúng</span>
+          </div>
+
+          <div class="pred" id="pred-disp-${i}" style="${d.is_decimal ? 'color:#ff5c5c;' : (d.is_mid_roll ? 'color:#ffb340;' : '#4da3ff')}">${d.char}</div>
           ${midInfoBadge}
-          <input type="text" id="actual-digit-${i}" value="${d.char}" title="Số thực tế" style="${d.is_decimal ? 'color:#ff5c5c;font-weight:bold;' : ''}">
-          <label style="color:#ff5c5c;margin-top:2px;"><input type="checkbox" id="decimal-digit-${i}" ${isDec}> 🔴 Số đỏ</label>
-          <label><input type="checkbox" id="half-digit-${i}" ${isMid}> ⚠️ Half</label>
-          <label style="color:#8b98a8;margin-top:2px;">
-            <input type="checkbox" id="spurious-${i}" onchange="toggleSpurious(${i})"> ❌ Thừa
+
+          <input type="text" id="actual-digit-${i}" value="${d.char}" title="Nhập số thực tế" oninput="updateDigitCardStatus(${i})" style="${d.is_decimal ? 'color:#ff5c5c;font-weight:bold;' : ''}">
+
+          <!-- Đánh giá Số Đỏ (is_decimal) -->
+          <div style="margin-top:5px; padding:3px 4px; background:#161b22; border-radius:4px; font-size:10px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#8b98a8;">Đỏ: <b style="color:${d.is_decimal ? '#ff5c5c' : '#8b98a8'}">${d.is_decimal ? 'Có' : 'Ko'}</b> (${(d.dec_prob*100).toFixed(0)}%)</span>
+              <span id="dec-match-${i}" style="font-weight:bold; color:#37c978;">✓ Đúng</span>
+            </div>
+            <label style="color:#ff7b7b; display:flex; align-items:center; gap:3px; margin:2px 0 0 0; font-size:10px; cursor:pointer;">
+              <input type="checkbox" id="decimal-digit-${i}" ${isDec} onchange="updateDigitCardStatus(${i})"> 🔴 Thực tế Đỏ
+            </label>
+          </div>
+
+          <!-- Đánh giá Mid-roll (is_mid_roll) -->
+          <div style="margin-top:3px; padding:3px 4px; background:#161b22; border-radius:4px; font-size:10px; text-align:left;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#8b98a8;">Half: <b style="color:${d.is_mid_roll ? '#ffb340' : '#8b98a8'}">${d.is_mid_roll ? 'Có' : 'Ko'}</b> (${(d.half_prob*100).toFixed(0)}%)</span>
+              <span id="half-match-${i}" style="font-weight:bold; color:#37c978;">✓ Đúng</span>
+            </div>
+            <label style="color:#ffb340; display:flex; align-items:center; gap:3px; margin:2px 0 0 0; font-size:10px; cursor:pointer;">
+              <input type="checkbox" id="half-digit-${i}" ${isMid} onchange="updateDigitCardStatus(${i})"> ⚠️ Thực tế Half
+            </label>
+          </div>
+
+          <label style="color:#8b98a8; margin-top:3px; font-size:10px; display:flex; align-items:center; gap:2px; justify-content:center;">
+            <input type="checkbox" id="spurious-${i}" onchange="toggleSpurious(${i}); updateDigitCardStatus(${i});"> ❌ Thừa
           </label>
         </div>`;
     });
@@ -352,6 +397,10 @@ async function runInference() {
     document.getElementById("eval-panel").style.display = "flex";
     document.getElementById("eval-panel").style.flexDirection = "column";
     document.getElementById("eval-status").textContent = "";
+
+    // Live update statuses
+    res.digits.forEach((_, i) => updateDigitCardStatus(i));
+    updateLiveSummary();
 
     // Populate saved eval if exists
     populateSavedEval(images[currentIdx]);
@@ -375,15 +424,35 @@ async function saveEvaluation() {
   const digit_details = [];
   let actual_text = "";
   document.querySelectorAll('[id^="actual-digit-"]').forEach((el, i) => {
-    const actual = el.value;
-    const is_half = document.getElementById("half-digit-" + i).checked;
-    const is_spurious = document.getElementById("spurious-" + i) ? document.getElementById("spurious-" + i).checked : false;
-    const is_decimal = document.getElementById("decimal-digit-" + i) ? document.getElementById("decimal-digit-" + i).checked : false;
+    const actual = el.value.trim();
+    const d = (currentInferDigits && currentInferDigits[i]) ? currentInferDigits[i] : {};
+    const is_half = document.getElementById("half-digit-" + i)?.checked || false;
+    const is_spurious = document.getElementById("spurious-" + i)?.checked || false;
+    const is_decimal = document.getElementById("decimal-digit-" + i)?.checked || false;
+
     if (!is_spurious) {
       if (is_decimal && !actual_text.includes(".")) actual_text += ".";
       actual_text += actual;
     }
-    digit_details.push({ actual, is_half, is_spurious, is_decimal });
+
+    digit_details.push({
+      actual,
+      pred: d.char || "",
+      pred_conf: d.ocr_conf || 0.0,
+      char_correct: (actual === d.char),
+
+      is_decimal,
+      pred_is_decimal: !!d.is_decimal,
+      dec_prob: d.dec_prob || 0.0,
+      decimal_correct: (is_decimal === !!d.is_decimal),
+
+      is_half,
+      pred_is_half: !!d.is_mid_roll,
+      half_prob: d.half_prob || 0.0,
+      half_correct: (is_half === !!d.is_mid_roll),
+
+      is_spurious
+    });
   });
 
   const bbox_miss_reason = digits_bbox_correct ? null : (document.querySelector('input[name="miss-reason"]:checked')?.value || null);
@@ -462,6 +531,163 @@ function populateSavedEval(name) {
       }
     });
   }
+
+  if (currentInferDigits) {
+    currentInferDigits.forEach((_, i) => updateDigitCardStatus(i));
+    updateLiveSummary();
+  }
+}
+
+function updateDigitCardStatus(i) {
+  if (!currentInferDigits || !currentInferDigits[i]) return;
+  const d = currentInferDigits[i];
+  const actualVal = document.getElementById("actual-digit-" + i)?.value?.trim();
+  const isDec = document.getElementById("decimal-digit-" + i)?.checked;
+  const isHalf = document.getElementById("half-digit-" + i)?.checked;
+  const isSpurious = document.getElementById("spurious-" + i)?.checked;
+
+  const card = document.getElementById("card-" + i);
+  if (!card) return;
+  if (isSpurious) {
+    card.style.opacity = "0.35";
+    card.style.borderColor = "#ff5c5c";
+    return;
+  }
+  card.style.opacity = "1";
+
+  // Check char
+  const charCorrect = (actualVal === d.char);
+  const charEl = document.getElementById("char-match-" + i);
+  if (charEl) {
+    charEl.innerHTML = charCorrect ? `<span style="color:#37c978;">✓ Đúng</span>` : `<span style="color:#ff5c5c;">✗ Sai</span>`;
+  }
+
+  // Check decimal
+  const decCorrect = (isDec === !!d.is_decimal);
+  const decEl = document.getElementById("dec-match-" + i);
+  if (decEl) {
+    decEl.innerHTML = decCorrect ? `<span style="color:#37c978;">✓ Đúng</span>` : `<span style="color:#ff5c5c;">✗ Sai</span>`;
+  }
+
+  // Check half
+  const halfCorrect = (isHalf === !!d.is_mid_roll);
+  const halfEl = document.getElementById("half-match-" + i);
+  if (halfEl) {
+    halfEl.innerHTML = halfCorrect ? `<span style="color:#37c978;">✓ Đúng</span>` : `<span style="color:#ff5c5c;">✗ Sai</span>`;
+  }
+
+  // Border color highlight if any error
+  const allCorrect = charCorrect && decCorrect && halfCorrect;
+  if (!allCorrect) {
+    card.style.borderColor = "#ff5c5c";
+    card.style.boxShadow = "0 0 6px rgba(255, 92, 92, 0.35)";
+  } else {
+    card.style.borderColor = isDec ? "#ff7b7b" : (isHalf ? "#ffb340" : "#3c495a");
+    card.style.boxShadow = "none";
+  }
+
+  updateLiveSummary();
+}
+
+function updateLiveSummary() {
+  if (!currentInferDigits || currentInferDigits.length === 0) return;
+  let tot = 0, cChar = 0, cDec = 0, cHalf = 0;
+  currentInferDigits.forEach((d, i) => {
+    const isSpurious = document.getElementById("spurious-" + i)?.checked;
+    if (isSpurious) return;
+    tot++;
+    const actualVal = document.getElementById("actual-digit-" + i)?.value?.trim();
+    const isDec = document.getElementById("decimal-digit-" + i)?.checked;
+    const isHalf = document.getElementById("half-digit-" + i)?.checked;
+
+    if (actualVal === d.char) cChar++;
+    if (isDec === !!d.is_decimal) cDec++;
+    if (isHalf === !!d.is_mid_roll) cHalf++;
+  });
+
+  const sumEl = document.getElementById("live-eval-summary");
+  if (sumEl && tot > 0) {
+    const charColor = (cChar === tot) ? "#37c978" : "#ffb340";
+    const decColor = (cDec === tot) ? "#37c978" : "#ffb340";
+    const halfColor = (cHalf === tot) ? "#37c978" : "#ffb340";
+    sumEl.innerHTML = `Số: <b style="color:${charColor}">${cChar}/${tot}</b> | Đỏ: <b style="color:${decColor}">${cDec}/${tot}</b> | Half: <b style="color:${halfColor}">${cHalf}/${tot}</b>`;
+  }
+}
+
+async function showBatchStats() {
+  const modal = document.getElementById("stats-modal");
+  const body = document.getElementById("stats-modal-body");
+  modal.style.display = "flex";
+  body.innerHTML = "<div style='text-align:center; padding:20px; color:#ffb340;'>⏳ Đang tính toán thống kê...</div>";
+
+  try {
+    const s = await fetch(`/api/testocr/batch_stats?batch=${currentBatch}`).then(r => r.json());
+    if (!s || s.total_images === 0) {
+      body.innerHTML = "<div style='text-align:center; padding:20px; color:#8b98a8;'>Chưa có ảnh nào được đánh giá trong Batch này!</div>";
+      return;
+    }
+
+    body.innerHTML = `
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+        <div style="background:#1e252e; border:1px solid #2a333f; padding:10px; border-radius:6px; text-align:center;">
+          <div style="color:#8b98a8; font-size:12px;">Số ảnh đã đánh giá</div>
+          <div style="font-size:24px; font-weight:bold; color:#4da3ff;">${s.total_images}</div>
+        </div>
+        <div style="background:#1e252e; border:1px solid #2a333f; padding:10px; border-radius:6px; text-align:center;">
+          <div style="color:#8b98a8; font-size:12px;">Độ chính xác Ký tự (Acc)</div>
+          <div style="font-size:24px; font-weight:bold; color:${s.digit_accuracy >= 95 ? '#37c978' : '#ffb340'};">${s.digit_accuracy}%</div>
+          <div style="font-size:11px; color:#8b98a8;">(${s.digit_correct}/${s.digit_total} ký tự)</div>
+        </div>
+      </div>
+
+      <!-- Thống kê Số đỏ -->
+      <div style="background:#1e252e; border:1px solid #3c495a; padding:10px; border-radius:6px; margin-bottom:10px;">
+        <b style="color:#ff7b7b; display:block; margin-bottom:6px; font-size:13px;">🔴 Phân loại Số đỏ (is_decimal)</b>
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>Accuracy: <b>${s.decimal.acc}%</b></span>
+          <span>Precision: <b>${s.decimal.precision}%</b></span>
+          <span>Recall: <b>${s.decimal.recall}%</b></span>
+          <span>F1-Score: <b style="color:#37c978;">${s.decimal.f1}%</b></span>
+        </div>
+        <div style="font-size:11px; color:#8b98a8; margin-top:4px;">
+          TP: ${s.decimal.tp} | FP: ${s.decimal.fp} | FN: ${s.decimal.fn} | TN: ${s.decimal.tn}
+        </div>
+      </div>
+
+      <!-- Thống kê Mid-roll -->
+      <div style="background:#1e252e; border:1px solid #3c495a; padding:10px; border-radius:6px; margin-bottom:14px;">
+        <b style="color:#ffb340; display:block; margin-bottom:6px; font-size:13px;">⚠️ Phân loại Mid-roll (is_mid_roll)</b>
+        <div style="display:flex; justify-content:space-between; font-size:12px;">
+          <span>Accuracy: <b>${s.half.acc}%</b></span>
+          <span>Precision: <b>${s.half.precision}%</b></span>
+          <span>Recall: <b>${s.half.recall}%</b></span>
+          <span>F1-Score: <b style="color:#37c978;">${s.half.f1}%</b></span>
+        </div>
+        <div style="font-size:11px; color:#8b98a8; margin-top:4px;">
+          TP: ${s.half.tp} | FP: ${s.half.fp} | FN: ${s.half.fn} | TN: ${s.half.tn}
+        </div>
+      </div>
+
+      <!-- Mismatches list -->
+      <div>
+        <b style="color:#8b98a8; font-size:12px;">Danh sách ảnh có ô đoán lệch (${s.mismatches.length} ảnh):</b>
+        <div style="display:flex; flex-wrap:wrap; gap:4px; max-height:100px; overflow-y:auto; margin-top:6px;">
+          ${s.mismatches.length === 0 ? '<span style="color:#37c978; font-size:12px;">Không có ca nào đoán sai! 🎉</span>' : 
+            s.mismatches.map(name => {
+              const idx = images.indexOf(name);
+              return `<button onclick="closeStatsModal(); selectImage(${idx});" style="font-size:11px; padding:3px 6px; background:#2a333f; color:#ffb340;">${name.slice(0, 15)}...</button>`;
+            }).join('')
+          }
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    body.innerHTML = `<div style="color:#ff5c5c;">Lỗi tải thống kê: ${e}</div>`;
+  }
+}
+
+function closeStatsModal() {
+  document.getElementById("stats-modal").style.display = "none";
 }
 
 function toggleBboxMiss() {
