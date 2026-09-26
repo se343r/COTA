@@ -1649,6 +1649,58 @@ def api_testocr_all_evals():
     with open(eval_file, "r", encoding="utf-8") as f:
         return jsonify(json.load(f))
 
+@app.route("/api/testocr/clear_evals", methods=["POST"])
+def api_testocr_clear_evals():
+    from flask import request
+    import time, shutil
+    data = request.json or {}
+    batch = str(data.get("batch") or request.args.get("batch", "2"))
+    _, eval_file = get_validate_info(batch)
+    if eval_file.exists():
+        backup_file = eval_file.with_name(f"{eval_file.stem}.bak_{int(time.time())}.json")
+        try:
+            shutil.copy(eval_file, backup_file)
+        except Exception as e:
+            print("Backup failed:", e)
+        with open(eval_file, "w", encoding="utf-8") as f:
+            f.write("{}")
+        if batch == "1":
+            try:
+                with open(BASE_DIR / "testocr_eval.json", "w", encoding="utf-8") as f:
+                    f.write("{}")
+            except:
+                pass
+    return jsonify({"ok": True, "message": f"Đã xóa dữ liệu đánh giá batch {batch}"})
+
+_batch_classes_cache = {}
+
+@app.route("/api/testocr/batch_classes")
+def api_testocr_batch_classes():
+    from flask import request
+    import cv2
+    batch = request.args.get("batch", "2")
+    if batch in _batch_classes_cache:
+        return jsonify(_batch_classes_cache[batch])
+        
+    v_dir, _ = get_validate_info(batch)
+    obb_model = _load_model()
+    classes = {}
+    if v_dir.exists() and obb_model:
+        for p in sorted(v_dir.glob("*.*")):
+            if p.suffix.lower() in [".jpg", ".jpeg", ".png"]:
+                img = cv2.imread(str(p))
+                if img is None: continue
+                res = obb_model(img, verbose=False, conf=0.15)
+                obb = getattr(res[0], "obb", None)
+                if obb is not None and len(obb) > 0:
+                    best_idx = int(torch.argmax(obb.conf).item()) if hasattr(torch, "argmax") else 0
+                    classes[p.name] = int(obb.cls[best_idx].item())
+                else:
+                    classes[p.name] = -1
+    _batch_classes_cache[batch] = classes
+    return jsonify(classes)
+
+
 @app.route("/api/testocr/images")
 def api_testocr_images():
     from flask import request

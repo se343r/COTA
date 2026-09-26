@@ -52,8 +52,12 @@
       </div>
       <button onclick="prevImage()">◀</button>
       <button onclick="nextImage()">▶</button>
-      <button onclick="runInference()" style="background:#1a5a3a;">🚀 Detect</button>
-      <button onclick="clearResults()" style="background:#5a1a1a;">🗑️ Xóa kết quả</button>
+      <label style="color:#ffb340; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; margin-left:6px; cursor:pointer;" title="Chỉ đánh giá công tơ cơ, tự động bỏ qua công tơ điện tử">
+        <input type="checkbox" id="skip-elec" checked onchange="onToggleSkipElec()"> ⚙️ Bỏ qua điện tử
+      </label>
+      <button onclick="runInference()" style="background:#1a5a3a; margin-left:6px;">🚀 Detect</button>
+      <button onclick="clearBatchEvals()" style="background:#5a1a1a; color:#ff9999; border:none; padding:5px 8px; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;" title="Xóa toàn bộ đánh giá của batch này để chấm lại từ đầu">🗑️ Xóa đánh giá batch</button>
+      <button onclick="clearResults()" style="background:#2a333f; color:#8b98a8;">🧹 Xóa vẽ</button>
     </div>
   </div>
   <div class="result-panel" id="result-text" style="color:var(--accent)">—</div>
@@ -105,6 +109,7 @@ let images = [];
 let currentIdx = -1;
 let currentImgObj = null;
 let savedEvals = {};
+let imageClassMap = {};
 const urlParams = new URLSearchParams(window.location.search);
 let currentBatch = urlParams.get('batch') || "2";
 
@@ -121,8 +126,18 @@ async function loadList() {
   if (batchSel) batchSel.value = currentBatch;
   
   images = await fetch(`/api/testocr/images?batch=${currentBatch}`).then(r => r.json());
+  
+  try {
+    const clsRes = await fetch(`/api/testocr/batch_classes?batch=${currentBatch}`).then(r => r.json());
+    imageClassMap = clsRes || {};
+  } catch(e) {
+    imageClassMap = {};
+  }
+
+  const skipElec = document.getElementById("skip-elec")?.checked;
   const sidebar = document.getElementById("sidebar");
   sidebar.innerHTML = "";
+  
   images.forEach((name, i) => {
     const wrap = document.createElement("div");
     wrap.style.cssText = "position:relative;";
@@ -139,9 +154,20 @@ async function loadList() {
     dot.style.cssText = "display:none; position:absolute; top:4px; right:4px; width:10px; height:10px; border-radius:50%; background:#37c978; border:1px solid #0f1216;";
     wrap.appendChild(dot);
 
+    const isElec = imageClassMap[name] === 1;
+    if (isElec) {
+      const elecBadge = document.createElement("div");
+      elecBadge.id = "elec-badge-" + i;
+      elecBadge.style.cssText = "position:absolute; bottom:4px; right:4px; font-size:10px; background:rgba(0,0,0,0.7); border-radius:3px; padding:1px 3px;";
+      elecBadge.textContent = "⚡";
+      wrap.appendChild(elecBadge);
+      if (skipElec) {
+        wrap.style.opacity = "0.3";
+      }
+    }
+
     sidebar.appendChild(wrap);
   });
-  if (images.length > 0) selectImage(0);
 
   // Load all saved evals, mark green dots
   try {
@@ -154,6 +180,30 @@ async function loadList() {
       }
     });
   } catch(e) {}
+
+  let firstIdx = 0;
+  if (skipElec) {
+    while (firstIdx < images.length && imageClassMap[images[firstIdx]] === 1) {
+      firstIdx++;
+    }
+    if (firstIdx >= images.length) firstIdx = 0;
+  }
+  if (images.length > 0) selectImage(firstIdx);
+}
+
+function onToggleSkipElec() {
+  const skipElec = document.getElementById("skip-elec")?.checked;
+  images.forEach((name, i) => {
+    const wrap = document.getElementById("thumb-wrap-" + i);
+    if (!wrap) return;
+    const isElec = imageClassMap[name] === 1;
+    if (isElec) {
+      wrap.style.opacity = skipElec ? "0.3" : "1.0";
+    }
+  });
+  if (skipElec && currentIdx >= 0 && imageClassMap[images[currentIdx]] === 1) {
+    nextImage(1);
+  }
 }
 
 function selectImage(idx) {
@@ -180,8 +230,22 @@ function selectImage(idx) {
   currentImgObj.src = `/api/testocr/image/${encodeURIComponent(name)}?batch=${currentBatch}`;
 }
 
-function prevImage() { selectImage(currentIdx - 1); }
-function nextImage() { selectImage(currentIdx + 1); }
+function nextImage(step = 1) {
+  let nextIdx = currentIdx + step;
+  const skipElec = document.getElementById("skip-elec")?.checked;
+  if (skipElec) {
+    while (nextIdx >= 0 && nextIdx < images.length && imageClassMap[images[nextIdx]] === 1) {
+      nextIdx += (step > 0 ? 1 : -1);
+    }
+  }
+  if (nextIdx >= 0 && nextIdx < images.length) {
+    selectImage(nextIdx);
+  }
+}
+
+function prevImage() {
+  nextImage(-1);
+}
 
 async function runInference() {
   if (currentIdx < 0) return;
@@ -193,6 +257,17 @@ async function runInference() {
     const res = await fetch(`/api/testocr/infer/${encodeURIComponent(name)}?slice_count=${sliceCount}&batch=${currentBatch}`).then(r => r.json());
     if (res.error) {
       document.getElementById("result-text").innerHTML = `<span style="color:#ff5c5c">❌ ${res.error}</span>`;
+      return;
+    }
+
+    imageClassMap[name] = res.class_id;
+    const skipElec = document.getElementById("skip-elec")?.checked;
+    if (skipElec && res.class_id === 1) {
+      document.getElementById("result-text").innerHTML =
+        `<span style="color:#ffb340">⚡ Công tơ điện tử (Class: 1) — Đã tự động bỏ qua</span>`;
+      document.getElementById("eval-panel").style.display = "none";
+      const wrap = document.getElementById("thumb-wrap-" + currentIdx);
+      if (wrap) wrap.style.opacity = "0.3";
       return;
     }
 
@@ -413,6 +488,28 @@ function clearResults() {
   document.getElementById("result-text").textContent = images[currentIdx] || "—";
   document.getElementById("conf-row").innerHTML = "";
   document.getElementById("eval-panel").style.display = "none";
+}
+
+async function clearBatchEvals() {
+  if (!confirm(`Bạn có chắc muốn XÓA TOÀN BỘ đánh giá đã lưu của Validate ${currentBatch}? (Dữ liệu cũ đã được tự động lưu dự phòng)`)) {
+    return;
+  }
+  try {
+    const res = await fetch(`/api/testocr/clear_evals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ batch: currentBatch })
+    }).then(r => r.json());
+    if (res.ok) {
+      alert(res.message || "Đã xóa đánh giá cũ thành công!");
+      savedEvals = {};
+      document.querySelectorAll("[id^='eval-dot-']").forEach(dot => dot.style.display = "none");
+      document.getElementById("eval-status").textContent = "";
+      selectImage(currentIdx);
+    }
+  } catch (e) {
+    alert("Lỗi khi xóa: " + e);
+  }
 }
 
 loadList();
