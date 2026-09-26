@@ -215,19 +215,22 @@ async function runInference() {
     let cardsHtml = "";
 
     res.digits.forEach((d, i) => {
+      if (d.is_decimal && !finalStr.includes(".")) {
+        finalStr += ".";
+      }
       finalStr += d.char;
 
       if (d.box_orig) {
-        ctx.strokeStyle = "#ff4da3";
+        ctx.strokeStyle = d.is_decimal ? "#ff5c5c" : "#ff4da3";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(d.box_orig[0][0], d.box_orig[0][1]);
         for (let j = 1; j < 4; j++) ctx.lineTo(d.box_orig[j][0], d.box_orig[j][1]);
         ctx.closePath();
         ctx.stroke();
-        ctx.fillStyle = "#ff4da3";
+        ctx.fillStyle = d.is_decimal ? "#ff5c5c" : "#ff4da3";
         ctx.font = "bold 22px Arial";
-        ctx.fillText(d.char, d.box_orig[0][0], d.box_orig[0][1] - 4);
+        ctx.fillText((d.is_decimal ? "." : "") + d.char, d.box_orig[0][0], d.box_orig[0][1] - 4);
       }
 
       if (d.ocr_conf !== undefined) {
@@ -235,26 +238,30 @@ async function runInference() {
         const oc = (d.ocr_conf * 100).toFixed(1);
         let midTag = "";
         if (d.is_mid_roll && d.mid_roll_info) {
-          midTag = `<span style="color:#ffb340;font-size:10px;font-weight:bold;margin-left:4px;">⚠️ Mid-roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2}, Δ:${d.mid_roll_info.margin})</span>`;
+          midTag = `<span style="color:#ffb340;font-size:10px;font-weight:bold;margin-left:4px;">⚠️ Mid-roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2})</span>`;
         }
-        confHtml += `<span style="background:#1e252e;padding:2px 6px;border-radius:4px;border:1px solid ${d.is_mid_roll ? '#ffb340' : '#2a333f'};">
-          <b style="color:${d.is_mid_roll ? '#ffb340' : '#4da3ff'}">${d.char}</b>
-          <span style="color:#8b98a8;font-size:11px"> B:${bc}% O:${oc}%</span>${midTag}
+        let decTag = d.is_decimal ? `<span style="background:#4a1515;color:#ff5c5c;font-size:10px;font-weight:bold;padding:1px 4px;border-radius:3px;margin-left:4px;">🔴 Số đỏ</span>` : "";
+
+        confHtml += `<span style="background:#1e252e;padding:2px 6px;border-radius:4px;border:1px solid ${d.is_decimal ? '#ff5c5c' : (d.is_mid_roll ? '#ffb340' : '#2a333f')};">
+          <b style="color:${d.is_decimal ? '#ff5c5c' : (d.is_mid_roll ? '#ffb340' : '#4da3ff')}">${d.char}</b>
+          <span style="color:#8b98a8;font-size:11px"> B:${bc}% O:${oc}%</span>${decTag}${midTag}
         </span>`;
       }
 
       const isMid = d.is_mid_roll ? "checked" : "";
+      const isDec = d.is_decimal ? "checked" : "";
       const midInfoBadge = (d.is_mid_roll && d.mid_roll_info) 
         ? `<div style="color:#ffb340;font-size:10px;margin-top:2px;font-weight:bold;">⚠️ Roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2})</div>` 
         : "";
 
       cardsHtml += `
-        <div class="digit-card" id="card-${i}" style="${d.is_mid_roll ? 'border-color:#ffb340;' : ''}">
-          <div class="pred" style="${d.is_mid_roll ? 'color:#ffb340;' : ''}">${d.char}</div>
+        <div class="digit-card" id="card-${i}" style="${d.is_decimal ? 'border-color:#ff5c5c;' : (d.is_mid_roll ? 'border-color:#ffb340;' : '')}">
+          <div class="pred" style="${d.is_decimal ? 'color:#ff5c5c;' : (d.is_mid_roll ? 'color:#ffb340;' : '')}">${d.char}</div>
           ${midInfoBadge}
-          <input type="text" id="actual-digit-${i}" value="${d.char}" title="Số thực tế">
+          <input type="text" id="actual-digit-${i}" value="${d.char}" title="Số thực tế" style="${d.is_decimal ? 'color:#ff5c5c;font-weight:bold;' : ''}">
+          <label style="color:#ff5c5c;margin-top:2px;"><input type="checkbox" id="decimal-digit-${i}" ${isDec}> 🔴 Số đỏ</label>
           <label><input type="checkbox" id="half-digit-${i}" ${isMid}> ⚠️ Half</label>
-          <label style="color:#ff5c5c;margin-top:3px;">
+          <label style="color:#8b98a8;margin-top:2px;">
             <input type="checkbox" id="spurious-${i}" onchange="toggleSpurious(${i})"> ❌ Thừa
           </label>
         </div>`;
@@ -296,8 +303,12 @@ async function saveEvaluation() {
     const actual = el.value;
     const is_half = document.getElementById("half-digit-" + i).checked;
     const is_spurious = document.getElementById("spurious-" + i) ? document.getElementById("spurious-" + i).checked : false;
-    actual_text += is_spurious ? "" : actual;
-    digit_details.push({ actual, is_half, is_spurious });
+    const is_decimal = document.getElementById("decimal-digit-" + i) ? document.getElementById("decimal-digit-" + i).checked : false;
+    if (!is_spurious) {
+      if (is_decimal && !actual_text.includes(".")) actual_text += ".";
+      actual_text += actual;
+    }
+    digit_details.push({ actual, is_half, is_spurious, is_decimal });
   });
 
   const bbox_miss_reason = digits_bbox_correct ? null : (document.querySelector('input[name="miss-reason"]:checked')?.value || null);
@@ -367,6 +378,8 @@ function populateSavedEval(name) {
       if (inp && d.actual !== undefined) inp.value = d.actual;
       const half = document.getElementById("half-digit-" + i);
       if (half) half.checked = !!d.is_half;
+      const dec = document.getElementById("decimal-digit-" + i);
+      if (dec && d.is_decimal !== undefined) dec.checked = !!d.is_decimal;
       const spurious = document.getElementById("spurious-" + i);
       if (spurious) {
         spurious.checked = !!d.is_spurious;

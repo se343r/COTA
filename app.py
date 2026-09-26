@@ -89,7 +89,7 @@ class LetterboxPad:
         canvas.paste(img_resized, (paste_x, paste_y))
         return canvas
 
-class TinyDigitCNN(nn.Module):
+class MultiTaskDigitCNN(nn.Module):
     def __init__(self, num_classes=10):
         super().__init__()
         self.features = nn.Sequential(
@@ -103,12 +103,19 @@ class TinyDigitCNN(nn.Module):
             nn.MaxPool2d(2),
             nn.AdaptiveAvgPool2d(1),
         )
-        self.classifier = nn.Linear(256, num_classes)
+        self.digit_head = nn.Linear(256, num_classes)
+        self.half_head = nn.Linear(256, 1)
+        self.decimal_head = nn.Linear(256, 1)
 
     def forward(self, x):
-        x = self.features(x)
-        x = torch.flatten(x, 1)
-        return self.classifier(x)
+        feat = self.features(x)
+        feat = torch.flatten(feat, 1)
+        d_logits = self.digit_head(feat)
+        h_logit = self.half_head(feat).squeeze(-1)
+        dec_logit = self.decimal_head(feat).squeeze(-1)
+        return d_logits, h_logit, dec_logit
+
+TinyDigitCNN = MultiTaskDigitCNN  # Backward compatibility alias
 
 _ocr_model = None
 _ocr_transform = None
@@ -147,12 +154,16 @@ def get_ocr_model():
         return _ocr_model, _ocr_transform
         
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = TinyDigitCNN(num_classes=10)
+    model = MultiTaskDigitCNN(num_classes=10)
     
-    path = BASE_DIR / "output_digit_clf" / "best_digit_clf.pt"
+    path = BASE_DIR / "output_digit_clf" / "best_multitask_digit_clf.pt"
+    if not path.exists():
+        path = BASE_DIR / "output_digit_clf" / "best_digit_clf.pt"
+
     if path.exists():
         try:
-            model.load_state_dict(torch.load(str(path), map_location=device))
+            state = torch.load(str(path), map_location=device)
+            model.load_state_dict(state, strict=False)
             model.to(device)
             model.eval()
             _ocr_model = model
@@ -160,7 +171,7 @@ def get_ocr_model():
                 LetterboxPad((72, 128)),
                 transforms.ToTensor()
             ])
-            print(f"Loaded OCR model from {path}")
+            print(f"Loaded Multi-Task OCR model from {path}")
         except Exception as e:
             print(f"Failed to load OCR model: {e}")
             _ocr_model = None
@@ -1904,10 +1915,24 @@ def api_testocr_infer(name):
             inp = ocr_transform(crop_pil).unsqueeze(0).to(device)
             
             with torch.no_grad():
-                preds = ocr_model(inp)
+                out = ocr_model(inp)
+                if isinstance(out, tuple) and len(out) == 3:
+                    preds, h_logit, dec_logit = out
+                    p_half = torch.sigmoid(h_logit).item()
+                    p_dec = torch.sigmoid(dec_logit).item()
+                    model_is_half = (p_half >= 0.5)
+                    model_is_dec = (p_dec >= 0.5)
+                else:
+                    preds = out
+                    p_half = 0.0
+                    p_dec = 0.0
+                    model_is_half = False
+                    model_is_dec = False
+
                 probs = torch.nn.functional.softmax(preds, dim=1)[0]
                 p_dict = {str(k): probs[k].item() for k in range(10)}
                 res_mid = detect_mid_roll(p_dict)
+                is_mid_roll_final = bool(res_mid.is_mid_roll or model_is_half)
                 pred_str = res_mid.resolved_value if res_mid.is_mid_roll else res_mid.top1_label
                 pred_conf = res_mid.top1_prob
                 
@@ -1918,7 +1943,10 @@ def api_testocr_infer(name):
                 "char": pred_str,
                 "conf": bx["conf"],
                 "ocr_conf": pred_conf,
-                "is_mid_roll": res_mid.is_mid_roll,
+                "is_mid_roll": is_mid_roll_final,
+                "is_decimal": model_is_dec,
+                "half_prob": round(p_half, 3),
+                "dec_prob": round(p_dec, 3),
                 "mid_roll_info": {
                     "top1": res_mid.top1_label,
                     "prob1": round(res_mid.top1_prob, 3),
@@ -1926,7 +1954,14 @@ def api_testocr_infer(name):
                     "prob2": round(res_mid.top2_prob, 3),
                     "margin": round(res_mid.margin, 3),
                     "reason": res_mid.reason
-                } if res_mid.is_mid_roll else None
+                } if res_mid.is_mid_roll else ({
+                    "top1": res_mid.top1_label,
+                    "prob1": round(res_mid.top1_prob, 3),
+                    "top2": res_mid.top2_label,
+                    "prob2": round(res_mid.top2_prob, 3),
+                    "margin": round(res_mid.margin, 3),
+                    "reason": f"Mô hình phát hiện Half-digit ({p_half:.1%})"
+                } if model_is_half else None)
             })
 
     import base64
