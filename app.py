@@ -71,7 +71,7 @@ IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 import torch
 import torch.nn as nn
-from torchvision import transforms
+from torchvision import transforms, models
 from PIL import Image
 
 class LetterboxPad:
@@ -115,7 +115,35 @@ class MultiTaskDigitCNN(nn.Module):
         dec_logit = self.decimal_head(feat).squeeze(-1)
         return d_logits, h_logit, dec_logit
 
-TinyDigitCNN = MultiTaskDigitCNN  # Backward compatibility alias
+class MultiTaskMobileNet(nn.Module):
+    def __init__(self, num_classes=10):
+        super().__init__()
+        base = models.mobilenet_v3_small(weights=None)
+        self.features = base.features
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        in_features = 576
+
+        self.digit_head = nn.Sequential(
+            nn.Linear(in_features, 128),
+            nn.Hardswish(),
+            nn.Dropout(0.2),
+            nn.Linear(128, num_classes)
+        )
+        self.half_head = nn.Linear(in_features, 1)
+        self.decimal_head = nn.Linear(in_features, 1)
+
+    def forward(self, x):
+        feat = self.features(x)
+        feat = self.pool(feat)
+        feat = torch.flatten(feat, 1)
+
+        digit_logits = self.digit_head(feat)
+        half_logit = self.half_head(feat).squeeze(-1)
+        decimal_logit = self.decimal_head(feat).squeeze(-1)
+
+        return digit_logits, half_logit, decimal_logit
+
+TinyDigitCNN = MultiTaskMobileNet  # Backward compatibility alias
 
 _ocr_model = None
 _ocr_transform = None
@@ -154,7 +182,6 @@ def get_ocr_model():
         return _ocr_model, _ocr_transform
         
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = MultiTaskDigitCNN(num_classes=10)
     
     path = BASE_DIR / "output_digit_clf" / "best_multitask_digit_clf.pt"
     if not path.exists():
@@ -163,15 +190,22 @@ def get_ocr_model():
     if path.exists():
         try:
             state = torch.load(str(path), map_location=device)
+            if "features.0.0.weight" in state:
+                model = MultiTaskMobileNet(num_classes=10)
+                norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            else:
+                model = MultiTaskDigitCNN(num_classes=10)
+                norm = None
+            
             model.load_state_dict(state, strict=False)
             model.to(device)
             model.eval()
             _ocr_model = model
-            _ocr_transform = transforms.Compose([
-                LetterboxPad((72, 128)),
-                transforms.ToTensor()
-            ])
-            print(f"Loaded Multi-Task OCR model from {path}")
+            trans_list = [LetterboxPad((72, 128)), transforms.ToTensor()]
+            if norm is not None:
+                trans_list.append(norm)
+            _ocr_transform = transforms.Compose(trans_list)
+            print(f"Loaded Multi-Task OCR model ({model.__class__.__name__}) from {path}")
         except Exception as e:
             print(f"Failed to load OCR model: {e}")
             _ocr_model = None
@@ -1038,6 +1072,8 @@ def api_rectified_crop(name):
             
             with torch.no_grad():
                 preds = ocr_model(inp)
+                if isinstance(preds, tuple):
+                    preds = preds[0]
                 probs = torch.nn.functional.softmax(preds, dim=1)
                 pred_idx = probs.argmax(dim=1).item()
                 pred_conf = probs[0, pred_idx].item()
@@ -1712,6 +1748,8 @@ def api_testocr_custom_obb(name):
             pred_conf = 1.0
             with torch.no_grad():
                 preds = ocr_model(inp)
+                if isinstance(preds, tuple):
+                    preds = preds[0]
                 probs = torch.nn.functional.softmax(preds, dim=1)
                 pred_idx = probs.argmax(dim=1).item()
                 pred_conf = probs[0, pred_idx].item()

@@ -4,11 +4,10 @@ Huấn luyện mô hình Multi-Task Digit Classifier:
 2. Phát hiện trạng thái Half-digit (nhị phân: is_half)
 3. Phát hiện số thập phân / số đỏ (nhị phân: is_decimal)
 
-Tích hợp Synthetic Half-digit Augmentation để chống ảo giác thị giác cho các ca chuyển tiếp con lăn.
+Backbone: MobileNetV3-Small (Pretrained ImageNet)
 """
 
 import argparse
-import glob
 import json
 import random
 from pathlib import Path
@@ -20,6 +19,7 @@ import torch.nn as nn
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+import torchvision.models as models
 
 LABELS = [str(i) for i in range(10)]
 LABEL2IDX = {l: i for i, l in enumerate(LABELS)}
@@ -41,28 +41,22 @@ class LetterboxPad:
         return canvas
 
 
-class MultiTaskDigitCNN(nn.Module):
-    def __init__(self, num_classes=10, pooling="avg"):
+class MultiTaskMobileNet(nn.Module):
+    def __init__(self, num_classes=10):
         super().__init__()
-        self.features = nn.Sequential(
-            # Input: 72x128
-            nn.Conv2d(3, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(),
-            nn.MaxPool2d(2),  # -> 36x64
-            nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(),
-            nn.MaxPool2d(2),  # -> 18x32
-            nn.Conv2d(64, 128, 3, padding=1), nn.BatchNorm2d(128), nn.ReLU(),
-            nn.MaxPool2d(2),  # -> 9x16
-            nn.Conv2d(128, 256, 3, padding=1), nn.BatchNorm2d(256), nn.ReLU(),
-            nn.MaxPool2d(2),  # -> 4x8
-        )
-        self.pool = nn.AdaptiveMaxPool2d(1) if pooling == "max" else nn.AdaptiveAvgPool2d(1)
+        base = models.mobilenet_v3_small(weights='DEFAULT')
+        self.features = base.features
+        self.pool = nn.AdaptiveAvgPool2d(1)
+        in_features = 576  # mobilenet_v3_small last conv channels
 
-        # Head 1: Chữ số 0..9 (10 classes)
-        self.digit_head = nn.Linear(256, num_classes)
-        # Head 2: Trạng thái Half-digit (nhị phân: 0/1)
-        self.half_head = nn.Linear(256, 1)
-        # Head 3: Số thập phân / số đỏ (nhị phân: 0/1)
-        self.decimal_head = nn.Linear(256, 1)
+        self.digit_head = nn.Sequential(
+            nn.Linear(in_features, 128),
+            nn.Hardswish(),
+            nn.Dropout(0.2),
+            nn.Linear(128, num_classes)
+        )
+        self.half_head = nn.Linear(in_features, 1)
+        self.decimal_head = nn.Linear(in_features, 1)
 
     def forward(self, x):
         feat = self.features(x)
@@ -77,14 +71,10 @@ class MultiTaskDigitCNN(nn.Module):
 
 
 def load_all_samples(base_dir: Path):
-    """
-    Tải toàn bộ mẫu từ ocr_dataset/labels/*.json và validate1_eval.json
-    """
     samples = []
     crops_dir = base_dir / "ocr_dataset" / "crops"
     labels_dir = base_dir / "ocr_dataset" / "labels"
 
-    # 1. Thu thập từ ocr_dataset
     for jf in labels_dir.glob("*.json"):
         with open(jf, encoding="utf-8") as f:
             data = json.load(f)
@@ -102,7 +92,7 @@ def load_all_samples(base_dir: Path):
             samples.append({
                 "source": "ocr_dataset",
                 "image_path": str(crop_path),
-                "box": (d["x"], d["y"], d["w"], d["h"]), # normalized
+                "box": (d["x"], d["y"], d["w"], d["h"]),
                 "label": lbl,
                 "digit_idx": LABEL2IDX[lbl],
                 "is_half": 1.0 if is_half else 0.0,
@@ -110,36 +100,17 @@ def load_all_samples(base_dir: Path):
                 "group_id": crop_id
             })
 
-    # 2. Thu thập từ validate1_eval.json (nếu có)
-    val1_path = base_dir / "validate1_eval.json"
-    val1_img_dir = Path("/home/deist/Downloads/OCR/testocr")
-    if val1_path.exists() and val1_img_dir.exists():
-        with open(val1_path, encoding="utf-8") as f:
-            val1_data = json.load(f)
-        for fname, v in val1_data.items():
-            if v.get("type") != "mechanical":
-                continue
-            details = v.get("digit_details", [])
-            boxes = v.get("boxes", [])
-            img_p = val1_img_dir / fname
-            if not img_p.exists() or len(boxes) != len(details):
-                continue
-            # Note: boxes are in warped coords, quad is needed.
-            # Để bảo đảm chất lượng crop chuẩn xác, ocr_dataset với 2.687 mẫu đã qua chuẩn hóa
-            # là nguồn dữ liệu chính.
-
     return samples
 
 
 class MultiTaskDigitDataset(Dataset):
-    def __init__(self, samples, train=True, target_size=(72, 128), synth_prob=0.35):
+    def __init__(self, samples, train=True, target_size=(72, 128), synth_prob=0.12):
         self.samples = samples
         self.train = train
         self.target_size = target_size
         self.synth_prob = synth_prob
         self._image_cache = {}
 
-        # Phân nhóm mẫu theo digit để phục vụ Synthetic Half-digit
         self.by_digit = {i: [] for i in range(10)}
         for idx, s in enumerate(self.samples):
             self.by_digit[s["digit_idx"]].append(idx)
@@ -150,7 +121,10 @@ class MultiTaskDigitDataset(Dataset):
                 transforms.RandomAffine(degrees=5, translate=(0.04, 0.04)),
                 transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25),
             ]
-        aug += [transforms.ToTensor()]
+        aug += [
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ]
         self.transform = transforms.Compose(aug)
 
     def _get_crop_pil(self, sample):
@@ -179,9 +153,8 @@ class MultiTaskDigitDataset(Dataset):
         label_half = sample["is_half"]
         label_dec = sample["is_decimal"]
 
-        # Synthetic Half-digit Augmentation (chỉ kích hoạt lúc train)
+        # Synthetic Half-digit Augmentation
         if self.train and random.random() < self.synth_prob:
-            # Lấy số kế tiếp trên con lăn: (A -> B = A+1 mod 10)
             next_digit = (label_digit + 1) % 10
             candidates = self.by_digit[next_digit]
             if candidates:
@@ -189,7 +162,6 @@ class MultiTaskDigitDataset(Dataset):
                 cand_sample = self.samples[cand_idx]
                 cand_pil = self._get_crop_pil(cand_sample)
 
-                # Ghép: nửa dưới số A (đang trượt lên) + nửa trên số B (đang trồi lên)
                 split_ratio = random.uniform(0.35, 0.65)
                 h_a = int(crop_pil.height * split_ratio)
                 h_b = int(cand_pil.height * (1.0 - split_ratio))
@@ -197,7 +169,6 @@ class MultiTaskDigitDataset(Dataset):
                 part_a = crop_pil.crop((0, crop_pil.height - h_a, crop_pil.width, crop_pil.height))
                 part_b = cand_pil.crop((0, 0, cand_pil.width, h_b))
 
-                # Đưa về cùng kích thước chiều ngang
                 max_w = max(part_a.width, part_b.width)
                 part_a = part_a.resize((max_w, max(1, part_a.height)))
                 part_b = part_b.resize((max_w, max(1, part_b.height)))
@@ -207,10 +178,9 @@ class MultiTaskDigitDataset(Dataset):
                 synth.paste(part_b, (0, part_a.height))
                 crop_pil = synth
 
-                # Nhãn sau khi ghép:
-                label_digit = next_digit # Số mục tiêu là số đang tiến tới
-                label_half = 1.0         # Chắc chắn là half-digit
-                label_dec = cand_sample["is_decimal"] # Thừa hưởng thuộc tính thập phân của số mới
+                label_digit = next_digit
+                label_half = 1.0
+                label_dec = cand_sample["is_decimal"]
 
         tensor = self.transform(crop_pil)
         return (
@@ -225,9 +195,9 @@ def evaluate(model, loader, device):
     model.eval()
     total = 0
     correct_digit = 0
-
     half_tp, half_fp, half_fn, half_tn = 0, 0, 0, 0
     dec_tp, dec_fp, dec_fn, dec_tn = 0, 0, 0, 0
+    confs = []
 
     with torch.no_grad():
         for imgs, d_lbls, h_lbls, dec_lbls in loader:
@@ -238,19 +208,18 @@ def evaluate(model, loader, device):
 
             d_logits, h_logits, dec_logits = model(imgs)
 
-            # 1. Digit accuracy
-            preds = d_logits.argmax(dim=1)
+            probs = torch.softmax(d_logits, dim=1)
+            max_p, preds = probs.max(dim=1)
             correct_digit += (preds == d_lbls).sum().item()
             total += d_lbls.size(0)
+            confs.extend(max_p.cpu().tolist())
 
-            # 2. Half metrics
             h_preds = (torch.sigmoid(h_logits) >= 0.5).float()
             half_tp += ((h_preds == 1) & (h_lbls == 1)).sum().item()
             half_fp += ((h_preds == 1) & (h_lbls == 0)).sum().item()
             half_fn += ((h_preds == 0) & (h_lbls == 1)).sum().item()
             half_tn += ((h_preds == 0) & (h_lbls == 0)).sum().item()
 
-            # 3. Decimal metrics
             dec_preds = (torch.sigmoid(dec_logits) >= 0.5).float()
             dec_tp += ((dec_preds == 1) & (dec_lbls == 1)).sum().item()
             dec_fp += ((dec_preds == 1) & (dec_lbls == 0)).sum().item()
@@ -267,6 +236,9 @@ def evaluate(model, loader, device):
     dec_r = dec_tp / max(1, dec_tp + dec_fn)
     dec_f1 = 2 * dec_p * dec_r / max(1e-6, dec_p + dec_r)
 
+    mean_conf = np.mean(confs) if confs else 0.0
+    gate_85_ratio = (np.array(confs) >= 0.85).mean() if confs else 0.0
+
     return {
         "digit_acc": digit_acc,
         "half_precision": half_p,
@@ -275,14 +247,16 @@ def evaluate(model, loader, device):
         "dec_precision": dec_p,
         "dec_recall": dec_r,
         "dec_f1": dec_f1,
+        "mean_conf": mean_conf,
+        "gate_85_ratio": gate_85_ratio
     }
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--epochs", type=int, default=45)
+    parser.add_argument("--epochs", type=int, default=20)
     parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--lr", type=float, default=5e-4)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--val_ratio", type=float, default=0.15)
     parser.add_argument("--out_dir", default="/home/deist/Downloads/OCR/anh/output_digit_clf")
@@ -293,13 +267,12 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
 
     print("="*70)
-    print("1. TẢI VÀ CHUẨN BỊ DỮ LIỆU MULTI-TASK")
+    print("1. TẢI VÀ CHUẨN BỊ DỮ LIỆU MULTI-TASK (MobileNetV3)")
     print("="*70)
 
     all_samples = load_all_samples(base_dir)
     print(f"Tổng số mẫu chữ số tải được: {len(all_samples)}")
 
-    # Chia train/val theo ảnh (group_id) để tránh rò rỉ dữ liệu (data leakage)
     groups = list(set(s["group_id"] for s in all_samples))
     random.seed(42)
     random.shuffle(groups)
@@ -313,54 +286,37 @@ def main():
     print(f"Số ảnh: {len(train_groups)} train, {len(val_groups)} val.")
     print(f"Số digit: {len(train_samples)} train, {len(val_samples)} val.")
 
-    train_ds = MultiTaskDigitDataset(train_samples, train=True, synth_prob=0.35)
+    train_ds = MultiTaskDigitDataset(train_samples, train=True, synth_prob=0.12)
     val_ds = MultiTaskDigitDataset(val_samples, train=False, synth_prob=0.0)
 
     train_loader = DataLoader(train_ds, batch_size=args.batch_size, shuffle=True, num_workers=2)
     val_loader = DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=2)
 
     print("\n" + "="*70)
-    print("2. KHỞI TẠO MÔ HÌNH VÀ BỘ TỐI ƯU")
+    print("2. KHỞI TẠO MÔ HÌNH MOBILENETV3-SMALL")
     print("="*70)
 
-    model = MultiTaskDigitCNN(num_classes=10).to(args.device)
+    model = MultiTaskMobileNet(num_classes=10).to(args.device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-3)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
 
-    # Nếu có best_digit_clf.pt cũ, nạp trọng số backbone để hội tụ nhanh
-    old_ckpt = out_dir / "best_digit_clf.pt"
-    if old_ckpt.exists():
-        try:
-            state_dict = torch.load(old_ckpt, map_location=args.device)
-            # Chỉ nạp features
-            feat_dict = {k: v for k, v in state_dict.items() if k.startswith("features.")}
-            model.load_state_dict(feat_dict, strict=False)
-            print(f"✓ Đã nạp thành công Backbone weights từ {old_ckpt.name}")
-        except Exception as e:
-            print(f"Khởi tạo Backbone mới (không nạp weights cũ: {e})")
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", factor=0.5, patience=4)
-
-    crit_digit = nn.CrossEntropyLoss()
-    crit_half = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([3.0]).to(args.device)) # Pos weight vì half ít mẫu hơn
+    crit_digit = nn.CrossEntropyLoss(label_smoothing=0.05)
+    crit_half = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([3.0]).to(args.device))
     crit_dec = nn.BCEWithLogitsLoss(pos_weight=torch.tensor([2.5]).to(args.device))
 
     best_score = 0.0
     best_ckpt_path = out_dir / "best_multitask_digit_clf.pt"
 
     print("\n" + "="*70)
-    print("3. TIẾN TRÌNH HUẤN LUYỆN MULTI-TASK")
+    print("3. TIẾN TRÌNH HUẤN LUYỆN")
     print("="*70)
 
     for epoch in range(1, args.epochs + 1):
         model.train()
         total_loss = 0.0
-        loss_d_sum, loss_h_sum, loss_dec_sum = 0.0, 0.0, 0.0
 
         for imgs, d_lbls, h_lbls, dec_lbls in train_loader:
-            imgs = imgs.to(args.device)
-            d_lbls = d_lbls.to(args.device)
-            h_lbls = h_lbls.to(args.device)
-            dec_lbls = dec_lbls.to(args.device)
+            imgs, d_lbls, h_lbls, dec_lbls = imgs.to(args.device), d_lbls.to(args.device), h_lbls.to(args.device), dec_lbls.to(args.device)
 
             optimizer.zero_grad()
             d_logits, h_logits, dec_logits = model(imgs)
@@ -369,41 +325,30 @@ def main():
             l_half = crit_half(h_logits, h_lbls)
             l_dec = crit_dec(dec_logits, dec_lbls)
 
-            # Multi-task loss
-            loss = l_digit + 0.8 * l_half + 0.8 * l_dec
+            loss = l_digit + 0.6 * l_half + 0.6 * l_dec
             loss.backward()
             optimizer.step()
+            total_loss += loss.item() * imgs.size(0)
 
-            bs = imgs.size(0)
-            total_loss += loss.item() * bs
-            loss_d_sum += l_digit.item() * bs
-            loss_h_sum += l_half.item() * bs
-            loss_dec_sum += l_dec.item() * bs
-
+        scheduler.step()
         metrics = evaluate(model, val_loader, args.device)
-        # Score đánh giá tổng hợp: ưu tiên digit_acc (50%) + half_f1 (25%) + dec_f1 (25%)
-        composite_score = 0.5 * metrics["digit_acc"] + 0.25 * metrics["half_f1"] + 0.25 * metrics["dec_f1"]
-        scheduler.step(composite_score)
-        cur_lr = optimizer.param_groups[0]["lr"]
+        composite_score = 0.5 * metrics["digit_acc"] + 0.25 * metrics["gate_85_ratio"] + 0.25 * metrics["dec_f1"]
 
-        n_train = max(1, len(train_samples))
         print(f"[Epoch {epoch:2d}/{args.epochs}] "
-              f"Loss={total_loss/n_train:.3f} (D:{loss_d_sum/n_train:.2f} H:{loss_h_sum/n_train:.2f} Dec:{loss_dec_sum/n_train:.2f}) | "
-              f"DigitAcc={metrics['digit_acc']*100:.1f}% | "
-              f"Half-F1={metrics['half_f1']*100:.1f}% (P:{metrics['half_precision']*100:.0f}% R:{metrics['half_recall']*100:.0f}%) | "
-              f"Dec-F1={metrics['dec_f1']*100:.1f}% (P:{metrics['dec_precision']*100:.0f}% R:{metrics['dec_recall']*100:.0f}%) | "
-              f"Score={composite_score*100:.1f}% | LR={cur_lr:.1e}")
+              f"Acc={metrics['digit_acc']*100:.1f}% | "
+              f"Gate>=85%={metrics['gate_85_ratio']*100:.1f}% (MeanConf:{metrics['mean_conf']*100:.1f}%) | "
+              f"Dec-F1={metrics['dec_f1']*100:.1f}% | "
+              f"Half-F1={metrics['half_f1']*100:.1f}% | "
+              f"Score={composite_score*100:.1f}%")
 
         if composite_score > best_score:
             best_score = composite_score
             torch.save(model.state_dict(), best_ckpt_path)
-            # Cũng lưu đè best_digit_clf.pt để tương thích ngay với app.py
-            torch.save(model.state_dict(), out_dir / "best_digit_clf.pt")
-            print(f"   ★ Cải thiện mô hình tốt nhất! Đã lưu checkpoint ({composite_score*100:.2f}%)")
+            print(f"   ★ Cải thiện mô hình tốt nhất! Đã lưu checkpoint: {best_ckpt_path.name}")
 
     print("\n" + "="*70)
     print(f"✓ HUẤN LUYỆN HOÀN TẤT! Score tốt nhất: {best_score*100:.2f}%")
-    print(f"Checkpoint đã lưu tại: {best_ckpt_path}")
+    print(f"Checkpoint lưu tại: {best_ckpt_path}")
     print("="*70)
 
 
