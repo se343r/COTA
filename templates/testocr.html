@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full Pipeline Test</title>
+<style>
+  :root { --bg:#0f1216; --panel:#171c23; --line:#2a333f; --text:#dfe6ee; --accent:#4da3ff; }
+  * { box-sizing: border-box; }
+  body { background:var(--bg); color:var(--text); font:14px/1.45 "Segoe UI",system-ui,sans-serif; margin:0; display:flex; height:100vh; overflow:hidden; }
+  .sidebar { width:190px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--line); overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:6px; }
+  .thumb { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:4px; cursor:pointer; border:2px solid transparent; display:block; }
+  .thumb.active { border-color:var(--accent); }
+  .main { flex:1; display:flex; flex-direction:column; padding:12px; overflow:hidden; min-width:0; }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .result-panel { font-size:14px; font-weight:bold; margin-bottom:4px; }
+  .conf-row { font-size:12px; margin-bottom:6px; display:flex; flex-wrap:wrap; gap:4px; min-height:24px; }
+  .canvas-wrap { flex:1; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#070a0d; border-radius:8px; }
+  canvas { max-width:100%; max-height:100%; display:block; }
+  .eval-panel { width:360px; flex-shrink:0; background:var(--panel); border-left:1px solid var(--line); padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .eval-section { background:#1e252e; border:1px solid var(--line); border-radius:6px; padding:10px; }
+  .eval-section > b { font-size:12px; display:block; margin-bottom:8px; }
+  .digit-cards { display:flex; gap:6px; flex-wrap:wrap; }
+  .digit-card { background:#2a333f; border:1px solid #3c495a; border-radius:6px; padding:8px; text-align:center; }
+  .digit-card .pred { font-size:26px; color:var(--accent); font-weight:bold; line-height:1; }
+  .digit-card input[type=text] { width:34px; padding:3px; text-align:center; font-size:18px; font-weight:bold; background:#0f1216; color:#37c978; border:1px solid #37c978; border-radius:4px; margin-top:4px; display:block; }
+  .digit-card label { display:block; margin-top:5px; font-size:11px; color:#ffb340; cursor:pointer; }
+  button { background:#33415a; color:white; border:none; padding:7px 12px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px; }
+  button:hover { background:var(--accent); }
+  .btn-save { background:#1a5a3a; color:white; width:100%; padding:10px; font-size:14px; border-radius:6px; }
+  .btn-save:hover { background:#37c978; color:#0f1216; }
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar"></div>
+
+<div class="main">
+  <div class="toolbar">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <h3 style="margin:0;font-size:15px;">🔍 Test Pipeline (Full OCR)</h3>
+      <select id="batch-select" onchange="changeBatch(this.value)" style="background:#161b22; color:#58a6ff; border:1px solid #30363d; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">
+        <option value="2">⚡ Validate 2 (50 ảnh mới)</option>
+        <option value="1">⚙️ Validate 1 (48 ảnh cũ)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <a href="/validate1" style="background:#1f6feb; color:#fff; text-decoration:none; padding:5px 10px; border-radius:4px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:4px; margin-right:6px;">🛠️ Sửa Validate 1</a>
+      <div style="background:#1e252e; border:1px solid #3c495a; padding:2px 6px; border-radius:4px; display:flex; align-items:center; font-size:12px; height: 28px;">
+        <span style="color:#8b98a8; margin-right:4px;">Elec Slices:</span>
+        <input type="number" id="slice-count-input" value="6" min="4" max="9" style="width:32px; background:#0f1216; color:white; border:none; text-align:center;">
+      </div>
+      <button onclick="prevImage()">◀</button>
+      <button onclick="nextImage()">▶</button>
+      <button onclick="runInference()" style="background:#1a5a3a;">🚀 Detect</button>
+      <button onclick="clearResults()" style="background:#5a1a1a;">🗑️ Xóa kết quả</button>
+    </div>
+  </div>
+  <div class="result-panel" id="result-text" style="color:var(--accent)">—</div>
+  <div class="conf-row" id="conf-row"></div>
+  <div class="canvas-wrap">
+    <canvas id="canvas"></canvas>
+  </div>
+</div>
+
+<div class="eval-panel" id="eval-panel" style="display:none;">
+
+  <div class="eval-section">
+    <b style="color:#4da3ff;">🏷️ Phân loại ảnh</b>
+    <label style="display:block;margin-bottom:4px;"><input type="radio" name="eval-type" value="mechanical" checked> ⚙️ Công tơ cơ</label>
+    <label style="display:block;margin-bottom:4px;"><input type="radio" name="eval-type" value="electronic"> ⚡ Công tơ điện tử</label>
+    <label style="display:block;"><input type="radio" name="eval-type" value="other"> ❌ Rác / Bỏ qua</label>
+  </div>
+
+  <div class="eval-section">
+    <b style="color:#4da3ff;">✅ Model Detect</b>
+    <label style="display:block;margin-bottom:4px;"><input type="checkbox" id="eval-obb" checked> OBB tìm đúng màn hình</label>
+    <label style="display:block;"><input type="checkbox" id="eval-digits" checked onchange="toggleBboxMiss()"> BBox đủ số lượng digit</label>
+    <div id="bbox-miss-panel" style="display:none; margin-top:8px; padding:8px; background:#2a1a1a; border-radius:4px; border:1px solid #5a2a2a;">
+      <div style="font-size:12px; color:#ffb340; margin-bottom:6px;">⚠️ Lý do thiếu digit:</div>
+      <label style="display:block; margin-bottom:3px; font-size:12px;"><input type="radio" name="miss-reason" value="half_digit_not_trained" checked> 🔄 Half-digit chưa được train</label>
+      <label style="display:block; margin-bottom:3px; font-size:12px;"><input type="radio" name="miss-reason" value="blurry_occluded"> 🌫️ Digit bị mờ / bị che</label>
+      <label style="display:block; margin-bottom:3px; font-size:12px;"><input type="radio" name="miss-reason" value="out_of_frame"> ✂️ Digit nằm ngoài khung OBB</label>
+      <label style="display:block; font-size:12px;"><input type="radio" name="miss-reason" value="other"> ❓ Khác</label>
+      <div style="margin-top:6px; font-size:12px; color:#8b98a8;">
+        Dự kiến: <input type="number" id="expected-digit-count" min="1" max="9" value="6" style="width:40px; padding:2px 4px; background:#0f1216; color:white; border:1px solid #5a2a2a; border-radius:3px;"> chữ số &nbsp;|&nbsp; Phát hiện được: <span id="detected-count" style="color:#ff5c5c; font-weight:bold;">0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="eval-section">
+    <b style="color:#37c978;">🎯 OCR từng số (Sửa nếu sai | ⚠️ Half-digit)</b>
+    <div class="digit-cards" id="digit-eval-container"></div>
+  </div>
+
+  <div>
+    <button class="btn-save" onclick="saveEvaluation()">💾 Lưu đánh giá → Next</button>
+    <div id="eval-status" style="text-align:center;margin-top:8px;font-weight:bold;font-size:13px;"></div>
+  </div>
+
+</div>
+
+<script>
+let images = [];
+let currentIdx = -1;
+let currentImgObj = null;
+let savedEvals = {};
+const urlParams = new URLSearchParams(window.location.search);
+let currentBatch = urlParams.get('batch') || "2";
+
+function changeBatch(b) {
+  currentBatch = b;
+  const newUrl = new URL(window.location);
+  newUrl.searchParams.set('batch', b);
+  window.history.pushState({}, '', newUrl);
+  loadList();
+}
+
+async function loadList() {
+  const batchSel = document.getElementById("batch-select");
+  if (batchSel) batchSel.value = currentBatch;
+  
+  images = await fetch(`/api/testocr/images?batch=${currentBatch}`).then(r => r.json());
+  const sidebar = document.getElementById("sidebar");
+  sidebar.innerHTML = "";
+  images.forEach((name, i) => {
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "position:relative;";
+    wrap.id = "thumb-wrap-" + i;
+
+    const img = document.createElement("img");
+    img.className = "thumb";
+    img.src = `/api/testocr/image/${encodeURIComponent(name)}?batch=${currentBatch}`;
+    img.onclick = () => selectImage(i);
+    wrap.appendChild(img);
+
+    const dot = document.createElement("div");
+    dot.id = "eval-dot-" + i;
+    dot.style.cssText = "display:none; position:absolute; top:4px; right:4px; width:10px; height:10px; border-radius:50%; background:#37c978; border:1px solid #0f1216;";
+    wrap.appendChild(dot);
+
+    sidebar.appendChild(wrap);
+  });
+  if (images.length > 0) selectImage(0);
+
+  // Load all saved evals, mark green dots
+  try {
+    const allEvals = await fetch(`/api/testocr/all_evals?batch=${currentBatch}`).then(r => r.json());
+    savedEvals = allEvals || {};
+    images.forEach((name, i) => {
+      if (savedEvals[name]) {
+        const dot = document.getElementById("eval-dot-" + i);
+        if (dot) dot.style.display = "block";
+      }
+    });
+  } catch(e) {}
+}
+
+function selectImage(idx) {
+  if (idx < 0 || idx >= images.length) return;
+  currentIdx = idx;
+  document.querySelectorAll(".thumb").forEach((el, i) => {
+    el.classList.toggle("active", i === idx);
+    if (i === idx) el.scrollIntoView({ block: "nearest" });
+  });
+  const name = images[idx];
+  document.getElementById("result-text").textContent = name;
+  document.getElementById("conf-row").innerHTML = "";
+  document.getElementById("eval-panel").style.display = "none";
+
+  const cv = document.getElementById("canvas");
+  const ctx = cv.getContext("2d");
+  currentImgObj = new Image();
+  currentImgObj.onload = () => {
+    cv.width = currentImgObj.naturalWidth;
+    cv.height = currentImgObj.naturalHeight;
+    ctx.drawImage(currentImgObj, 0, 0);
+    runInference();
+  };
+  currentImgObj.src = `/api/testocr/image/${encodeURIComponent(name)}?batch=${currentBatch}`;
+}
+
+function prevImage() { selectImage(currentIdx - 1); }
+function nextImage() { selectImage(currentIdx + 1); }
+
+async function runInference() {
+  if (currentIdx < 0) return;
+  const name = images[currentIdx];
+  document.getElementById("result-text").innerHTML = `<span style="color:#ffb340">⏳ ${name}</span>`;
+
+  try {
+    const sliceCount = document.getElementById("slice-count-input").value;
+    const res = await fetch(`/api/testocr/infer/${encodeURIComponent(name)}?slice_count=${sliceCount}&batch=${currentBatch}`).then(r => r.json());
+    if (res.error) {
+      document.getElementById("result-text").innerHTML = `<span style="color:#ff5c5c">❌ ${res.error}</span>`;
+      return;
+    }
+
+    const cv = document.getElementById("canvas");
+    const ctx = cv.getContext("2d");
+    ctx.drawImage(currentImgObj, 0, 0);
+
+    // OBB
+    ctx.strokeStyle = "#4da3ff";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    const pts = res.quad;
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (let i = 1; i < 4; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+    ctx.stroke();
+
+    let finalStr = "";
+    let confHtml = "";
+    let cardsHtml = "";
+
+    res.digits.forEach((d, i) => {
+      finalStr += d.char;
+
+      if (d.box_orig) {
+        ctx.strokeStyle = "#ff4da3";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(d.box_orig[0][0], d.box_orig[0][1]);
+        for (let j = 1; j < 4; j++) ctx.lineTo(d.box_orig[j][0], d.box_orig[j][1]);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle = "#ff4da3";
+        ctx.font = "bold 22px Arial";
+        ctx.fillText(d.char, d.box_orig[0][0], d.box_orig[0][1] - 4);
+      }
+
+      if (d.ocr_conf !== undefined) {
+        const bc = (d.conf * 100).toFixed(1);
+        const oc = (d.ocr_conf * 100).toFixed(1);
+        let midTag = "";
+        if (d.is_mid_roll && d.mid_roll_info) {
+          midTag = `<span style="color:#ffb340;font-size:10px;font-weight:bold;margin-left:4px;">⚠️ Mid-roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2}, Δ:${d.mid_roll_info.margin})</span>`;
+        }
+        confHtml += `<span style="background:#1e252e;padding:2px 6px;border-radius:4px;border:1px solid ${d.is_mid_roll ? '#ffb340' : '#2a333f'};">
+          <b style="color:${d.is_mid_roll ? '#ffb340' : '#4da3ff'}">${d.char}</b>
+          <span style="color:#8b98a8;font-size:11px"> B:${bc}% O:${oc}%</span>${midTag}
+        </span>`;
+      }
+
+      const isMid = d.is_mid_roll ? "checked" : "";
+      const midInfoBadge = (d.is_mid_roll && d.mid_roll_info) 
+        ? `<div style="color:#ffb340;font-size:10px;margin-top:2px;font-weight:bold;">⚠️ Roll (${d.mid_roll_info.top1}↔${d.mid_roll_info.top2})</div>` 
+        : "";
+
+      cardsHtml += `
+        <div class="digit-card" id="card-${i}" style="${d.is_mid_roll ? 'border-color:#ffb340;' : ''}">
+          <div class="pred" style="${d.is_mid_roll ? 'color:#ffb340;' : ''}">${d.char}</div>
+          ${midInfoBadge}
+          <input type="text" id="actual-digit-${i}" value="${d.char}" title="Số thực tế">
+          <label><input type="checkbox" id="half-digit-${i}" ${isMid}> ⚠️ Half</label>
+          <label style="color:#ff5c5c;margin-top:3px;">
+            <input type="checkbox" id="spurious-${i}" onchange="toggleSpurious(${i})"> ❌ Thừa
+          </label>
+        </div>`;
+    });
+
+    document.getElementById("result-text").innerHTML =
+      `<span style="color:#37c978">✅ ${finalStr}</span> <span style="color:#8b98a8;font-size:11px">(Class: ${res.class_id})</span>`;
+    document.getElementById("conf-row").innerHTML = confHtml;
+    document.getElementById("digit-eval-container").innerHTML = cardsHtml;
+    document.getElementById("detected-count").textContent = res.digits.length;
+    document.getElementById("eval-digits").checked = true;
+    document.getElementById("bbox-miss-panel").style.display = "none";
+    document.getElementById("eval-panel").style.display = "flex";
+    document.getElementById("eval-panel").style.flexDirection = "column";
+    document.getElementById("eval-status").textContent = "";
+
+    // Populate saved eval if exists
+    populateSavedEval(images[currentIdx]);
+
+  } catch (e) {
+    document.getElementById("result-text").innerHTML = `<span style="color:#ff5c5c">❌ ${e}</span>`;
+  }
+}
+
+async function saveEvaluation() {
+  if (currentIdx < 0) return;
+  const name = images[currentIdx];
+  const statusEl = document.getElementById("eval-status");
+  statusEl.style.color = "#ffb340";
+  statusEl.textContent = "Đang lưu...";
+
+  const type = document.querySelector('input[name="eval-type"]:checked').value;
+  const obb = document.getElementById("eval-obb").checked;
+  const digits_bbox_correct = document.getElementById("eval-digits").checked;
+
+  const digit_details = [];
+  let actual_text = "";
+  document.querySelectorAll('[id^="actual-digit-"]').forEach((el, i) => {
+    const actual = el.value;
+    const is_half = document.getElementById("half-digit-" + i).checked;
+    const is_spurious = document.getElementById("spurious-" + i) ? document.getElementById("spurious-" + i).checked : false;
+    actual_text += is_spurious ? "" : actual;
+    digit_details.push({ actual, is_half, is_spurious });
+  });
+
+  const bbox_miss_reason = digits_bbox_correct ? null : (document.querySelector('input[name="miss-reason"]:checked')?.value || null);
+  const expected_digit_count = digits_bbox_correct ? null : parseInt(document.getElementById("expected-digit-count").value);
+
+  try {
+    const res = await fetch(`/api/testocr/evaluate/${encodeURIComponent(name)}?batch=${currentBatch}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, obb, digits_bbox_correct, actual_text, digit_details, bbox_miss_reason, expected_digit_count })
+    }).then(r => r.json());
+
+    if (res.ok) {
+      // Update local cache + mark dot
+      savedEvals[name] = { type, obb, digits_bbox_correct, actual_text, digit_details, bbox_miss_reason, expected_digit_count };
+      const dot = document.getElementById("eval-dot-" + currentIdx);
+      if (dot) dot.style.display = "block";
+      statusEl.style.color = "#37c978";
+      statusEl.textContent = "✔️ Đã lưu!";
+      setTimeout(() => nextImage(), 600);
+    } else {
+      statusEl.style.color = "#ff5c5c";
+      statusEl.textContent = "❌ " + (res.error || "Lỗi");
+    }
+  } catch (e) {
+    statusEl.style.color = "#ff5c5c";
+    statusEl.textContent = "❌ " + e;
+  }
+}
+
+
+
+function populateSavedEval(name) {
+  const ev = savedEvals[name];
+  if (!ev) {
+    document.getElementById("eval-status").textContent = "";
+    document.getElementById("eval-status").style.color = "#8b98a8";
+    return;
+  }
+
+  // Show indicator
+  document.getElementById("eval-status").style.color = "#37c978";
+  document.getElementById("eval-status").textContent = "✔️ Đã có đánh giá — đang hiển thị";
+
+  // Meter type
+  const typeEl = document.querySelector(`input[name="eval-type"][value="${ev.type}"]`);
+  if (typeEl) typeEl.checked = true;
+
+  // OBB
+  if (ev.obb !== undefined) document.getElementById("eval-obb").checked = ev.obb;
+
+  // BBox
+  if (ev.digits_bbox_correct !== undefined) {
+    document.getElementById("eval-digits").checked = ev.digits_bbox_correct;
+    document.getElementById("bbox-miss-panel").style.display = ev.digits_bbox_correct ? "none" : "block";
+    if (!ev.digits_bbox_correct && ev.bbox_miss_reason) {
+      const r = document.querySelector(`input[name="miss-reason"][value="${ev.bbox_miss_reason}"]`);
+      if (r) r.checked = true;
+    }
+    if (ev.expected_digit_count) document.getElementById("expected-digit-count").value = ev.expected_digit_count;
+  }
+
+  // Per-digit details
+  if (ev.digit_details) {
+    ev.digit_details.forEach((d, i) => {
+      const inp = document.getElementById("actual-digit-" + i);
+      if (inp && d.actual !== undefined) inp.value = d.actual;
+      const half = document.getElementById("half-digit-" + i);
+      if (half) half.checked = !!d.is_half;
+      const spurious = document.getElementById("spurious-" + i);
+      if (spurious) {
+        spurious.checked = !!d.is_spurious;
+        if (d.is_spurious) toggleSpurious(i);
+      }
+    });
+  }
+}
+
+function toggleBboxMiss() {
+  const checked = document.getElementById("eval-digits").checked;
+  document.getElementById("bbox-miss-panel").style.display = checked ? "none" : "block";
+}
+
+function toggleSpurious(i) {
+  const card = document.getElementById("card-" + i);
+  const checked = document.getElementById("spurious-" + i).checked;
+  card.style.opacity = checked ? "0.35" : "1";
+  card.style.border = checked ? "1px solid #ff5c5c" : "1px solid #3c495a";
+  card.style.background = checked ? "#3a1a1a" : "#2a333f";
+}
+
+function clearResults() {
+  if (!currentImgObj) return;
+  const cv = document.getElementById("canvas");
+  const ctx = cv.getContext("2d");
+  cv.width = currentImgObj.naturalWidth;
+  cv.height = currentImgObj.naturalHeight;
+  ctx.drawImage(currentImgObj, 0, 0);
+  document.getElementById("result-text").style.color = "var(--accent)";
+  document.getElementById("result-text").textContent = images[currentIdx] || "—";
+  document.getElementById("conf-row").innerHTML = "";
+  document.getElementById("eval-panel").style.display = "none";
+}
+
+loadList();
+</script>
+</body>
+</html>

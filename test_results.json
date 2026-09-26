@@ -1,0 +1,2601 @@
+{
+ "2aoboqvcq2ebaxvn3ujutoe6pz8xgtjrhsnmwzie1043.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": -1.828465840892079,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.906,
+    "cx": 484.9207458496094,
+    "cy": 484.6669006347656,
+    "h": 65.94159488010922,
+    "w": 226.79583619731832
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:11.867600+00:00"
+ },
+ "2aoboqvcq60i8wa2oqgkfb7pcfm61rksaxkevwio1047.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": -0.280214490943564,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.941,
+    "cx": 469.84002685546875,
+    "cy": 630.3038940429688,
+    "h": 142.56713478685512,
+    "w": 386.5298911741067
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:49.776076+00:00"
+ },
+ "2aoboqvcq77nxqjcdvt9nakhixmqelofac4fe19u1046.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": 3.0478902354410877,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.937,
+    "cx": 297.1729431152344,
+    "cy": 436.20169830322266,
+    "h": 175.6049408903797,
+    "w": 505.7959872915231
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:50.699714+00:00"
+ },
+ "2aoboqvcq8ytekklmmotyvewsttgcpdkso0ki3601045.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.23746769840431625,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.927,
+    "cx": 446.40611267089844,
+    "cy": 687.25048828125,
+    "h": 127.37487345588367,
+    "w": 376.3797585346908
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:51.994521+00:00"
+ },
+ "2aoboqvcq9bwqtzi9g74m0xtqz56ncalvaxzuqjg1068.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 8.912490428291903,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.912,
+    "cx": 491.5799255371094,
+    "cy": 438.9410095214844,
+    "h": 92.24646800682301,
+    "w": 616.4073511642106
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:53.479522+00:00"
+ },
+ "2aoboqvcq9otfkdyraqfj0ijih9uw7vpengn74nq1066.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 17.042753565682972,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.87,
+    "cx": 391.2013854980469,
+    "cy": 549.5542602539062,
+    "h": 74.49868689180293,
+    "w": 532.7378133339835
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:54.421992+00:00"
+ },
+ "2aoboqvcqazl1wlwabxqiw6pfhcy7g0ccommapbo1071.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.3973486531048991,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.91,
+    "cx": 492.1944580078125,
+    "cy": 480.1512451171875,
+    "h": 90.79411438650111,
+    "w": 638.5248915487261
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:55.235789+00:00"
+ },
+ "2aoboqvcqbrntxi6ooizymr3sgwmirbegbgezc3e1069.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 10.253402907824864,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.909,
+    "cx": 453.0213165283203,
+    "cy": 582.636116027832,
+    "h": 81.40811635274041,
+    "w": 548.815648130245
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:56.062318+00:00"
+ },
+ "2aoboqvcsc9gqbjce7uwapua32hbxudkh0xlrmm81059.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 7.6054113896004765,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.895,
+    "cx": 602.7590942382812,
+    "cy": 469.7896957397461,
+    "h": 71.47879996886059,
+    "w": 470.5314561154252
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:56.892472+00:00"
+ },
+ "2aoboqvcse1mvpvl3xnnqclk2uiknm964ldllv6g1065.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.6153317555591116,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.907,
+    "cx": 430.78016662597656,
+    "cy": 546.0366668701172,
+    "h": 82.52859405441868,
+    "w": 570.9003393910288
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:57.621534+00:00"
+ },
+ "2aoboqvcsfg2fjo4bhh4sonrd9382eynahzz34c41063.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.23661734532169,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.901,
+    "cx": 492.98265075683594,
+    "cy": 561.000732421875,
+    "h": 90.90892674285861,
+    "w": 639.4078990143778
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:58.469100+00:00"
+ },
+ "2aoboqvcsk6sibcjkehpvi81phiumnrltsxnfeko1074.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.4904412814384784,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.91,
+    "cx": 649.6320343017578,
+    "cy": 713.0372314453125,
+    "h": 75.22046186831247,
+    "w": 542.472425969472
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:59.200005+00:00"
+ },
+ "2aoboqvcsnadz5yatgnm5sl2gppofa0zexowcbry1079.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.281857781367705,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.89,
+    "cx": 535.5076141357422,
+    "cy": 593.396728515625,
+    "h": 67.57575174254703,
+    "w": 510.0190175444107
+   }
+  ],
+  "testedAt": "2026-09-13T12:14:59.801593+00:00"
+ },
+ "2aoboqvcsqzsijceselxwg7v3rytu3ui3u6iqoio1041.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": -15.382242279506158,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.909,
+    "cx": 431.96383476257324,
+    "cy": 696.0977783203125,
+    "h": 195.51048202551834,
+    "w": 581.5969098494523
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:01.379833+00:00"
+ },
+ "2aoboqvcstebxkf9bt8gcqjr7anljw0q31cggga41044.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": 0.8794233885215874,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.949,
+    "cx": 457.1416931152344,
+    "cy": 646.610107421875,
+    "h": 196.31926769021226,
+    "w": 590.7770619962695
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:02.511728+00:00"
+ },
+ "2aoboqvcsuvqfjykknw9s3rqv2bvwoamgxi0x2ei1087.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.4218724894275,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.907,
+    "cx": 427.57804107666016,
+    "cy": 435.48455810546875,
+    "h": 58.897886843832644,
+    "w": 435.91894680619293
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:03.522000+00:00"
+ },
+ "2aoboqvcsz9hx47vs0ng5nwxvqt8usqtkaakhble1073.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.15130390290895,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.905,
+    "cx": 431.57859802246094,
+    "cy": 544.0003662109375,
+    "h": 76.1106995960892,
+    "w": 572.5432634374285
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:04.471362+00:00"
+ },
+ "2aoboqvct2iai92r0ocxxzofobvnmoxiziwacf041062.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.176298908667718,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.915,
+    "cx": 410.92138671875,
+    "cy": 554.0381469726562,
+    "h": 76.18097246989761,
+    "w": 537.4011847270349
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:05.053735+00:00"
+ },
+ "2aoboqvct4mstrlai8znqcgvmstdxfm8vdbw0jxm1057.jpg": {
+  "ok": false,
+  "boxes": [
+   {
+    "angleDeg": -1.9209232846449709,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.917,
+    "cx": 440.43907165527344,
+    "cy": 702.3701171875,
+    "h": 133.59741723570787,
+    "w": 655.1853255131026
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:05.943166+00:00"
+ },
+ "2aoboqvct8djqxqsz0aiiwqxax7pdcosrvjmbipa1055.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.36291039861447416,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.875,
+    "cx": 490.2811279296875,
+    "cy": 576.5075073242188,
+    "h": 128.35316069518905,
+    "w": 396.12525568163056
+   },
+   {
+    "angleDeg": -1.9577499780882022,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.682,
+    "cx": 493.00469970703125,
+    "cy": 614.0675659179688,
+    "h": 74.37190414014036,
+    "w": 404.438680998537
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:09.360767+00:00"
+ },
+ "2aoboqvxa4u4ltaaak7ymwhpwmev0wsav0xfqinm36.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 4.930134149565362,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.903,
+    "cx": 406.29736328125,
+    "cy": 449.5373840332031,
+    "h": 122.92654288422764,
+    "w": 337.0987642364091
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:16.286417+00:00"
+ },
+ "2aoboqvxa4whkwfzjeglvwqphofnl10vjm1pbxqg37.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.7305645810203885,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.966,
+    "cx": 417.4738464355469,
+    "cy": 497.6874084472656,
+    "h": 294.31997163243796,
+    "w": 747.3303001607662
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:17.265074+00:00"
+ },
+ "2aoboqvxrexccclczw2kmcsnxti3jkg2vmalpc1i991.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.3355267484935212,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.898,
+    "cx": 566.8187255859375,
+    "cy": 530.6669464111328,
+    "h": 97.29763976554055,
+    "w": 604.7415182308813
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:19.064865+00:00"
+ },
+ "2aoboqvxrezegvivajugfj6ek7wgsx5hm9zxaijo994.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.1406210386859641,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.934,
+    "cx": 306.4912796020508,
+    "cy": 673.0985107421875,
+    "h": 163.9199273736692,
+    "w": 445.9950032177885
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:19.949550+00:00"
+ },
+ "2aoboqvxrfdgi2vl7oddzeqlnu4xhxpjyreplc3e1017.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.0017543257635,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.918,
+    "cx": 617.8832397460938,
+    "cy": 389.0897216796875,
+    "h": 118.24581233852413,
+    "w": 665.9391055455047
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:31.185608+00:00"
+ },
+ "2aoboqvxrffkoq8w59sh3dalxtvh0gimcaxssa401000.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.338984323513074,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.87,
+    "cx": 468.31873321533203,
+    "cy": 262.57665252685547,
+    "h": 75.24080122984425,
+    "w": 485.0058548887802
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:27.562576+00:00"
+ },
+ "2aoboqvxrffx2elzmzicf53pjwfipt5jz1n3leyq1015.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 3.0951535603957723,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.924,
+    "cx": 617.34814453125,
+    "cy": 652.692138671875,
+    "h": 99.34706944281949,
+    "w": 613.1283847705027
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:28.289515+00:00"
+ },
+ "2aoboqvxrfzdonaxk8zrkoucuyyumor59slvreqm1014.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.8162057531090738,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.919,
+    "cx": 417.61936950683594,
+    "cy": 412.35235595703125,
+    "h": 112.26779979579999,
+    "w": 689.8966987424582
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:28.866242+00:00"
+ },
+ "2aoboqvxrvjlhrkcdmo6ddfmabpavt2ypycgvpaq1026.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.4010439409111655,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.955,
+    "cx": 260.6422424316406,
+    "cy": 540.5401458740234,
+    "h": 153.13651013173717,
+    "w": 440.5643988363029
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:34.576214+00:00"
+ },
+ "2aoboqvxs8wkn1wfve5lppatyi8jnzksqxtfgcwm989.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.3953225822974105,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.912,
+    "cx": 413.34642028808594,
+    "cy": 401.2459716796875,
+    "h": 95.51692658137713,
+    "w": 577.2025221378375
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:35.413899+00:00"
+ },
+ "2aoboqvxsda2l3ul21swfo1dsk4ohqi7g8t5tgao952.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -11.681846270419385,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.879,
+    "cx": 370.27003479003906,
+    "cy": 641.3042602539062,
+    "h": 62.89590371126275,
+    "w": 464.14529913637415
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:36.033536+00:00"
+ },
+ "2aoboqvxsda4lsqixeki68vx2tls1zlay9zem9jc946.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.9760895623642796,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.918,
+    "cx": 456.36314392089844,
+    "cy": 381.48797607421875,
+    "h": 98.3922543262815,
+    "w": 614.9406996555263
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:36.726573+00:00"
+ },
+ "2aoboqvxsdewttwt8n0x9hgcqycqcqluklotfgre955.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.4085032348523896,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.907,
+    "cx": 411.1828918457031,
+    "cy": 336.2121887207031,
+    "h": 106.58750336999778,
+    "w": 664.1312607949814
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:37.313772+00:00"
+ },
+ "2aoboqvxsdnaph2spkv59zbq9gvhhbbumctgiwxc965.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.42767225227476047,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.901,
+    "cx": 322.16241455078125,
+    "cy": 482.2392272949219,
+    "h": 88.13557273121114,
+    "w": 604.3153100851357
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:39.487840+00:00"
+ },
+ "2aoboqvxsdqysyjvwrqwdi1e7nzt5pryzfowruws959.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.3455374372499023,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.915,
+    "cx": 432.8358612060547,
+    "cy": 285.27593994140625,
+    "h": 123.93598684879521,
+    "w": 712.7791925184206
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:40.838131+00:00"
+ },
+ "2aoboqvxsdryriuumaothjhcfkz555l3c2xfpnhs967.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.1825223505570932,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.931,
+    "cx": 324.46461486816406,
+    "cy": 268.53533935546875,
+    "h": 114.96051771150161,
+    "w": 650.5574406138913
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:41.452969+00:00"
+ },
+ "2aoboqvxsdydaei1dduix906xzzlpmgjgrfnkhxc963.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.3558754615953603,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.951,
+    "cx": 387.1770477294922,
+    "cy": 610.9280395507812,
+    "h": 231.90828203833357,
+    "w": 584.8651864411228
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:42.813980+00:00"
+ },
+ "2aoboqvxse9ngjz1irdcwllqn4eqqjbhnisi8rby982.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.317546355407984,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.939,
+    "cx": 251.0627670288086,
+    "cy": 369.13916015625,
+    "h": 169.84617525424778,
+    "w": 452.5975349199232
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:43.569605+00:00"
+ },
+ "2aoboqvxsed3aw8u56b40jsyp7kyatpee9ejyhkk985.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.21806421233588935,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.919,
+    "cx": 329.814208984375,
+    "cy": 387.0455017089844,
+    "h": 104.39955983839316,
+    "w": 617.9002252345849
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:44.180857+00:00"
+ },
+ "2aoboqvxsjdqkunjvfjytu718minitiytuvk2a8m909.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.2888196660050824,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.921,
+    "cx": 481.01695251464844,
+    "cy": 564.9563674926758,
+    "h": 96.6491752478764,
+    "w": 604.8727946607826
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:44.865027+00:00"
+ },
+ "2aoboqvxsjios5g88mparespapepcoixgnhamjvq900.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.41795758103927483,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.902,
+    "cx": 508.0603485107422,
+    "cy": 818.8640747070312,
+    "h": 100.41038612587242,
+    "w": 605.258413358984
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:45.454768+00:00"
+ },
+ "2aoboqvxsjo9hpjgabh9f53ghvf0qv5foikgimuu901.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 3.348974734595231,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.908,
+    "cx": 289.68458557128906,
+    "cy": 646.7877807617188,
+    "h": 73.04099472530737,
+    "w": 491.10133269038806
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:42.081104+00:00"
+ },
+ "2aoboqvxsjsf2k1htud7jqd0c1x1ktsuoqnzpgci906.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.9147663371910255,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.916,
+    "cx": 409.58935546875,
+    "cy": 635.7271118164062,
+    "h": 89.70772327087239,
+    "w": 616.6593725466934
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:50.277865+00:00"
+ },
+ "2aoboqvxsjt0viuh0m4pusirwnk2dwa3dqarc9sq903.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.591955033531207,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.933,
+    "cx": 323.38604724407196,
+    "cy": 369.83251953125,
+    "h": 115.56326208448752,
+    "w": 644.383586501125
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:51.722252+00:00"
+ },
+ "2aoboqvxsjxamoismmj5obqnwtnsu8jf2gmvwzui908.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.4681792395447246,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.914,
+    "cx": 350.9720458984375,
+    "cy": 629.2586669921875,
+    "h": 115.155577508381,
+    "w": 684.3915233928461
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:52.653288+00:00"
+ },
+ "2aoboqvxskmgncccg0lulapou6l8umek17piox3a936.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.4098676206726566,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.925,
+    "cx": 348.5175247192383,
+    "cy": 586.813720703125,
+    "h": 134.29761469472524,
+    "w": 394.8971209487893
+   }
+  ],
+  "testedAt": "2026-09-13T12:15:55.776136+00:00"
+ },
+ "2aoboqvxtjmcc3d9afvdecg9hnpletu6nvgg2d7g846.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.30548515854468405,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.894,
+    "cx": 442.5316619873047,
+    "cy": 573.4367065429688,
+    "h": 278.4503689470279,
+    "w": 656.7948883951748
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:52.587963+00:00"
+ },
+ "2aoboqvxtjzvbdbpkvqv6azkwgjagamebj4bex84853.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.072484117107791,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.943,
+    "cx": 362.72278594970703,
+    "cy": 486.17266845703125,
+    "h": 173.41014828346908,
+    "w": 456.44061552964865
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:01.596433+00:00"
+ },
+ "2aoboqvxtk6tqqr8obop4syfxtmhiqhalq41t9kg851.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.1890755786355953,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.914,
+    "cx": 618.9046020507812,
+    "cy": 487.70501708984375,
+    "h": 82.13597340861769,
+    "w": 502.46855397865323
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:05.555408+00:00"
+ },
+ "2aoboqvxtkeh5jvhjfyzanv5sdq7ok1qudzgetgq879.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.309652499782942,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.934,
+    "cx": 337.61547088623047,
+    "cy": 299.7170715332031,
+    "h": 178.44574782889305,
+    "w": 448.2208150715708
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:55.976486+00:00"
+ },
+ "2aoboqvxtkhkpoxgzrjt0fwjpr6u7idoyizcw0wa881.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.9814522894877484,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.957,
+    "cx": 426.7642364501953,
+    "cy": 234.59983825683594,
+    "h": 291.43724137959174,
+    "w": 614.0472158031687
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:09.659211+00:00"
+ },
+ "2aoboqvxtkj0fh5ogvi01sgfu9mekhkmjvcilkjc880.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.832072398832878,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.931,
+    "cx": 280.08834850788116,
+    "cy": 414.7540740966797,
+    "h": 237.3474303737783,
+    "w": 569.4076005768403
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:10.725439+00:00"
+ },
+ "2aoboqvxtkkzuqpodqn5pbcn867akf9zgk3qyyjm855.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.9683911809906363,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 335.9182586669922,
+    "cy": 533.0942993164062,
+    "h": 122.15227791397503,
+    "w": 670.0759563622768
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:11.714443+00:00"
+ },
+ "2aoboqvxtkokggrcq55k9psenhjele2f8xj7e9s4842.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.883223870822377,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.903,
+    "cx": 480.0855712890625,
+    "cy": 587.7114868164062,
+    "h": 103.97841829854674,
+    "w": 667.9256705915997
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:12.571582+00:00"
+ },
+ "2aoboqvxtkrvjf8kbtsnx8benlmlvfh44kmnww2q865.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -4.466871299470824,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.906,
+    "cx": 368.8297576904297,
+    "cy": 412.99395751953125,
+    "h": 134.611270161249,
+    "w": 739.9013871071849
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:13.350522+00:00"
+ },
+ "2aoboqvxtkv2fbsruaxzvt0da8krrwhaybiqpots871.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.5007567779090039,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.909,
+    "cx": 364.43931579589844,
+    "cy": 493.4383239746094,
+    "h": 120.605558486102,
+    "w": 701.3871763350539
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:14.073497+00:00"
+ },
+ "2aoboqvxtkw8mcf3ap1l8ubb0msby8dw4mptenls845.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.4838162791104139,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.904,
+    "cx": 453.94989013671875,
+    "cy": 415.105712890625,
+    "h": 98.50039928482502,
+    "w": 598.7441094479435
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:14.644896+00:00"
+ },
+ "2aoboqvxtkzhnvznr0wcfrypvoztuwxedcmmcw9w873.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.169267244182123,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.915,
+    "cx": 383.86906439065933,
+    "cy": 436.1618957519531,
+    "h": 124.14878259171192,
+    "w": 759.9585650336762
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:15.493238+00:00"
+ },
+ "2aoboqvxtmzvriav5q6cgxhsrssklw3adocswu1o789.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -9.561916258380734,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.959,
+    "cx": 356.6404266357422,
+    "cy": 559.5361938476562,
+    "h": 136.50229878338098,
+    "w": 375.1314268155089
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:16.463103+00:00"
+ },
+ "2aoboqvxtopsy5ghxvpclg84d4rlgtkmrgktmnaa747.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.4062904695366285,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.932,
+    "cx": 482.8928680419922,
+    "cy": 291.9498291015625,
+    "h": 120.20059248207836,
+    "w": 308.65973779728745
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:18.114253+00:00"
+ },
+ "2aoboqvxtovvach53ur2lap5u66udbzsbypnogx6744.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.7455565337635903,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.956,
+    "cx": 427.0015106201172,
+    "cy": 518.5323486328125,
+    "h": 213.13010493360025,
+    "w": 563.6865310715771
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:23.621716+00:00"
+ },
+ "2aoboqvxtp1ld2zz3qfv7obrseu5me355eutb8tc748.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.6727554437806589,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.938,
+    "cx": 334.14405059814453,
+    "cy": 473.1929931640625,
+    "h": 141.89439391587325,
+    "w": 398.03363316376897
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:25.923750+00:00"
+ },
+ "2aoboqvxtp3bxepnibktneon8p78abt4f3nxyvj6746.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.153410360172586,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.929,
+    "cx": 509.3486328125,
+    "cy": 316.8369445800781,
+    "h": 116.35866113166871,
+    "w": 309.0282941235766
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:31.898678+00:00"
+ },
+ "2aoboqvxtphpnpxwe1ei2igwmbcufj2maismxur2770.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.9162262442317797,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.904,
+    "cx": 629.4925689697266,
+    "cy": 586.99853515625,
+    "h": 130.29668832924065,
+    "w": 654.5336066696615
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:33.107613+00:00"
+ },
+ "2aoboqvxtprdxfmitwa34zcjeg3v2huneoztbikq777.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.686517405694957,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.93,
+    "cx": 440.50758361816406,
+    "cy": 327.434326171875,
+    "h": 118.05565636765938,
+    "w": 298.40438075288773
+   }
+  ],
+  "testedAt": "2026-09-13T13:12:05.232306+00:00"
+ },
+ "2aoboqvxtpsuzc9tn7vhgduvh9tydvdih9anjy0m764.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.804968188389097,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.96,
+    "cx": 362.0035705566406,
+    "cy": 563.00537109375,
+    "h": 255.98699758793788,
+    "w": 656.2850109873605
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:38.501788+00:00"
+ },
+ "2aoboqvxu1ucmdodum4op9gycveu4frfgzznkek4641.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 4.092632473114463,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.914,
+    "cx": 435.69496154785156,
+    "cy": 467.19783782958984,
+    "h": 131.24596859744022,
+    "w": 793.0376328337135
+   }
+  ],
+  "testedAt": "2026-09-13T13:12:12.028666+00:00"
+ },
+ "2aoboqvxuamq3i2pjgggzcwoiii4jpjncvnjbypi572.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -4.171397365881319,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.896,
+    "cx": 359.8521270751953,
+    "cy": 436.7135925292969,
+    "h": 83.89454777380354,
+    "w": 559.2520985270796
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:47.358782+00:00"
+ },
+ "2aoboqvxuapkv81knsiglieob5owkuntp7yuyb0q540.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.14970463595588512,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.607,
+    "cx": 522.84521484375,
+    "cy": 478.8843078613281,
+    "h": 252.74311132705998,
+    "w": 573.0610534118035
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:48.388429+00:00"
+ },
+ "2aoboqvxuas2lozuxd1rayenqfpxao7wlf1no3pm561.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.2022336456982146,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.901,
+    "cx": 303.80201721191406,
+    "cy": 474.29302978515625,
+    "h": 85.6044867281471,
+    "w": 550.4769419114513
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:49.241176+00:00"
+ },
+ "2aoboqvxubc1mmycszpkvavmph9w1fbstdjiokti585.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.282289689310403,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.933,
+    "cx": 665.5169525146484,
+    "cy": 501.8990173339844,
+    "h": 106.4399637496195,
+    "w": 491.20022086397717
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:49.891762+00:00"
+ },
+ "2aoboqvxubcq6zxzue9fmxwgy1a9b7z21gmsdfzm587.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.3399609414146596,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.934,
+    "cx": 463.8475646972656,
+    "cy": 224.80349731445312,
+    "h": 103.39354394336631,
+    "w": 251.4687515028359
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:50.635732+00:00"
+ },
+ "2aoboqvxuhfikwnbve7psjpav3nsa7ywqt5uakfe644.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.21542064852110343,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 374.65696715936065,
+    "cy": 389.943359375,
+    "h": 117.26315804624366,
+    "w": 749.0534388576228
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:51.412956+00:00"
+ },
+ "2aoboqvxuhfngib77rklxb3bifcwijpzshhijsgo657.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.1370370143227433,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.956,
+    "cx": 331.1940612792969,
+    "cy": 539.7236328125,
+    "h": 261.70032161378055,
+    "w": 665.3657569966356
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:52.881103+00:00"
+ },
+ "2aoboqvxuhii28dku630hpoumvgqso5ztwzrfx7a659.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.32384227314253167,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.905,
+    "cx": 381.26607513427734,
+    "cy": 424.1739807128906,
+    "h": 142.05543039609702,
+    "w": 399.21713115099834
+   }
+  ],
+  "testedAt": "2026-09-13T12:16:59.050600+00:00"
+ },
+ "2aoboqvxuhnuonvajqgjgwxx4dp4c5buyenprzre664.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.3643979448466155,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.808,
+    "cx": 292.10179138183594,
+    "cy": 417.3215026855469,
+    "h": 306.2469776850148,
+    "w": 596.7718878924904
+   }
+  ],
+  "testedAt": "2026-09-13T12:17:00.081485+00:00"
+ },
+ "2aoboqvxuhnuonvajqgjgwynlxh2hgy73xqhe0wk667.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.3382958495312778,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.967,
+    "cx": 334.76853942871094,
+    "cy": 365.7032775878906,
+    "h": 298.87645586708913,
+    "w": 698.8554623879248
+   }
+  ],
+  "testedAt": "2026-09-13T12:17:00.902225+00:00"
+ },
+ "2aoboqvxuhnuonvajqgjgx4ujpt1aq54uvxfozws660.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.7787992992233228,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.892,
+    "cx": 502.6159973144531,
+    "cy": 507.11708068847656,
+    "h": 71.87646260816136,
+    "w": 395.14179855616703
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:37.157891+00:00"
+ },
+ "2aoboqvxuhq7nqaz2lf7fx7fxgj44kaz8usv0lo0662.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.7402797747244279,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.913,
+    "cx": 358.7405471801758,
+    "cy": 346.5876770019531,
+    "h": 60.54867794244284,
+    "w": 382.6898948746958
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:38.193878+00:00"
+ },
+ "2aoboqvxuhtlgno4jmumtaj4yyiehbgtbhsdqa0g663.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.2135991347944355,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.924,
+    "cx": 475.4199676513672,
+    "cy": 242.523193359375,
+    "h": 91.25164097150324,
+    "w": 527.5274511640293
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:38.963685+00:00"
+ },
+ "2aoboqvxuhtqtu2zr4hgryotnkerxbiesbzfwlqs669.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -5.3471622050262795,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.949,
+    "cx": 392.2791290283203,
+    "cy": 558.5694580078125,
+    "h": 265.88862682914765,
+    "w": 656.4053963592507
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:39.860728+00:00"
+ },
+ "2aoboqvxuhviqaxrimjmigclwzatdadbf9hbmfo0656.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.60092858650421,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.907,
+    "cx": 407.8606719970703,
+    "cy": 537.216552734375,
+    "h": 53.988305055764705,
+    "w": 326.318640113455
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:40.653835+00:00"
+ },
+ "2aoboqvxuhz4qlhpngwfinpfqbrqmrlbp3y63m9o665.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.7375493889365146,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.432,
+    "cx": 409.01708936691284,
+    "cy": 529.0119476318359,
+    "h": 241.3172850178274,
+    "w": 747.889922559632
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:41.478240+00:00"
+ },
+ "2aoboqvxui2zgvrk8rvm85cfv41vfuda4vsi1zpe671.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.6515884666290788,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.912,
+    "cx": 337.5324401855469,
+    "cy": 428.7353515625,
+    "h": 103.31977578526721,
+    "w": 662.6696713603947
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:42.124235+00:00"
+ },
+ "2aoboqvxuiyzwlqukbxyfqoaxks1xqf4e4ff4tu4686.jpg": {
+  "ok": false,
+  "boxes": [],
+  "testedAt": "2026-09-13T12:18:45.739619+00:00"
+ },
+ "2aoboqvxuzooabopbyypruh1yewvjpvxcffsb37g549.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.21468273784361713,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.878,
+    "cx": 467.6702880859375,
+    "cy": 388.4026184082031,
+    "h": 122.84870180588253,
+    "w": 653.6632951845291
+   }
+  ],
+  "testedAt": "2026-09-13T12:18:56.257805+00:00"
+ },
+ "2aoboqvxuzwuxdx7qghqtyijw98s5cvhkkrc6co8541.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.0139745733271184,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.429,
+    "cx": 485.5468292236328,
+    "cy": 366.3060607910156,
+    "h": 203.76512232296608,
+    "w": 551.8188929289588
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:05.793457+00:00"
+ },
+ "2aoboqvxv51ys0xwpncw8puiz6ogaoahkl76n3rm447.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.639159791615782,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 384.330078125,
+    "cy": 462.88013458251953,
+    "h": 90.94215303463677,
+    "w": 602.1125050006508
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:07.058536+00:00"
+ },
+ "2aoboqvxv595vlkjtf1cd7spdpe7boijuwvywewy467.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.1709057941669414,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.908,
+    "cx": 340.10235595703125,
+    "cy": 446.7320861816406,
+    "h": 101.30526008555931,
+    "w": 626.4214612614054
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:07.599658+00:00"
+ },
+ "2aoboqvxv5dl3fj0ykuu30bbzj3b0hfrnxnbh3sa477.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.28887367179277135,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.931,
+    "cx": 417.35546875,
+    "cy": 174.0113983154297,
+    "h": 100.01665210933974,
+    "w": 609.2892304737913
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:08.415206+00:00"
+ },
+ "2aoboqvxvvb1bnjoxddrzlmyivyvvpotulucsgmi407.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.05015776528944116,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.931,
+    "cx": 243.8423614501953,
+    "cy": 504.96612548828125,
+    "h": 153.32507095156936,
+    "w": 437.77912892916606
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:14.249203+00:00"
+ },
+ "2aoboqvxvvf3kqiro1fxw4h9qag5fmwmofwlqeda411.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.8223885345705071,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.938,
+    "cx": 420.39185333251953,
+    "cy": 349.86151123046875,
+    "h": 184.5544725316094,
+    "w": 452.22819327444535
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:19.398666+00:00"
+ },
+ "2aoboqvxvvgej4xoufthgbittnig9z8f13u1lhig393.jpg": {
+  "ok": false,
+  "boxes": [],
+  "testedAt": "2026-09-13T12:20:22.348578+00:00"
+ },
+ "2aoboqvxvvk0fwwdebncixvajgdrnjkvrnsphees413.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 5.402349561272217,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.896,
+    "cx": 431.39404296875,
+    "cy": 473.5535888671875,
+    "h": 209.708482896453,
+    "w": 541.4072087785393
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:24.229787+00:00"
+ },
+ "2aoboqvxvvoas56z7u3y3ysqzxu1ezpmqcjhlv2o410.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.39877739980644833,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.942,
+    "cx": 251.04247283935547,
+    "cy": 422.8985290527344,
+    "h": 205.94627216990722,
+    "w": 485.01566313448615
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:25.487108+00:00"
+ },
+ "2aoboqvxvvprzpxztnnvxuthwf798f92klh5a6lc396.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 6.1781312145845675,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.941,
+    "cx": 258.03490447998047,
+    "cy": 608.1322021484375,
+    "h": 168.84353643369786,
+    "w": 427.37693999385937
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:26.510051+00:00"
+ },
+ "2aoboqvxvvpzcuiswi2bmdyfor3kvgiufsjrp7xi398.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.3251670383688179,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.907,
+    "cx": 468.8935546875,
+    "cy": 494.46156311035156,
+    "h": 66.17083465514575,
+    "w": 404.5274801293561
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:30.314050+00:00"
+ },
+ "2aoboqvxvvysdlnszt41ehii4cvuu0hsdpqr07as415.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 3.5901805093700716,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.925,
+    "cx": 443.8063199520111,
+    "cy": 125.55845642089844,
+    "h": 282.404198229583,
+    "w": 873.9051356285703
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:34.323675+00:00"
+ },
+ "2aoboqvxvw5yw4ev6tgb1iemfumnkj0h6vrtilam423.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 8.131493608519037,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.923,
+    "cx": 490.701171875,
+    "cy": 334.208984375,
+    "h": 171.40247665118792,
+    "w": 447.0119624395613
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:35.561261+00:00"
+ },
+ "2aoboqvxvw8zpkjgrszj1fl1ohjn39umns8sbyro424.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.670138572942534,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.937,
+    "cx": 416.9653625488281,
+    "cy": 451.0404052734375,
+    "h": 223.23444674274555,
+    "w": 518.4659281895929
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:36.711438+00:00"
+ },
+ "2aoboqvxvwbcs5kfll0exb403dmx7rua0pxvckzs390.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.8202161818003333,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.761,
+    "cx": 482.6372375488281,
+    "cy": 410.7677917480469,
+    "h": 92.98857031242248,
+    "w": 319.56609438195034
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:39.867167+00:00"
+ },
+ "2aoboqvxvwexadrjn1qlktvpiw6lpsn46tr9cuxi416.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.1434077592128062,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.954,
+    "cx": 257.0719755887985,
+    "cy": 365.32590103149414,
+    "h": 200.79985546975232,
+    "w": 536.2097472773689
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:41.350555+00:00"
+ },
+ "2aoboqvxvwkfz8yuk3q8hz5oby6fuwyvraf5rlk0429.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 4.593672033983182,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.932,
+    "cx": 294.7856216430664,
+    "cy": 560.2807006835938,
+    "h": 87.58861108024894,
+    "w": 238.84762640044434
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:42.597636+00:00"
+ },
+ "2aoboqvxvwko2e9nmxeo6hbwlwyv3zzfwjqvtiqo432.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.8395542451799258,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.731,
+    "cx": 272.6722106933594,
+    "cy": 457.8606872558594,
+    "h": 185.55690750665818,
+    "w": 528.2923762719445
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:43.885034+00:00"
+ },
+ "2aoboqvxvwptwqcugffxyoyvz80w6x1uvy8znlde435.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -12.313827905378758,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.882,
+    "cx": 548.2449951171875,
+    "cy": 404.0397033691406,
+    "h": 117.29122741189008,
+    "w": 257.9091312569787
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:44.922443+00:00"
+ },
+ "2aoboqvxvwqgar2ukp9mryr7jygtskk6mgtsqfag433.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.2333897130435787,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.435,
+    "cx": 212.8286590576172,
+    "cy": 557.8117065429688,
+    "h": 182.5514414571714,
+    "w": 431.5636227882181
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:46.285643+00:00"
+ },
+ "2aoboqvxvwzanmmxaxyj44it7ml0depkuaon1twm438.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.7676081038049745,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.945,
+    "cx": 284.0912016630173,
+    "cy": 259.2379264831543,
+    "h": 220.88508986066014,
+    "w": 546.5156380749588
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:47.088877+00:00"
+ },
+ "2aoboqvxw1domtbp187nzqgunmtrcxwkl72pafiw298.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.4578353619440634,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.928,
+    "cx": 474.3084716796875,
+    "cy": 417.1141052246094,
+    "h": 136.7316598192164,
+    "w": 351.24061425446604
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:47.882516+00:00"
+ },
+ "2aoboqvxw1eijng7audlzau9oltbqsdtih7k6kgi299.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.7664125905407673,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.949,
+    "cx": 344.8194046020508,
+    "cy": 401.2850646972656,
+    "h": 130.92723990553495,
+    "w": 365.9674981602982
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:48.573397+00:00"
+ },
+ "2aoboqvxw1rrbklx259dokgk3hc1uedbwupvqijs292.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 3.354893009943197,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.942,
+    "cx": 403.8869857788086,
+    "cy": 156.65051651000977,
+    "h": 143.44571971661856,
+    "w": 364.8395839537048
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:49.607104+00:00"
+ },
+ "2aoboqvxw1ryxvwfj5eljwnsgqufl1ojjdrkelju301.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.083161459696896,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.948,
+    "cx": 318.39725494384766,
+    "cy": 474.7787780761719,
+    "h": 147.10961107275858,
+    "w": 411.82508453805343
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:50.683250+00:00"
+ },
+ "2aoboqvxw1t50nxhdwf8zc77cn1ydkqhy5lwydg4291.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.032028802682561,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.932,
+    "cx": 335.8342056274414,
+    "cy": 331.2269592285156,
+    "h": 117.67085770954098,
+    "w": 322.3911474057613
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:51.288337+00:00"
+ },
+ "2aoboqvxw1vbw8viztg1geug0sp02jh4amuw502c310.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.1925207423750237,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.869,
+    "cx": 371.07640838623047,
+    "cy": 351.8268127441406,
+    "h": 142.35079267527212,
+    "w": 382.98606531661187
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:51.832095+00:00"
+ },
+ "2aoboqvxw2chnkgpuj9d1uvcq6nlircewbfs1qdw319.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.1423622666087567,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.703,
+    "cx": 262.4105529785156,
+    "cy": 167.64562606811523,
+    "h": 136.06187170016918,
+    "w": 354.579034534847
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:54.344710+00:00"
+ },
+ "2aoboqvxw2eqjuanvtshys8vnkojpndc5de76kou333.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.44965134690875175,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.943,
+    "cx": 314.61865234375,
+    "cy": 529.7797393798828,
+    "h": 200.05825459283156,
+    "w": 526.7749956193001
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:55.482895+00:00"
+ },
+ "2aoboqvxw2eze1eze3sogkoulqqijvfrpieohupw317.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.495274006383596,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.947,
+    "cx": 641.1302337646484,
+    "cy": 766.811279296875,
+    "h": 280.5154437781561,
+    "w": 629.9643013432021
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:56.447540+00:00"
+ },
+ "2aoboqvxw2hrckfzgskzypmjorajlndodyitint6334.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.5657365502165987,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.935,
+    "cx": 387.89227294921875,
+    "cy": 413.20501708984375,
+    "h": 149.86387619479402,
+    "w": 395.0128256555558
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:58.852871+00:00"
+ },
+ "2aoboqvxw2zrn8af0ws1m46v2riwrnvljr9ixryq331.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.14569634389860653,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.954,
+    "cx": 276.3556213378906,
+    "cy": 280.3089904785156,
+    "h": 191.08899683655386,
+    "w": 510.8908939437658
+   }
+  ],
+  "testedAt": "2026-09-13T12:20:59.648966+00:00"
+ },
+ "2aoboqvxwcwue0jxdt0jxlexvc9broione4delfi190.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.6148261831804689,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.966,
+    "cx": 447.1386260986328,
+    "cy": 446.67161560058594,
+    "h": 247.85505604123986,
+    "w": 628.9889041354911
+   }
+  ],
+  "testedAt": "2026-09-13T12:21:00.329312+00:00"
+ },
+ "2aoboqvxwobgrcyc5sy7vzlc3mwdphvwki8fh476207.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.161421764631541,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.912,
+    "cx": 412.7052917480469,
+    "cy": 470.880859375,
+    "h": 75.28035840266195,
+    "w": 469.83462203226503
+   }
+  ],
+  "testedAt": "2026-09-13T12:21:04.594182+00:00"
+ },
+ "2aoboqvxwogmhggyod6izufzhioycf9zlzoehj8c191.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.2311484690218606,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.883,
+    "cx": 412.75557708740234,
+    "cy": 498.1766815185547,
+    "h": 139.63037840656688,
+    "w": 436.0960628939336
+   }
+  ],
+  "testedAt": "2026-09-13T12:21:05.672373+00:00"
+ },
+ "2aoboqvxwohkklrrr7kyodf5xkjlfsgxto8jcraa196.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.4096028412682529,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.788,
+    "cx": 403.72186279296875,
+    "cy": 364.03131103515625,
+    "h": 90.39124652455992,
+    "w": 274.6562668731002
+   }
+  ],
+  "testedAt": "2026-09-13T12:21:07.180089+00:00"
+ },
+ "2aoboqvxwopoazx5idctoua0rjeqjfhpixbmawno212.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -2.160822580906199,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.908,
+    "cx": 459.6312713623047,
+    "cy": 609.5841064453125,
+    "h": 70.90088134935857,
+    "w": 504.06069222380023
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:27.103838+00:00"
+ },
+ "2aoboqvxwoqbfqmfmn6iheveypfjjqubanuexcmy215.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.2053953537280506,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 352.28826904296875,
+    "cy": 345.7615966796875,
+    "h": 99.82543521603402,
+    "w": 605.4666233342346
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:27.833059+00:00"
+ },
+ "2aoboqvxwosltesoiswf1lyh88gtv7bgnjxfepns203.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.6948396114984803,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.899,
+    "cx": 363.6687927246094,
+    "cy": 426.3930969238281,
+    "h": 97.90374446219309,
+    "w": 644.6947993000216
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:28.477054+00:00"
+ },
+ "2aoboqvxwotlwwhcbki5nfmzu57wkjt1a8k2j8nm209.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.8551547469042191,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.909,
+    "cx": 327.2938232421875,
+    "cy": 325.277587890625,
+    "h": 76.46298490542499,
+    "w": 522.9086060961413
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:29.092685+00:00"
+ },
+ "2aoboqvxwov4z5hskskuw4mp5rx2runnmdpz9pem214.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 3.4754121642625933,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.928,
+    "cx": 422.4949645996094,
+    "cy": 419.1662902832031,
+    "h": 129.6298790947931,
+    "w": 806.7579164928603
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:29.663160+00:00"
+ },
+ "2aoboqvxwp57jqkvbcvp2mesnsmk53ssywmwicv2223.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.988717890451511,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.909,
+    "cx": 351.03311920166016,
+    "cy": 556.1998901367188,
+    "h": 110.75888118139525,
+    "w": 334.42963448010266
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:31.035911+00:00"
+ },
+ "2aoboqvxwpb11qh7pr6ikoiwqgfu8mogazehpowy238.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -4.979554293989253,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.936,
+    "cx": 279.69304847717285,
+    "cy": 242.04058074951172,
+    "h": 117.82898110816531,
+    "w": 311.48618568078945
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:31.739808+00:00"
+ },
+ "2aoboqvxwpcoabeorhhosc71ap7hnmwbmrb1tl0c197.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.35659712158886236,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.926,
+    "cx": 419.8665008544922,
+    "cy": 591.2703857421875,
+    "h": 96.047392466448,
+    "w": 579.601954341216
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:32.331299+00:00"
+ },
+ "2aoboqvxwpdmv0qhqvfcar6jdsqw7y7yr1w8rxre226.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 2.8524563340523343,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.918,
+    "cx": 441.17694187164307,
+    "cy": 407.4695739746094,
+    "h": 117.72380070489683,
+    "w": 759.8727452594622
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:32.951090+00:00"
+ },
+ "2aoboqvxwpibn2jadlz18bms6lpo1zb3lqfwl4q0232.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.8236904462679604,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.918,
+    "cx": 440.17030334472656,
+    "cy": 520.6234741210938,
+    "h": 62.071599922248595,
+    "w": 420.659649071916
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:33.417225+00:00"
+ },
+ "2aoboqvxz0mwxwosubmhrkvdyg0duet1dtzxqpfk144.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.2605039970963787,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.917,
+    "cx": 370.5329818725586,
+    "cy": 505.1634826660156,
+    "h": 84.41655614409825,
+    "w": 478.8617767005564
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:33.938291+00:00"
+ },
+ "2aoboqvxz1i9htfamviodbi1fzc0ljkzcpfnk9vg171.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.38450094130786283,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 392.73278045654297,
+    "cy": 450.3717956542969,
+    "h": 67.20671379570898,
+    "w": 438.0392824438203
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:34.445242+00:00"
+ },
+ "2aoboqvxz1k45p6pjr3wkeoh1c5p4zumyh7chqs4160.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.7923202905935796,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.904,
+    "cx": 329.22662353515625,
+    "cy": 388.3622741699219,
+    "h": 78.90402133355502,
+    "w": 552.4873237896295
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:35.250865+00:00"
+ },
+ "2aoboqvxz24zu5fnjmpzvmfftmnwq15ck5v9uwwe189.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.24868571984762866,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.923,
+    "cx": 482.8946533203125,
+    "cy": 429.4734802246094,
+    "h": 126.75546645063899,
+    "w": 827.3775444217057
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:43.021123+00:00"
+ },
+ "2aoboqvxz28kfvi1wqieg0htjichxebz6sbofsx6186.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -1.5669154097958824,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.916,
+    "cx": 291.06292724609375,
+    "cy": 566.6824951171875,
+    "h": 78.54926771610099,
+    "w": 529.8485428935049
+   },
+   {
+    "angleDeg": 1.1319597257862881,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.241,
+    "cx": 906.1304931640625,
+    "cy": 354.8167419433594,
+    "h": 63.167357407186934,
+    "w": 108.77806417265207
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:43.643187+00:00"
+ },
+ "2aoboqvxz2asnkufevwexuwwexvde1llenhy9vv2183.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.451369961878612,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.914,
+    "cx": 370.0661163330078,
+    "cy": 639.246826171875,
+    "h": 87.42566025680706,
+    "w": 584.5617800373124
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:45.177064+00:00"
+ },
+ "2aoboqvxziostuuwvlw5rvetymcbxf2sri5zdneq49.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.407882830909756,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.925,
+    "cx": 297.5856018066406,
+    "cy": 630.287109375,
+    "h": 114.62969698955759,
+    "w": 596.4224148448747
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:50.957996+00:00"
+ },
+ "2aoboqvxziv7gycnxmut5w1ez2xxxj3dynts0h0q53.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.6426777883724526,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.924,
+    "cx": 515.1923828125,
+    "cy": 536.5011596679688,
+    "h": 253.47465013246168,
+    "w": 720.4250790937708
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:51.897561+00:00"
+ },
+ "2aoboqvxzji80mghe8b4qvu9mgrqxzuyfwvh0gei80.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.7496540835108476,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.918,
+    "cx": 391.72705078125,
+    "cy": 293.2806701660156,
+    "h": 127.33926808362772,
+    "w": 731.5042432651126
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:52.598957+00:00"
+ },
+ "2aoboqvxzjk4p7tu5qnxxt8lw6l4cyzgaukhylf665.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 4.581832134212732,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.947,
+    "cx": 334.7044677734375,
+    "cy": 353.1506042480469,
+    "h": 128.77456617008258,
+    "w": 334.3557306547472
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:53.348178+00:00"
+ },
+ "2aoboqvxzjpzo9iyyvai94olflv5alijax9kbrsk68.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.125800173590278,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.924,
+    "cx": 476.84112548828125,
+    "cy": 352.9956359863281,
+    "h": 131.87845932804078,
+    "w": 335.36488628447285
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:53.973171+00:00"
+ },
+ "2aoboqvxzjq9stqf72hzo8jvoq4lu3zlastam4ku67.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.33609749415958845,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.914,
+    "cx": 355.82371520996094,
+    "cy": 720.0874633789062,
+    "h": 80.83513067404515,
+    "w": 540.412183215056
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:54.670081+00:00"
+ },
+ "2aoboqvxzjrwac53u36psm39xs8oregsj4etek5284.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 1.002416638322643,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.904,
+    "cx": 359.83465576171875,
+    "cy": 333.4590148925781,
+    "h": 107.56944033543243,
+    "w": 683.6276720416032
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:55.295221+00:00"
+ },
+ "2aoboqvxzjsdbwfi0vean8hctqmvwbjgbnajnvyk85.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.39313270420836943,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.92,
+    "cx": 346.40142822265625,
+    "cy": 510.0155029296875,
+    "h": 119.08715409347704,
+    "w": 689.8227749128508
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:55.830664+00:00"
+ },
+ "2aoboqvxzjsq75jm3pddswh6bekwxmegifntrvlq86.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.10042809445150169,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.926,
+    "cx": 295.5194396972656,
+    "cy": 370.40972900390625,
+    "h": 102.97714801147893,
+    "w": 586.4639972799066
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:56.367139+00:00"
+ },
+ "2aoboqvxznt5yzfuet1f2t9xbiyra5f3bdwpmfny97.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.3857164356123519,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.931,
+    "cx": 285.0725860595703,
+    "cy": 412.9770812988281,
+    "h": 96.56316199748957,
+    "w": 575.1491274338855
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:56.939839+00:00"
+ },
+ "2aoboqvxzo42fong5osxyvgfwakmn7rha5egvu00103.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -3.993066415905531,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.915,
+    "cx": 606.748291015625,
+    "cy": 421.5699157714844,
+    "h": 91.12219970508822,
+    "w": 537.4567843072913
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:57.433853+00:00"
+ },
+ "2aoboqvxzolgavjg3yap8togotydjdl98kfjtega117.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.9564175479350183,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.894,
+    "cx": 294.1291809082031,
+    "cy": 401.43963623046875,
+    "h": 118.59348673799128,
+    "w": 596.055788149644
+   }
+  ],
+  "testedAt": "2026-09-13T12:26:57.936606+00:00"
+ },
+ "2aoboqvxzoxhmg90nlxw7vty30z2bbbjx4vrf5li137.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 4.423087779041651,
+    "classId": 0,
+    "classKey": "co",
+    "classLabel": "Cơ",
+    "conf": 0.917,
+    "cx": 575.0954132080078,
+    "cy": 343.1272888183594,
+    "h": 101.00148996024878,
+    "w": 639.3382784952673
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:26.702532+00:00"
+ },
+ "2aoboqvxtopsy5ghxvpclg84d4rlgtkmrgktmnaa797.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": 0.4062904695366285,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.932,
+    "cx": 482.8928680419922,
+    "cy": 291.9498291015625,
+    "h": 120.20059248207836,
+    "w": 308.65973779728745
+   }
+  ],
+  "testedAt": "2026-09-13T13:11:59.305566+00:00"
+ },
+ "2aoboqvxtovvach53ur2lap5u66udbzsbypnogx6794.jpg": {
+  "ok": true,
+  "boxes": [
+   {
+    "angleDeg": -0.7455565337635903,
+    "classId": 1,
+    "classKey": "dientu",
+    "classLabel": "Điện tử",
+    "conf": 0.956,
+    "cx": 427.0015106201172,
+    "cy": 518.5323486328125,
+    "h": 213.13010493360025,
+    "w": 563.6865310715771
+   }
+  ],
+  "testedAt": "2026-09-13T13:12:01.673921+00:00"
+ }
+}

@@ -1,0 +1,66 @@
+{
+  "crop_id": "2aoboqvxub4bgsenn2b86bmt31agnhknaecbzuvm584",
+  "source_image": "2aoboqvxub4bgsenn2b86bmt31agnhknaecbzuvm584.jpg",
+  "digits": [
+    {
+      "digit_index": 0,
+      "x": 0.25702697110463335,
+      "y": 0.2074090164073192,
+      "w": 0.04616213419351233,
+      "h": 0.41307176464665546,
+      "label": "1",
+      "is_decimal": false,
+      "mid_transition": false
+    },
+    {
+      "digit_index": 1,
+      "x": 0.3223561895899026,
+      "y": 0.20413639597649122,
+      "w": 0.04768686409456184,
+      "h": 0.4331042157472485,
+      "label": "3",
+      "is_decimal": false,
+      "mid_transition": false
+    },
+    {
+      "digit_index": 2,
+      "x": 0.39650188583925544,
+      "y": 0.22159650203955433,
+      "w": 0.04600111260471574,
+      "h": 0.42307113034881816,
+      "label": "7",
+      "is_decimal": false,
+      "mid_transition": false
+    },
+    {
+      "digit_index": 3,
+      "x": 0.4682109786803464,
+      "y": 0.22230506117326498,
+      "w": 0.046682840370270144,
+      "h": 0.43944133285188325,
+      "label": "8",
+      "is_decimal": false,
+      "mid_transition": false
+    },
+    {
+      "digit_index": 4,
+      "x": 0.5393946544233575,
+      "y": 0.2336827299020586,
+      "w": 0.04532186669039439,
+      "h": 0.4354313203018077,
+      "label": "9",
+      "is_decimal": false,
+      "mid_transition": false
+    },
+    {
+      "digit_index": 5,
+      "x": 0.6164797127964985,
+      "y": 0.24120369792854698,
+      "w": 0.0497476508818477,
+      "h": 0.4746850563661896,
+      "label": "9",
+      "is_decimal": true,
+      "mid_transition": false
+    }
+  ]
+}

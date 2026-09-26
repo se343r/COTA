@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🛠️ Chỉnh Sửa OBB & BBox Số (Validate 1)</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel2: #21262d;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-dim: #8b949e;
+      --accent: #58a6ff;
+      --green: #2ea043;
+      --green-light: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+    header h1 {
+      font-size: 15px;
+      margin: 0;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+    }
+    .badge-blue { background: #1f6feb33; color: var(--accent); border: 1px solid #1f6feb; }
+    .badge-green { background: #23863633; color: var(--green-light); border: 1px solid #238636; }
+    .badge-yellow { background: #d2992233; color: var(--yellow); border: 1px solid #d29922; }
+    .badge-red { background: #da363333; color: var(--red); border: 1px solid #da3633; }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+      align-items: center;
+    }
+    .btn {
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: #30363d; border-color: #8b949e; }
+    .btn.active { background: #1f6feb; color: #fff; border-color: #58a6ff; }
+    .btn-primary { background: #238636; border-color: rgba(240,246,252,0.1); color: #fff; }
+    .btn-primary:hover { background: #2ea043; }
+    .btn-accent { background: #1f6feb; border-color: rgba(240,246,252,0.1); color: #fff; }
+    .btn-accent:hover { background: #388bfd; }
+    .btn-danger { background: #da363333; border-color: #da3633; color: #f85149; }
+    .btn-danger:hover { background: #da3633; color: #fff; }
+
+    /* Layout */
+    .content-wrap {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 270px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-filters {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 3px 6px;
+      font-size: 11px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .filter-tab.active {
+      background: var(--panel2);
+      color: var(--text);
+      border-color: var(--border);
+      font-weight: bold;
+    }
+    .image-list {
+      flex: 1;
+      overflow-y: auto;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .image-item {
+      padding: 8px 12px;
+      border-bottom: 1px solid #21262d;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: background 0.1s;
+    }
+    .image-item:hover { background: #1c2128; }
+    .image-item.active { background: #1f242c; border-left: 3px solid var(--accent); }
+    .image-item .row-top { display: flex; justify-content: space-between; align-items: center; }
+    .image-item .name { font-family: monospace; font-size: 11px; color: var(--text); }
+    .image-item .preview-text { font-family: monospace; font-size: 13px; font-weight: bold; color: var(--green-light); }
+
+    /* Center view */
+    .center-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #090d13;
+      overflow: hidden;
+      position: relative;
+    }
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+      padding: 16px;
+      position: relative;
+    }
+    canvas {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.6);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #111;
+      cursor: default;
+    }
+    .view-toolbar {
+      padding: 6px 14px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Mode tabs in center */
+    .mode-tab-group {
+      display: flex;
+      background: #090d13;
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .mode-tab {
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .mode-tab.active {
+      background: #1f6feb;
+      color: #fff;
+    }
+
+    /* Right edit panel */
+    .edit-panel {
+      width: 380px;
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      overflow-y: auto;
+      padding: 14px;
+      gap: 14px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .input-text {
+      background: #090d13;
+      border: 1px solid var(--border);
+      color: #fff;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 6px 10px;
+      border-radius: 6px;
+      letter-spacing: 2px;
+      user-select: text;
+    }
+    .input-text:focus { outline: none; border-color: var(--accent); }
+
+    .radio-group {
+      display: flex;
+      gap: 6px;
+    }
+    .radio-label {
+      flex: 1;
+      text-align: center;
+      padding: 5px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .radio-label:has(input:checked) {
+      border-color: var(--accent);
+      background: #1f6feb22;
+      color: #fff;
+      font-weight: bold;
+    }
+    .radio-label input { display: none; }
+
+    /* Digit cards list */
+    .digit-cards-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .digit-card-item {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      transition: all 0.15s ease;
+    }
+    .digit-card-item.selected {
+      border-color: var(--accent);
+      background: #1f6feb15;
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .digit-card-item.spurious {
+      border-color: #da3633;
+      background: #da363311;
+      opacity: 0.65;
+    }
+    .digit-card-item.half {
+      border-color: #d29922;
+      background: #d2992211;
+    }
+    .digit-thumb {
+      width: 44px;
+      height: 60px;
+      background: #000;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .digit-thumb canvas {
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .digit-inputs {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .digit-input-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .digit-val-input {
+      width: 42px;
+      font-size: 18px;
+      font-family: monospace;
+      font-weight: bold;
+      text-align: center;
+      background: #090d13;
+      border: 1px solid var(--border);
+      color: var(--green-light);
+      border-radius: 4px;
+      padding: 3px;
+      user-select: text;
+    }
+    .digit-val-input:focus { outline: none; border-color: var(--accent); }
+    .toggle-tag {
+      font-size: 11px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+    }
+    .toggle-tag:hover { border-color: #8b949e; }
+    .toggle-tag.active-half { background: #d2992233; color: var(--yellow); border-color: var(--yellow); font-weight: bold; }
+    .toggle-tag.active-spurious { background: #da363333; color: var(--red); border-color: var(--red); font-weight: bold; }
+    .toggle-tag.active-decimal { background: #1f6feb33; color: var(--accent); border-color: var(--accent); font-weight: bold; }
+
+    /* Modal for export */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 460px;
+      width: 90%;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🛠️ Chỉnh Sửa OBB & BBox Số <span class="badge badge-blue">Validate 1 (48 ảnh)</span></h1>
+  <div id="summary-badge" class="badge badge-green">Đang tải...</div>
+
+  <div class="nav-links">
+    <button class="btn btn-primary" onclick="exportToTrainDataset()">🚀 Bổ sung vào tập Train (ocr_dataset)</button>
+    <a href="/testocr" class="btn btn-accent">🔍 Chuyển sang Validate 2 (50 ảnh mới)</a>
+    <a href="/" class="btn">🏠 Home</a>
+  </div>
+</header>
+
+<div class="content-wrap">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-filters">
+      <button class="filter-tab active" onclick="setFilter('all')">Tất cả (<span id="count-all">0</span>)</button>
+      <button class="filter-tab" onclick="setFilter('mech')">Cơ (<span id="count-mech">0</span>)</button>
+      <button class="filter-tab" onclick="setFilter('elec')">Điện tử (<span id="count-elec">0</span>)</button>
+      <button class="filter-tab" onclick="setFilter('needs_fix')">⚠️ Cần sửa (<span id="count-fix">0</span>)</button>
+    </div>
+    <ul class="image-list" id="image-list"></ul>
+  </aside>
+
+  <!-- Center Canvas -->
+  <main class="center-view">
+    <div class="view-toolbar">
+      <!-- Mode tabs -->
+      <div class="mode-tab-group">
+        <button class="mode-tab active" id="tab-mode-bbox" onclick="setCanvasMode('bbox')">🔢 1. Hộp Số Digit (Ảnh nắn)</button>
+        <button class="mode-tab" id="tab-mode-obb" onclick="setCanvasMode('obb')">📷 2. Vẽ & Sửa OBB (Ảnh gốc)</button>
+      </div>
+
+      <div style="height:16px; width:1px; background:var(--border); margin:0 4px;"></div>
+      <span>Ảnh: <b id="current-name-display" class="font-mono text-accent" style="color:var(--accent); font-size:11px;">—</b></span>
+
+      <!-- Controls for BBox mode -->
+      <div id="bbox-tools" style="display:flex; gap:6px; margin-left:auto; align-items:center;">
+        <button class="btn active" id="tool-select-btn" onclick="setBBoxTool('select')" title="Chọn, di chuyển hoặc kéo co giãn BBox (V)">🖱️ Chọn (V)</button>
+        <button class="btn" id="tool-draw-btn" onclick="setBBoxTool('draw')" title="Kéo chuột trên canvas để vẽ thêm BBox mới (D)">➕ Vẽ BBox (D)</button>
+        <button class="btn btn-danger" onclick="deleteSelectedBox()" title="Xóa BBox đang chọn (Delete)">🗑️ Xóa Box</button>
+        <button class="btn" onclick="autoDetectCurrent()" title="Chạy lại mô hình YOLO detect hộp số tự động">🔄 Detect lại</button>
+      </div>
+
+      <!-- Controls for OBB mode -->
+      <div id="obb-tools" style="display:none; gap:6px; margin-left:auto; align-items:center;">
+        <button class="btn active" id="tool-obb-select-btn" onclick="setOBBTool('select')" title="Kéo 4 góc neo để căn chỉnh khung màn hình">🖱️ Kéo 4 góc</button>
+        <button class="btn" id="tool-obb-draw-btn" onclick="setOBBTool('draw')" title="Kéo chuột trên ảnh để vẽ lại khung OBB mới">➕ Vẽ OBB mới</button>
+        <button class="btn btn-primary" onclick="applyCustomOBB()" title="Cắt nắn thẳng vùng này và chuyển sang nhận diện số">⚡ Nắn thẳng & Sang Chỉnh Số</button>
+      </div>
+
+      <div style="height:16px; width:1px; background:var(--border); margin:0 4px;"></div>
+      <span style="color:var(--text-dim);">Zoom:</span>
+      <button class="btn" onclick="changeZoom(-0.2)">−</button>
+      <span id="zoom-level" style="font-family:monospace; min-width:36px; text-align:center;">100%</span>
+      <button class="btn" onclick="changeZoom(0.2)">+</button>
+      <button class="btn" onclick="resetZoom()">Fit</button>
+    </div>
+
+    <div class="canvas-container" id="canvas-container">
+      <canvas id="main-canvas"></canvas>
+    </div>
+
+    <div style="padding:4px 14px; background:var(--panel); border-top:1px solid var(--border); font-size:11px; color:var(--text-dim); display:flex; justify-content:space-between;">
+      <span id="coords-status">Tọa độ: —</span>
+      <span id="mode-tip">Tip: Phím V để chọn, Phím D để vẽ box mới, Delete để xóa, Ctrl+S để lưu</span>
+    </div>
+  </main>
+
+  <!-- Right Edit Panel -->
+  <aside class="edit-panel">
+    <div class="form-group">
+      <label>Loại công tơ</label>
+      <div class="radio-group">
+        <label class="radio-label"><input type="radio" name="meter-type" value="mechanical" onchange="onTypeChange()"> ⚙️ Cơ</label>
+        <label class="radio-label"><input type="radio" name="meter-type" value="electronic" onchange="onTypeChange()"> ⚡ Điện tử</label>
+        <label class="radio-label"><input type="radio" name="meter-type" value="other" onchange="onTypeChange()"> ❌ Rác</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Đánh giá phát hiện</label>
+      <div style="display:flex; gap:12px; font-size:12px;">
+        <label style="cursor:pointer;"><input type="checkbox" id="chk-obb" checked> OBB đúng màn hình</label>
+        <label style="cursor:pointer;"><input type="checkbox" id="chk-bbox" checked> BBox đủ số</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Chuỗi chỉ số hoàn chỉnh</label>
+      <input type="text" id="full-actual-text" class="input-text" placeholder="Nhập chuỗi số..." oninput="onFullTextManualInput()">
+    </div>
+
+    <div class="form-group" style="flex:1;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label>Danh sách Hộp số & Nhãn (<span id="digit-count-badge">0</span>)</label>
+        <button class="btn" onclick="addBoxFromButton()" style="padding:2px 8px; font-size:11px;">+ Vẽ Box Mới</button>
+      </div>
+      <div class="digit-cards-list" id="digit-cards-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; margin-top:auto; padding-top:12px; border-top:1px solid var(--border);">
+      <button class="btn btn-primary" style="flex:1; padding:10px; font-size:13px;" onclick="saveCurrent()">💾 Lưu & Sang ảnh tiếp (Ctrl+S)</button>
+      <button class="btn" onclick="nextImage()">Tiếp ▶</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" style="position:fixed; bottom:24px; right:24px; background:#238636; color:#fff; padding:9px 18px; border-radius:6px; font-size:13px; font-weight:600; box-shadow:0 6px 20px rgba(0,0,0,0.6); opacity:0; transition:all 0.25s ease; transform:translateY(12px); pointer-events:none; z-index:9999; display:flex; align-items:center; gap:8px; border:1px solid rgba(255,255,255,0.15);">
+  <span id="toast-icon" style="font-size:15px;">✔️</span>
+  <span id="toast-msg">Đã lưu thành công!</span>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-backdrop" id="export-modal">
+  <div class="modal-box">
+    <h3 style="margin-top:0;">🚀 Bổ sung vào tập huấn luyện (ocr_dataset)</h3>
+    <p style="font-size:13px; color:var(--text-dim); line-height:1.5;">
+      Hệ thống sẽ trích xuất ảnh nắn thẳng (từ OBB chuẩn) và tọa độ các hộp số đã được bạn căn chỉnh sạch (tự động loại bỏ box thừa <code>❌ Thừa</code>, đánh dấu <code>⚠️ Half</code>) vào thư mục <code>ocr_dataset/</code> để sẵn sàng cho lượt train tiếp theo.
+    </p>
+    <div id="export-status-box" style="padding:10px; background:#090d13; border-radius:6px; font-family:monospace; font-size:12px; margin-bottom:16px;">
+      Sẵn sàng xuất dữ liệu...
+    </div>
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn" onclick="closeExportModal()">Đóng</button>
+      <button class="btn btn-primary" id="btn-do-export" onclick="doExport()">Bắt đầu xuất</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allImages = [];
+let allEvals = {};
+let currentIdx = 0;
+let currentFilter = 'all';
+
+// Mode: 'bbox' (warped screen) vs 'obb' (original image)
+let canvasMode = 'bbox';
+
+// Image objects
+let warpedImgObj = null;
+let origImgObj = null;
+
+// BBox State (on warped canvas)
+let currentBoxes = []; // Array of { x, y, w, h, actual, is_half, is_spurious, is_decimal }
+let selectedBoxIdx = -1;
+let currentBBoxTool = 'select'; // 'select' | 'draw'
+
+// OBB State (on original canvas)
+// 4 corners: [ [x0,y0], [x1,y1], [x2,y2], [x3,y3] ] (TL, TR, BR, BL)
+let currentQuad = null;
+let selectedOBBCorner = -1; // 0, 1, 2, 3 or -1
+let currentOBBTool = 'select'; // 'select' | 'draw'
+let newDrawingOBB = null;
+
+let zoom = 1.0;
+
+// Dragging State
+let isMouseDown = false;
+let dragMode = null; // for BBox: 'move' | 'draw' | 'nw' | ... ; for OBB: 'move_all' | 'corner_0'..'corner_3' | 'draw_obb'
+let dragStartX = 0, dragStartY = 0;
+let initialBoxState = null;
+let initialQuadState = null;
+let newDrawingBox = null;
+const HANDLE_SIZE = 7;
+const OBB_HANDLE_RADIUS = 9;
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toast-msg');
+  const ic = document.getElementById('toast-icon');
+  if (!t) return;
+  m.textContent = msg;
+  ic.textContent = isError ? '❌' : '✔️';
+  t.style.background = isError ? '#da3633' : '#238636';
+  t.style.opacity = '1';
+  t.style.transform = 'translateY(0)';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(12px)';
+  }, 1600);
+}
+
+async function init() {
+  const [imgs, evs] = await Promise.all([
+    fetch('/api/testocr/images?batch=1').then(r => r.json()),
+    fetch('/api/testocr/all_evals?batch=1').then(r => r.json())
+  ]);
+  allImages = imgs;
+  allEvals = evs || {};
+
+  updateCounts();
+  renderSidebar();
+  if (allImages.length > 0) {
+    selectImage(0);
+  }
+  setupCanvasEvents();
+}
+
+function updateCounts() {
+  document.getElementById('count-all').textContent = allImages.length;
+  let mech = 0, elec = 0, fix = 0;
+  allImages.forEach(img => {
+    const ev = allEvals[img];
+    if (!ev) return;
+    if (ev.type === 'mechanical') mech++;
+    else if (ev.type === 'electronic') elec++;
+    
+    const hasSpurious = (ev.digit_details || []).some(d => d.is_spurious);
+    if (hasSpurious || !ev.digits_bbox_correct || ev.type === 'other') fix++;
+  });
+  document.getElementById('count-mech').textContent = mech;
+  document.getElementById('count-elec').textContent = elec;
+  document.getElementById('count-fix').textContent = fix;
+  document.getElementById('summary-badge').textContent = `Đã đánh giá: ${Object.keys(allEvals).length}/${allImages.length} ảnh`;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSidebar();
+}
+
+function renderSidebar() {
+  const ul = document.getElementById('image-list');
+  ul.innerHTML = '';
+  allImages.forEach((img, idx) => {
+    const ev = allEvals[img] || {};
+    const type = ev.type || 'unknown';
+    const hasSpurious = (ev.digit_details || []).some(d => d.is_spurious);
+
+    if (currentFilter === 'mech' && type !== 'mechanical') return;
+    if (currentFilter === 'elec' && type !== 'electronic') return;
+    if (currentFilter === 'needs_fix' && !hasSpurious && ev.digits_bbox_correct && type !== 'other') return;
+
+    const li = document.createElement('li');
+    li.className = `image-item ${idx === currentIdx ? 'active' : ''}`;
+    li.onclick = () => selectImage(idx);
+
+    let typeBadge = type === 'mechanical' ? '<span class="badge badge-blue">Cơ</span>' : (type === 'electronic' ? '<span class="badge badge-yellow">Điện tử</span>' : '<span class="badge">Rác</span>');
+    let spurBadge = hasSpurious ? '<span class="badge badge-red">Có box thừa</span>' : '';
+
+    li.innerHTML = `
+      <div class="row-top">
+        <span class="name">${img.slice(0, 16)}...${img.slice(-6)}</span>
+        <div>${typeBadge} ${spurBadge}</div>
+      </div>
+      <div class="preview-text">${ev.actual_text || '—'}</div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+async function selectImage(idx) {
+  if (idx < 0 || idx >= allImages.length) return;
+  currentIdx = idx;
+  selectedBoxIdx = -1;
+  selectedOBBCorner = -1;
+  renderSidebar();
+
+  const name = allImages[currentIdx];
+  document.getElementById('current-name-display').textContent = name;
+  document.getElementById('coords-status').textContent = 'Đang tải suy luận...';
+
+  // Load original image in background
+  origImgObj = new Image();
+  origImgObj.src = `/api/testocr/image/${encodeURIComponent(name)}?batch=1`;
+
+  // Fetch infer result
+  const res = await fetch(`/api/testocr/infer/${encodeURIComponent(name)}?batch=1`).then(r => r.json());
+  
+  const ev = allEvals[name] || {};
+  const t = ev.type || (res.class_id === 1 ? 'electronic' : 'mechanical');
+  const typeRadio = document.querySelector(`input[name="meter-type"][value="${t}"]`);
+  if (typeRadio) typeRadio.checked = true;
+
+  document.getElementById('chk-obb').checked = (ev.obb !== undefined) ? ev.obb : true;
+  document.getElementById('chk-bbox').checked = (ev.digits_bbox_correct !== undefined) ? ev.digits_bbox_correct : true;
+  document.getElementById('full-actual-text').value = ev.actual_text || '';
+
+  // Setup OBB quad
+  if (ev.quad && ev.quad.length === 4) {
+    currentQuad = JSON.parse(JSON.stringify(ev.quad));
+  } else if (res.quad && res.quad.length === 4) {
+    currentQuad = JSON.parse(JSON.stringify(res.quad));
+  } else {
+    currentQuad = null;
+  }
+
+  // Load Warped Image
+  if (res.warped_b64) {
+    warpedImgObj = new Image();
+    warpedImgObj.onload = () => {
+      if (canvasMode === 'bbox') renderCanvas();
+      updateThumbnails();
+    };
+    warpedImgObj.src = "data:image/jpeg;base64," + res.warped_b64;
+    setCanvasMode('bbox');
+  } else {
+    // If no warped image detected, switch immediately to OBB drawing mode!
+    warpedImgObj = null;
+    setCanvasMode('obb');
+    showToast('⚠️ Không phát hiện OBB tự động. Vui lòng vẽ khung OBB trên ảnh gốc!', true);
+  }
+
+  // Load boxes
+  currentBoxes = [];
+  if (ev.boxes && ev.boxes.length > 0) {
+    currentBoxes = ev.boxes.map((b, i) => {
+      const det = (ev.digit_details && ev.digit_details[i]) ? ev.digit_details[i] : {};
+      return {
+        x: Math.round(b.x1),
+        y: Math.round(b.y1),
+        w: Math.round(b.x2 - b.x1),
+        h: Math.round(b.y2 - b.y1),
+        actual: det.actual || '',
+        is_half: !!det.is_half,
+        is_spurious: !!det.is_spurious,
+        is_decimal: !!det.is_decimal
+      };
+    });
+  } else if (res.digits && res.digits.length > 0) {
+    currentBoxes = res.digits.map((d, i) => {
+      const det = (ev.digit_details && ev.digit_details[i]) ? ev.digit_details[i] : {};
+      return {
+        x: Math.round(d.box[0]),
+        y: Math.round(d.box[1]),
+        w: Math.round(d.box[2]),
+        h: Math.round(d.box[3]),
+        actual: det.actual !== undefined ? det.actual : d.char,
+        is_half: !!det.is_half,
+        is_spurious: !!det.is_spurious,
+        is_decimal: !!det.is_decimal
+      };
+    });
+  }
+
+  sortBoxes();
+  renderDigitCards();
+  renderCanvas();
+}
+
+function sortBoxes() {
+  currentBoxes.sort((a, b) => a.x - b.x);
+}
+
+// -------------------------------------------------------------
+// MODE SWITCHING (BBox vs OBB)
+// -------------------------------------------------------------
+function setCanvasMode(mode) {
+  canvasMode = mode;
+  document.getElementById('tab-mode-bbox').classList.toggle('active', mode === 'bbox');
+  document.getElementById('tab-mode-obb').classList.toggle('active', mode === 'obb');
+
+  document.getElementById('bbox-tools').style.display = (mode === 'bbox') ? 'flex' : 'none';
+  document.getElementById('obb-tools').style.display = (mode === 'obb') ? 'flex' : 'none';
+
+  if (mode === 'obb') {
+    document.getElementById('mode-tip').textContent = 'Chế độ OBB: Kéo 4 góc neo để khớp màn hình; Kéo giữa để di chuyển; Hoặc bấm "Vẽ OBB Mới"';
+  } else {
+    document.getElementById('mode-tip').textContent = 'Chế độ BBox: Kéo chuột để di chuyển; Kéo 8 điểm neo để co giãn; Phím Delete để xóa box; Ctrl+S để lưu';
+  }
+
+  renderCanvas();
+}
+
+function setBBoxTool(t) {
+  currentBBoxTool = t;
+  document.getElementById('tool-select-btn').classList.toggle('active', t === 'select');
+  document.getElementById('tool-draw-btn').classList.toggle('active', t === 'draw');
+  const cv = document.getElementById('main-canvas');
+  cv.style.cursor = (t === 'draw') ? 'crosshair' : 'default';
+}
+
+function setOBBTool(t) {
+  currentOBBTool = t;
+  document.getElementById('tool-obb-select-btn').classList.toggle('active', t === 'select');
+  document.getElementById('tool-obb-draw-btn').classList.toggle('active', t === 'draw');
+  const cv = document.getElementById('main-canvas');
+  cv.style.cursor = (t === 'draw') ? 'crosshair' : 'default';
+}
+
+function addBoxFromButton() {
+  if (canvasMode !== 'bbox') setCanvasMode('bbox');
+  setBBoxTool('draw');
+  showToast('Chế độ vẽ: Kéo giữ chuột trên ảnh để tạo box mới');
+}
+
+async function autoDetectCurrent() {
+  const name = allImages[currentIdx];
+  document.getElementById('coords-status').textContent = 'Đang chạy lại detection...';
+  const res = await fetch(`/api/testocr/infer/${encodeURIComponent(name)}?batch=1`).then(r => r.json());
+  if (res.digits && res.digits.length > 0) {
+    currentBoxes = res.digits.map((d, i) => ({
+      x: Math.round(d.box[0]),
+      y: Math.round(d.box[1]),
+      w: Math.round(d.box[2]),
+      h: Math.round(d.box[3]),
+      actual: d.char,
+      is_half: false,
+      is_spurious: false,
+      is_decimal: false
+    }));
+    sortBoxes();
+    selectedBoxIdx = -1;
+    renderDigitCards();
+    renderCanvas();
+    updateThumbnails();
+    showToast(`Đã phát hiện ${currentBoxes.length} hộp số tự động từ model.`);
+  } else {
+    showToast('Mô hình không tìm thấy hộp số nào', true);
+  }
+}
+
+// -------------------------------------------------------------
+// APPLY CUSTOM OBB WARP (Backend Perspective Transform)
+// -------------------------------------------------------------
+async function applyCustomOBB() {
+  if (!currentQuad || currentQuad.length !== 4) {
+    showToast('Vui lòng vẽ hoặc căn chỉnh khung OBB trước!', true);
+    return;
+  }
+  const name = allImages[currentIdx];
+  const type = document.querySelector('input[name="meter-type"]:checked').value;
+  const cls_id = (type === 'electronic') ? 1 : 0;
+
+  showToast('⏳ Đang nắn thẳng và chạy nhận diện...');
+  const res = await fetch(`/api/testocr/custom_obb/${encodeURIComponent(name)}?batch=1`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      quad: currentQuad,
+      class_id: cls_id,
+      batch: '1'
+    })
+  }).then(r => r.json());
+
+  if (res.ok && res.warped_b64) {
+    warpedImgObj = new Image();
+    warpedImgObj.onload = () => {
+      setCanvasMode('bbox');
+      updateThumbnails();
+    };
+    warpedImgObj.src = "data:image/jpeg;base64," + res.warped_b64;
+
+    // Load newly detected digits
+    if (res.digits && res.digits.length > 0) {
+      currentBoxes = res.digits.map(d => ({
+        x: Math.round(d.box[0]),
+        y: Math.round(d.box[1]),
+        w: Math.round(d.box[2]),
+        h: Math.round(d.box[3]),
+        actual: d.char,
+        is_half: false,
+        is_spurious: false,
+        is_decimal: false
+      }));
+      sortBoxes();
+      renderDigitCards();
+    }
+    showToast('✔️ Đã nắn thẳng thành công! Hãy kiểm tra các hộp số.');
+  } else {
+    showToast('Lỗi khi nắn thẳng: ' + (res.error || 'Unknown'), true);
+  }
+}
+
+function changeZoom(delta) {
+  zoom = Math.max(0.2, Math.min(3.0, zoom + delta));
+  document.getElementById('zoom-level').textContent = `${Math.round(zoom * 100)}%`;
+  renderCanvas();
+}
+
+function resetZoom() {
+  zoom = 1.0;
+  document.getElementById('zoom-level').textContent = '100%';
+  renderCanvas();
+}
+
+function getCanvasMousePos(e) {
+  const cv = document.getElementById('main-canvas');
+  const rect = cv.getBoundingClientRect();
+  const scaleX = cv.width / rect.width;
+  const scaleY = cv.height / rect.height;
+  return {
+    x: Math.round((e.clientX - rect.left) * scaleX),
+    y: Math.round((e.clientY - rect.top) * scaleY)
+  };
+}
+
+// -------------------------------------------------------------
+// CANVAS EVENTS (Interactive Drag & Drop)
+// -------------------------------------------------------------
+function setupCanvasEvents() {
+  const cv = document.getElementById('main-canvas');
+
+  cv.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    const pos = getCanvasMousePos(e);
+    isMouseDown = true;
+    dragStartX = pos.x;
+    dragStartY = pos.y;
+
+    if (canvasMode === 'obb') {
+      // OBB Interaction
+      if (currentOBBTool === 'draw') {
+        dragMode = 'draw_obb';
+        newDrawingOBB = { x: pos.x, y: pos.y, w: 0, h: 0 };
+        return;
+      }
+
+      // Check if clicking near any OBB corner
+      if (currentQuad && currentQuad.length === 4) {
+        for (let i = 0; i < 4; i++) {
+          const qx = currentQuad[i][0] * zoom;
+          const qy = currentQuad[i][1] * zoom;
+          if (Math.hypot(pos.x - qx, pos.y - qy) <= OBB_HANDLE_RADIUS * 1.5) {
+            selectedOBBCorner = i;
+            dragMode = `corner_${i}`;
+            initialQuadState = JSON.parse(JSON.stringify(currentQuad));
+            renderCanvas();
+            return;
+          }
+        }
+        // Check inside quad for move_all
+        if (isPointInPolygon(pos.x / zoom, pos.y / zoom, currentQuad)) {
+          dragMode = 'move_all_obb';
+          initialQuadState = JSON.parse(JSON.stringify(currentQuad));
+          renderCanvas();
+          return;
+        }
+      }
+
+      // Clicked on empty space in OBB mode -> start drawing
+      dragMode = 'draw_obb';
+      newDrawingOBB = { x: pos.x, y: pos.y, w: 0, h: 0 };
+      return;
+    }
+
+    // BBox Interaction
+    if (currentBBoxTool === 'draw') {
+      dragMode = 'draw';
+      newDrawingBox = { x: pos.x, y: pos.y, w: 0, h: 0 };
+      return;
+    }
+
+    // Check resize handles of selected box
+    if (selectedBoxIdx >= 0 && selectedBoxIdx < currentBoxes.length) {
+      const b = currentBoxes[selectedBoxIdx];
+      const handle = getHandleUnderMouse(pos, b);
+      if (handle) {
+        dragMode = handle;
+        initialBoxState = { ...b };
+        return;
+      }
+    }
+
+    // Check inside any box
+    let clickedIdx = -1;
+    for (let i = currentBoxes.length - 1; i >= 0; i--) {
+      if (isPointInsideBox(pos, currentBoxes[i])) {
+        clickedIdx = i;
+        break;
+      }
+    }
+
+    if (clickedIdx >= 0) {
+      selectedBoxIdx = clickedIdx;
+      dragMode = 'move';
+      initialBoxState = { ...currentBoxes[selectedBoxIdx] };
+    } else {
+      selectedBoxIdx = -1;
+      dragMode = null;
+    }
+    highlightSelectedCard();
+    renderCanvas();
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    const pos = getCanvasMousePos(e);
+    const imgX = Math.round(pos.x / zoom);
+    const imgY = Math.round(pos.y / zoom);
+    document.getElementById('coords-status').textContent = `Tọa độ: X=${imgX}, Y=${imgY} px (Mode: ${canvasMode.toUpperCase()})`;
+
+    if (!isMouseDown) {
+      updateHoverCursor(pos);
+      return;
+    }
+
+    const dx = (pos.x - dragStartX) / zoom;
+    const dy = (pos.y - dragStartY) / zoom;
+
+    if (canvasMode === 'obb') {
+      if (dragMode === 'draw_obb') {
+        const x1 = Math.min(dragStartX, pos.x) / zoom;
+        const y1 = Math.min(dragStartY, pos.y) / zoom;
+        const w = Math.abs(pos.x - dragStartX) / zoom;
+        const h = Math.abs(pos.y - dragStartY) / zoom;
+        currentQuad = [
+          [x1, y1],
+          [x1 + w, y1],
+          [x1 + w, y1 + h],
+          [x1, y1 + h]
+        ];
+        renderCanvas();
+        return;
+      }
+      if (dragMode && dragMode.startsWith('corner_')) {
+        const idx = parseInt(dragMode.split('_')[1]);
+        currentQuad[idx] = [
+          Math.round(initialQuadState[idx][0] + dx),
+          Math.round(initialQuadState[idx][1] + dy)
+        ];
+        renderCanvas();
+        return;
+      }
+      if (dragMode === 'move_all_obb') {
+        for (let i = 0; i < 4; i++) {
+          currentQuad[i] = [
+            Math.round(initialQuadState[i][0] + dx),
+            Math.round(initialQuadState[i][1] + dy)
+          ];
+        }
+        renderCanvas();
+        return;
+      }
+      return;
+    }
+
+    // BBox drag handling
+    if (dragMode === 'draw') {
+      const x1 = Math.min(dragStartX, pos.x) / zoom;
+      const y1 = Math.min(dragStartY, pos.y) / zoom;
+      const w = Math.abs(pos.x - dragStartX) / zoom;
+      const h = Math.abs(pos.y - dragStartY) / zoom;
+      newDrawingBox = { x: x1, y: y1, w, h };
+      renderCanvas();
+      return;
+    }
+
+    if (selectedBoxIdx < 0 || !initialBoxState) return;
+    const b = currentBoxes[selectedBoxIdx];
+
+    if (dragMode === 'move') {
+      b.x = Math.max(0, Math.round(initialBoxState.x + dx));
+      b.y = Math.max(0, Math.round(initialBoxState.y + dy));
+    } else if (dragMode === 'se') {
+      b.w = Math.max(8, Math.round(initialBoxState.w + dx));
+      b.h = Math.max(12, Math.round(initialBoxState.h + dy));
+    } else if (dragMode === 'e') {
+      b.w = Math.max(8, Math.round(initialBoxState.w + dx));
+    } else if (dragMode === 's') {
+      b.h = Math.max(12, Math.round(initialBoxState.h + dy));
+    } else if (dragMode === 'nw') {
+      b.x = Math.round(initialBoxState.x + dx);
+      b.y = Math.round(initialBoxState.y + dy);
+      b.w = Math.max(8, Math.round(initialBoxState.w - dx));
+      b.h = Math.max(12, Math.round(initialBoxState.h - dy));
+    } else if (dragMode === 'sw') {
+      b.x = Math.round(initialBoxState.x + dx);
+      b.w = Math.max(8, Math.round(initialBoxState.w - dx));
+      b.h = Math.max(12, Math.round(initialBoxState.h + dy));
+    } else if (dragMode === 'ne') {
+      b.y = Math.round(initialBoxState.y + dy);
+      b.w = Math.max(8, Math.round(initialBoxState.w + dx));
+      b.h = Math.max(12, Math.round(initialBoxState.h - dy));
+    } else if (dragMode === 'n') {
+      b.y = Math.round(initialBoxState.y + dy);
+      b.h = Math.max(12, Math.round(initialBoxState.h - dy));
+    } else if (dragMode === 'w') {
+      b.x = Math.round(initialBoxState.x + dx);
+      b.w = Math.max(8, Math.round(initialBoxState.w - dx));
+    }
+
+    renderCanvas();
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (!isMouseDown) return;
+    isMouseDown = false;
+
+    if (canvasMode === 'obb') {
+      if (dragMode === 'draw_obb') {
+        dragMode = null;
+        setOBBTool('select');
+        renderCanvas();
+        showToast('Đã vẽ khung OBB. Hãy bấm "Nắn thẳng & Sang Chỉnh Số"!');
+        return;
+      }
+      dragMode = null;
+      renderCanvas();
+      return;
+    }
+
+    // BBox mouse up
+    if (dragMode === 'draw' && newDrawingBox) {
+      if (newDrawingBox.w > 6 && newDrawingBox.h > 12) {
+        currentBoxes.push({
+          ...newDrawingBox,
+          actual: '',
+          is_half: false,
+          is_spurious: false,
+          is_decimal: false
+        });
+        sortBoxes();
+        selectedBoxIdx = currentBoxes.findIndex(b => b.x === newDrawingBox.x);
+        renderDigitCards();
+        setBBoxTool('select');
+      }
+      newDrawingBox = null;
+      renderCanvas();
+      updateThumbnails();
+      return;
+    }
+
+    dragMode = null;
+    initialBoxState = null;
+    sortBoxes();
+    renderDigitCards();
+    renderCanvas();
+    updateThumbnails();
+  });
+}
+
+function updateHoverCursor(pos) {
+  const cv = document.getElementById('main-canvas');
+  if (canvasMode === 'obb') {
+    if (currentOBBTool === 'draw') { cv.style.cursor = 'crosshair'; return; }
+    if (currentQuad && currentQuad.length === 4) {
+      for (let i = 0; i < 4; i++) {
+        const qx = currentQuad[i][0] * zoom;
+        const qy = currentQuad[i][1] * zoom;
+        if (Math.hypot(pos.x - qx, pos.y - qy) <= OBB_HANDLE_RADIUS * 1.5) {
+          cv.style.cursor = 'pointer';
+          return;
+        }
+      }
+      if (isPointInPolygon(pos.x / zoom, pos.y / zoom, currentQuad)) {
+        cv.style.cursor = 'move';
+        return;
+      }
+    }
+    cv.style.cursor = 'default';
+    return;
+  }
+
+  // BBox Hover
+  if (currentBBoxTool === 'draw') { cv.style.cursor = 'crosshair'; return; }
+  if (selectedBoxIdx >= 0 && selectedBoxIdx < currentBoxes.length) {
+    const handle = getHandleUnderMouse(pos, currentBoxes[selectedBoxIdx]);
+    if (handle === 'nw' || handle === 'se') { cv.style.cursor = 'nwse-resize'; return; }
+    if (handle === 'ne' || handle === 'sw') { cv.style.cursor = 'nesw-resize'; return; }
+    if (handle === 'n' || handle === 's') { cv.style.cursor = 'ns-resize'; return; }
+    if (handle === 'w' || handle === 'e') { cv.style.cursor = 'ew-resize'; return; }
+  }
+  for (let i = 0; i < currentBoxes.length; i++) {
+    if (isPointInsideBox(pos, currentBoxes[i])) {
+      cv.style.cursor = 'move';
+      return;
+    }
+  }
+  cv.style.cursor = 'default';
+}
+
+function isPointInsideBox(pos, b) {
+  const x1 = b.x * zoom, y1 = b.y * zoom;
+  const w = b.w * zoom, h = b.h * zoom;
+  return pos.x >= x1 && pos.x <= x1 + w && pos.y >= y1 && pos.y <= y1 + h;
+}
+
+function getHandleUnderMouse(pos, b) {
+  const x1 = b.x * zoom, y1 = b.y * zoom;
+  const x2 = (b.x + b.w) * zoom, y2 = (b.y + b.h) * zoom;
+  const xc = (b.x + b.w / 2) * zoom, yc = (b.y + b.h / 2) * zoom;
+  const h = HANDLE_SIZE;
+
+  const inH = (hx, hy) => Math.abs(pos.x - hx) <= h && Math.abs(pos.y - hy) <= h;
+
+  if (inH(x1, y1)) return 'nw';
+  if (inH(x2, y1)) return 'ne';
+  if (inH(x2, y2)) return 'se';
+  if (inH(x1, y2)) return 'sw';
+  if (inH(xc, y1)) return 'n';
+  if (inH(xc, y2)) return 's';
+  if (inH(x1, yc)) return 'w';
+  if (inH(x2, yc)) return 'e';
+  return null;
+}
+
+function isPointInPolygon(x, y, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i][0], yi = poly[i][1];
+    const xj = poly[j][0], yj = poly[j][1];
+    const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function deleteSelectedBox() {
+  if (canvasMode === 'bbox' && selectedBoxIdx >= 0 && selectedBoxIdx < currentBoxes.length) {
+    currentBoxes.splice(selectedBoxIdx, 1);
+    selectedBoxIdx = -1;
+    sortBoxes();
+    renderDigitCards();
+    renderCanvas();
+    updateThumbnails();
+  }
+}
+
+// -------------------------------------------------------------
+// RENDERING (Canvas Dual-Mode)
+// -------------------------------------------------------------
+function renderCanvas() {
+  const cv = document.getElementById('main-canvas');
+  const ctx = cv.getContext('2d');
+
+  if (canvasMode === 'obb') {
+    // Render Original Image with OBB Quad
+    if (!origImgObj || !origImgObj.complete) return;
+    const nw = origImgObj.naturalWidth || 800;
+    const nh = origImgObj.naturalHeight || 600;
+
+    cv.width = nw * zoom;
+    cv.height = nh * zoom;
+
+    ctx.save();
+    ctx.scale(zoom, zoom);
+    ctx.drawImage(origImgObj, 0, 0);
+
+    // Draw OBB Polygon
+    if (currentQuad && currentQuad.length === 4) {
+      ctx.beginPath();
+      ctx.moveTo(currentQuad[0][0], currentQuad[0][1]);
+      for (let i = 1; i < 4; i++) {
+        ctx.lineTo(currentQuad[i][0], currentQuad[i][1]);
+      }
+      ctx.closePath();
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#58a6ff';
+      ctx.fillStyle = 'rgba(88, 166, 255, 0.2)';
+      ctx.fill();
+      ctx.stroke();
+
+      // Top line highlight (to show orientation)
+      ctx.beginPath();
+      ctx.moveTo(currentQuad[0][0], currentQuad[0][1]);
+      ctx.lineTo(currentQuad[1][0], currentQuad[1][1]);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = '#2ea043';
+      ctx.stroke();
+
+      // Draw Corner Handles
+      const cornerLabels = ['TL (Góc trên-trái)', 'TR (Góc trên-phải)', 'BR (Góc dưới-phải)', 'BL (Góc dưới-trái)'];
+      for (let i = 0; i < 4; i++) {
+        const [cx, cy] = currentQuad[i];
+        ctx.beginPath();
+        ctx.arc(cx, cy, OBB_HANDLE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = (i === selectedOBBCorner) ? '#ffb340' : '#ffffff';
+        ctx.strokeStyle = '#1f6feb';
+        ctx.lineWidth = 3;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.fillText(`${i+1}`, cx - 4, cy + 4);
+      }
+    }
+    ctx.restore();
+    return;
+  }
+
+  // BBox Mode on Warped Image
+  if (!warpedImgObj) return;
+  const nw = warpedImgObj.naturalWidth || 400;
+  const nh = warpedImgObj.naturalHeight || 200;
+
+  cv.width = nw * zoom;
+  cv.height = nh * zoom;
+
+  ctx.save();
+  ctx.scale(zoom, zoom);
+  ctx.drawImage(warpedImgObj, 0, 0);
+
+  // Draw BBoxes
+  currentBoxes.forEach((b, i) => {
+    const isSel = (i === selectedBoxIdx);
+    ctx.lineWidth = isSel ? 3 : 2;
+
+    if (b.is_spurious) {
+      ctx.strokeStyle = '#f85149';
+      ctx.fillStyle = 'rgba(248, 81, 73, 0.2)';
+    } else if (b.is_half) {
+      ctx.strokeStyle = '#d29922';
+      ctx.fillStyle = 'rgba(210, 153, 34, 0.2)';
+    } else {
+      ctx.strokeStyle = isSel ? '#58a6ff' : '#3fb950';
+      ctx.fillStyle = isSel ? 'rgba(88, 166, 255, 0.25)' : 'rgba(63, 185, 80, 0.15)';
+    }
+
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+    // Number tag on top
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.font = 'bold 15px monospace';
+    const tag = b.actual !== '' ? b.actual : `#${i+1}`;
+    ctx.fillText(tag, b.x + 3, b.y - 4);
+
+    if (isSel) {
+      drawHandle(ctx, b.x, b.y);
+      drawHandle(ctx, b.x + b.w, b.y);
+      drawHandle(ctx, b.x + b.w, b.y + b.h);
+      drawHandle(ctx, b.x, b.y + b.h);
+      drawHandle(ctx, b.x + b.w/2, b.y);
+      drawHandle(ctx, b.x + b.w/2, b.y + b.h);
+      drawHandle(ctx, b.x, b.y + b.h/2);
+      drawHandle(ctx, b.x + b.w, b.y + b.h/2);
+    }
+  });
+
+  // Active drawing box
+  if (newDrawingBox) {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#58a6ff';
+    ctx.fillStyle = 'rgba(88, 166, 255, 0.3)';
+    ctx.fillRect(newDrawingBox.x, newDrawingBox.y, newDrawingBox.w, newDrawingBox.h);
+    ctx.strokeRect(newDrawingBox.x, newDrawingBox.y, newDrawingBox.w, newDrawingBox.h);
+  }
+
+  ctx.restore();
+}
+
+function drawHandle(ctx, x, y) {
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = '#1f6feb';
+  ctx.lineWidth = 2;
+  ctx.fillRect(x - HANDLE_SIZE/2, y - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE);
+  ctx.strokeRect(x - HANDLE_SIZE/2, y - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE);
+}
+
+function updateThumbnails() {
+  if (!warpedImgObj) return;
+  currentBoxes.forEach((b, i) => {
+    const thumbCanvas = document.getElementById(`thumb-cv-${i}`);
+    if (!thumbCanvas) return;
+    const ctx = thumbCanvas.getContext('2d');
+    thumbCanvas.width = 44;
+    thumbCanvas.height = 60;
+    ctx.clearRect(0, 0, 44, 60);
+    if (b.w > 0 && b.h > 0) {
+      ctx.drawImage(warpedImgObj, b.x, b.y, b.w, b.h, 0, 0, 44, 60);
+    }
+  });
+}
+
+function renderDigitCards() {
+  const container = document.getElementById('digit-cards-container');
+  container.innerHTML = '';
+  document.getElementById('digit-count-badge').textContent = currentBoxes.length;
+
+  currentBoxes.forEach((b, i) => {
+    const item = document.createElement('div');
+    item.className = `digit-card-item ${i === selectedBoxIdx ? 'selected' : ''} ${b.is_spurious ? 'spurious' : ''} ${b.is_half ? 'half' : ''}`;
+    item.id = `digit-card-${i}`;
+    item.onclick = (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      selectedBoxIdx = i;
+      highlightSelectedCard();
+      renderCanvas();
+    };
+
+    item.innerHTML = `
+      <div class="digit-thumb">
+        <canvas id="thumb-cv-${i}"></canvas>
+      </div>
+      <div class="digit-inputs">
+        <div class="digit-input-row">
+          <input type="text" class="digit-val-input" id="digit-val-${i}" value="${b.actual}" maxlength="2" oninput="onDigitValChange(${i}, this.value)">
+          <button type="button" class="toggle-tag ${b.is_half ? 'active-half' : ''}" onclick="toggleHalf(${i})">⚠️ Half</button>
+          <button type="button" class="toggle-tag ${b.is_spurious ? 'active-spurious' : ''}" onclick="toggleSpurious(${i})">❌ Thừa</button>
+          <button type="button" class="toggle-tag ${b.is_decimal ? 'active-decimal' : ''}" onclick="toggleDecimal(${i})">🔴 Số đỏ</button>
+          <button type="button" class="btn btn-danger" style="padding:2px 6px; margin-left:auto;" onclick="removeDigit(${i})">🗑️</button>
+        </div>
+        <div style="font-size:10px; color:var(--text-dim); font-family:monospace;">
+          X:${b.x} Y:${b.y} (${b.w}x${b.h}px)
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+
+  syncFullText();
+  updateThumbnails();
+}
+
+function highlightSelectedCard() {
+  document.querySelectorAll('.digit-card-item').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === selectedBoxIdx);
+    if (idx === selectedBoxIdx) el.scrollIntoView({ block: 'nearest' });
+  });
+}
+
+function onDigitValChange(i, val) {
+  if (currentBoxes[i]) {
+    currentBoxes[i].actual = val;
+    syncFullText();
+    renderCanvas();
+  }
+}
+
+function toggleHalf(i) {
+  if (currentBoxes[i]) {
+    currentBoxes[i].is_half = !currentBoxes[i].is_half;
+    renderDigitCards();
+    renderCanvas();
+  }
+}
+
+function toggleSpurious(i) {
+  if (currentBoxes[i]) {
+    currentBoxes[i].is_spurious = !currentBoxes[i].is_spurious;
+    renderDigitCards();
+    renderCanvas();
+  }
+}
+
+function toggleDecimal(i) {
+  if (currentBoxes[i]) {
+    currentBoxes[i].is_decimal = !currentBoxes[i].is_decimal;
+    renderDigitCards();
+  }
+}
+
+function removeDigit(i) {
+  currentBoxes.splice(i, 1);
+  if (selectedBoxIdx === i) selectedBoxIdx = -1;
+  sortBoxes();
+  renderDigitCards();
+  renderCanvas();
+}
+
+function syncFullText() {
+  let str = "";
+  currentBoxes.forEach(b => {
+    if (!b.is_spurious && b.actual) {
+      str += b.actual;
+    }
+  });
+  document.getElementById('full-actual-text').value = str;
+}
+
+function onFullTextManualInput() {
+  const str = document.getElementById('full-actual-text').value.trim();
+  let charIdx = 0;
+  currentBoxes.forEach(b => {
+    if (!b.is_spurious) {
+      if (charIdx < str.length) {
+        b.actual = str[charIdx++];
+      }
+    }
+  });
+  renderDigitCards();
+  renderCanvas();
+}
+
+// -------------------------------------------------------------
+// SAVE & ADVANCE
+// -------------------------------------------------------------
+async function saveCurrent() {
+  const name = allImages[currentIdx];
+  const type = document.querySelector('input[name="meter-type"]:checked').value;
+  const obb = document.getElementById('chk-obb').checked;
+  const digits_bbox_correct = document.getElementById('chk-bbox').checked;
+  const actual_text = document.getElementById('full-actual-text').value.trim();
+
+  const digit_details = currentBoxes.map(b => ({
+    actual: b.actual,
+    is_half: b.is_half,
+    is_spurious: b.is_spurious,
+    is_decimal: b.is_decimal
+  }));
+
+  const boxes = currentBoxes.map(b => ({
+    x1: b.x,
+    y1: b.y,
+    x2: b.x + b.w,
+    y2: b.y + b.h
+  }));
+
+  const payload = {
+    type,
+    obb,
+    digits_bbox_correct,
+    actual_text,
+    digit_details,
+    boxes,
+    quad: currentQuad // Save custom OBB coordinates permanently
+  };
+
+  const res = await fetch(`/api/testocr/evaluate/${encodeURIComponent(name)}?batch=1`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(r => r.json());
+
+  if (res.ok) {
+    allEvals[name] = payload;
+    updateCounts();
+    renderSidebar();
+    showToast('Đã lưu! Tự động chuyển tiếp ⏩');
+    const saveBtn = document.querySelector('button[onclick="saveCurrent()"]');
+    if (saveBtn) {
+      const origText = saveBtn.innerHTML;
+      saveBtn.innerHTML = '✔️ Đã lưu → Next!';
+      saveBtn.style.background = '#2ea043';
+      setTimeout(() => {
+        saveBtn.innerHTML = origText;
+        saveBtn.style.background = '';
+      }, 800);
+    }
+    setTimeout(() => {
+      nextImage();
+    }, 300);
+  }
+}
+
+function nextImage() {
+  if (currentIdx < allImages.length - 1) {
+    selectImage(currentIdx + 1);
+  } else {
+    showToast('🎉 Đã hoàn thành duyệt đến ảnh cuối cùng!');
+  }
+}
+
+function prevImage() {
+  if (currentIdx > 0) {
+    selectImage(currentIdx - 1);
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveCurrent();
+  } else if (e.key === 'Enter') {
+    if (document.activeElement.tagName === 'INPUT') {
+      e.preventDefault();
+      saveCurrent();
+    }
+  } else if (e.key === 'Delete' || e.key === 'Backspace') {
+    if (document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      deleteSelectedBox();
+    }
+  } else if (e.key === 'v' || e.key === 'V') {
+    if (document.activeElement.tagName !== 'INPUT') {
+      if (canvasMode === 'bbox') setBBoxTool('select');
+      else setOBBTool('select');
+    }
+  } else if (e.key === 'd' || e.key === 'D') {
+    if (document.activeElement.tagName !== 'INPUT') {
+      if (canvasMode === 'bbox') setBBoxTool('draw');
+      else setOBBTool('draw');
+    }
+  } else if (e.key === 'ArrowRight') {
+    if (document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      nextImage();
+    }
+  } else if (e.key === 'ArrowLeft') {
+    if (document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      prevImage();
+    }
+  }
+});
+
+// Export to Train modal
+function exportToTrainDataset() {
+  document.getElementById('export-modal').style.display = 'flex';
+}
+function closeExportModal() {
+  document.getElementById('export-modal').style.display = 'none';
+}
+async function doExport() {
+  const statusBox = document.getElementById('export-status-box');
+  statusBox.innerHTML = '<span style="color:#d29922;">⏳ Đang trích xuất và chuẩn hóa nhãn vào ocr_dataset...</span>';
+  
+  const res = await fetch('/api/validate1/export_to_train', { method: 'POST' }).then(r => r.json());
+  if (res.ok) {
+    statusBox.innerHTML = `
+      <span style="color:#3fb950; font-weight:bold;">✔️ Xuất thành công!</span><br>
+      - Tổng ảnh cơ đã xuất: <b>${res.exported_images}</b> ảnh<br>
+      - Chữ số sạch (Clean digits): <b>${res.clean_digits_count}</b> chữ số<br>
+      - Chữ số lưng chừng (Half digits): <b>${res.half_digits_count}</b> chữ số<br>
+      <small style="color:#8b949e;">Đã lưu ảnh nắn vào <code>ocr_dataset/crops/</code> và nhãn vào <code>ocr_dataset/labels/</code>.</small>
+    `;
+  } else {
+    statusBox.innerHTML = `<span style="color:#f85149;">❌ Lỗi: ${res.error || 'Không thể xuất'}</span>`;
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>

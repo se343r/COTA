@@ -1,0 +1,28 @@
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Training checkpoints & runs
+runs/
+*.log
+server.log
+
+# System / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# No images
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.webp
+*.gif

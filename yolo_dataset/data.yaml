@@ -1,0 +1,5 @@
+path: /home/deist/Downloads/OCR/anh/yolo_dataset
+train: images/train
+val: images/val
+nc: 2
+names: ['Cơ', 'Điện tử']

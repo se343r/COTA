@@ -1,0 +1,2272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meter reading — data prep</title>
+<style>
+  :root {
+    --bg:#0f1216; --panel:#171c23; --panel2:#1e252e; --line:#2a333f;
+    --text:#dfe6ee; --dim:#8b98a8; --accent:#4da3ff; --good:#37c978;
+    --bad:#ff5c5c; --warn:#ffb340;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; height:100%; }
+  body { background:var(--bg); color:var(--text);
+         font:14px/1.45 "Segoe UI",system-ui,sans-serif; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 18px;
+           background:var(--panel); border-bottom:1px solid var(--line); }
+  header h1 { font-size:16px; margin:0; font-weight:600; }
+  header .sub { color:var(--dim); font-size:12px; }
+  .tabs { display:flex; gap:6px; margin-left:auto; }
+  .tab { border:1px solid var(--line); background:var(--panel2); color:var(--dim);
+         padding:7px 14px; border-radius:8px; cursor:pointer; font-size:13px; }
+  .tab.active { color:var(--accent); border-color:var(--accent); }
+  main { display:none; height:calc(100% - 53px); }
+  main.active { display:flex; }
+
+  /* ---------------- filter ---------------- */
+  #filter-view { flex-direction:row; }
+  .sidebar { width:250px; background:var(--panel); border-right:1px solid var(--line);
+             overflow-y:auto; padding:10px; flex:none; }
+  .sidebar h3 { margin:8px 4px; font-size:12px; text-transform:uppercase;
+                letter-spacing:.05em; color:var(--dim); }
+  .thumb { display:block; width:100%; border-radius:8px; border:2px solid var(--line);
+           margin:4px 0; cursor:pointer; aspect-ratio:3/4; object-fit:cover; }
+  .thumb.decided { border-color:var(--warn); }
+  .thumb.keep { border-color:var(--good); }
+  .thumb.reject { border-color:var(--bad); }
+  .thumb.lab { border-color:var(--good); }
+  .main-area { flex:1; display:flex; flex-direction:column; align-items:center;
+               overflow:auto; padding:16px; }
+  #filter-img { max-width:100%; max-height:calc(100% - 90px); border-radius:8px;
+                box-shadow:0 4px 24px rgba(0,0,0,.5); }
+  .controls { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;
+              justify-content:center; max-width:720px; }
+  button { background:var(--panel2); color:var(--text); border:1px solid var(--line);
+           padding:9px 14px; border-radius:8px; cursor:pointer; font-size:13px; }
+  button:hover { border-color:var(--accent); }
+  button.good { color:#04210f; background:var(--good); border-color:var(--good); font-weight:600; }
+  button.bad { color:#2a0505; background:var(--bad); border-color:var(--bad); }
+  .btn-sm { padding:5px 9px; font-size:12px; }
+  .progressbar { width:100%; max-width:720px; height:8px; background:var(--panel2);
+                 border-radius:4px; overflow:hidden; margin-bottom:10px; }
+  .progressbar > div { height:100%; background:var(--accent); width:0%; }
+  .stats { color:var(--dim); font-size:12px; margin-bottom:8px; }
+  #filter-filename { font-size:12px; color:var(--dim); margin-bottom:4px; }
+
+  /* ---------------- label (crop) ---------------- */
+  #crop-view { flex-direction:row; }
+  #crop-main { flex:1; display:flex; flex-direction:column; padding:14px; overflow:auto; }
+  .crop-top { display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  #canvas-wrap { position:relative; display:block; width:100%; text-align:center; }
+  #crop-canvas { max-width:100%; display:inline-block; border-radius:8px;
+                 box-shadow:0 4px 24px rgba(0,0,0,.5); cursor:crosshair; }
+  .crop-info { color:var(--dim); font-size:12px; }
+  .crop-info .val { color:var(--accent); font-family:ui-monospace,monospace; }
+  #log { margin-top:12px; font-family:ui-monospace,monospace; font-size:12px;
+         color:var(--dim); white-space:pre-wrap; max-height:120px; overflow:auto; }
+  .hint { color:var(--dim); font-size:12px; }
+  kbd { background:var(--panel2); border:1px solid var(--line); border-radius:4px;
+        padding:1px 5px; font-size:11px; }
+  .status-badge { font-size:11px; padding:3px 8px; border-radius:10px; }
+  .badge-new { background:#33415a; color:var(--accent); }
+  .badge-saved { background:#173a2a; color:var(--good); }
+  #box-coords { font-family:ui-monospace,monospace; font-size:12px; }
+  #box-coords.saved { color:var(--good); }
+  #box-coords.dirty { color:var(--warn); }
+
+  /* Test screen */
+  #test-view { flex-direction:row; }
+  #test-main { flex:1; display:flex; flex-direction:column; padding:14px; overflow:auto; }
+  #test-canvas-wrap { display:block; width:100%; text-align:center; flex:1; min-height:0; }
+  #test-canvas { max-width:100%; display:inline-block; border-radius:8px;
+                 box-shadow:0 4px 24px rgba(0,0,0,.5); }
+  #test-list { overflow-y:auto; padding:8px; }
+  #test-list .tthumb { width:80px; height:60px; object-fit:cover; border-radius:4px;
+                       cursor:pointer; border:2px solid transparent; display:block;
+                       margin-bottom:6px; }
+  #test-list .tthumb.t-active { border-color:var(--accent); }
+  #test-list .tthumb.t-ok    { border-color:var(--good); }
+  #test-list .tthumb.t-fail  { border-color:#e07; }
+  #test-result-panel { font-size:13px; }
+  .det-box-tag { display:inline-block; background:var(--panel2); border:1px solid var(--line);
+                 border-radius:6px; padding:2px 10px; margin:2px 4px; font-size:12px; }
+  .det-box-tag .conf { color:var(--accent); font-family:ui-monospace,monospace; }
+
+  /* Review screen */
+  #review-view { flex-direction:row; }
+  #review-main { flex:1; display:flex; flex-direction:column; padding:14px; overflow:auto; }
+  #rv-canvas-wrap { display:block; width:100%; text-align:center; flex:1; min-height:0; }
+  #rv-canvas  { max-width:100%; display:inline-block; border-radius:8px;
+                box-shadow:0 4px 24px rgba(0,0,0,.5); }
+  #review-list { overflow-y:auto; padding:8px; }
+  #review-list .rvthumb { width:80px; height:60px; object-fit:cover; border-radius:4px;
+                          cursor:pointer; border:2px solid transparent; display:block;
+                          margin-bottom:4px; }
+  #review-list .rvthumb.rv-active  { border-color:var(--accent); }
+  #review-list .rvthumb.rv-ok      { border-color:var(--good); }
+  #review-list .rvthumb.rv-flagged { border-color:#e07; }
+  .rv-filter-btn.active { background:var(--accent); color:#000; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ Meter reading — data prep</h1>
+  <span class="sub" id="img-count"></span>
+  <div class="tabs">
+    <nav style="display:flex; gap:6px;">
+      <a href="#" class="tab active" data-view="filter">Bộ lọc ảnh</a>
+      <a href="#" class="tab" data-view="crop">Label boxes</a>
+      <a href="#" class="tab" data-view="review">Rà soát nhãn</a>
+      <a href="#" class="tab" data-view="test">🧪 Test model</a>
+      <a href="#" class="tab" data-view="ocr">🔢 Gán chỉ số</a>
+    </nav>
+  </div>
+</header>
+
+<main id="filter-view" class="active">
+  <aside class="sidebar" id="thumb-list"></aside>
+  <section class="main-area">
+    <div class="stats" id="stats"></div>
+    <div class="progressbar"><div id="progress-fill"></div></div>
+    <div id="filter-filename"></div>
+    <img id="filter-img" alt="">
+    <div class="controls" id="filter-buttons"></div>
+    <div class="controls">
+      <button class="btn-sm" id="btn-prev">◀ Prev</button>
+      <button class="btn-sm" id="btn-undo">↩ Undo</button>
+      <button class="btn-sm" id="btn-next">Next ▶</button>
+    </div>
+    <div class="controls" id="export-area"></div>
+  </section>
+</main>
+
+<main id="crop-view">
+  <aside class="sidebar" id="crop-list"></aside>
+  <section id="crop-main">
+    <div class="crop-top">
+      <button id="btn-save" class="good">💾 Save &amp; next <kbd>S</kbd></button>
+      <select id="meter-class-select" style="padding: 4px 8px; border-radius: 4px; background: var(--panel2); color: var(--fg); border: 1px solid var(--line); outline: none; margin-left: 4px;"></select>
+      <button id="btn-detect">✨ Auto-suggest <kbd>D</kbd></button>
+      <button id="btn-clear">✕ Clear / delete <kbd>X</kbd></button>
+      <button id="btn-next-unlabeled">▶ next unlabeled <kbd>N</kbd></button>
+      <button id="btn-prev">◀</button>
+      <button id="btn-next">▶</button>
+      <span class="status-badge" id="crop-status"></span>
+      <span class="crop-info" id="box-coords"></span>
+      <span class="crop-info" id="crop-strategy"></span>
+    </div>
+    <div class="crop-top">
+      <span class="hint">drag to draw a box · drag box to move · drag a corner to resize (keeps tilt) · drag the ● above the box, or press <kbd>[</kbd><kbd>]</kbd> to rotate (±5° with <kbd>Shift</kbd>) · <kbd>R</kbd> resets tilt</span>
+      <span class="crop-info">size <span class="val" id="img-size">-</span></span>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="crop-canvas"></canvas>
+    </div>
+    <div class="crop-top">
+      <button id="btn-export-ds">📦 Export YOLO dataset → train YOLOv8</button>
+      <span class="crop-info" id="yolo-status"></span>
+    </div>
+    <div id="log"></div>
+  </section>
+</main>
+
+<main id="test-view">
+  <aside class="sidebar" id="test-list"></aside>
+  <section id="test-main">
+    <!-- Top controls -->
+    <div class="crop-top">
+      <button id="btn-test-prev">◀</button>
+      <button id="btn-test-next">▶</button>
+      <button id="btn-test-run">🔍 Detect <kbd>D</kbd></button>
+      <button id="btn-test-ok" class="good" disabled>✅ Đúng <kbd>→</kbd></button>
+      <button id="btn-test-fail" style="background:#7a2020" disabled>❌ Sai <kbd>←</kbd></button>
+      <button id="btn-test-skip" disabled>⏭ Bỏ qua <kbd>S</kbd></button>
+      <button id="btn-test-reject" style="background:#5a1020">🗑 Xóa ảnh <kbd>Del</kbd></button>
+      <select id="test-class-select" style="padding:4px 8px; border-radius:4px; background:var(--panel2); color:white; border:1px solid var(--line); margin-left:8px; display:none;"></select>
+      <button id="btn-test-save" style="background:#1a5a3a; display:none;">💾 Lưu thành nhãn <kbd>E</kbd></button>
+      <span id="test-progress" class="crop-info" style="margin-left:8px"></span>
+    </div>
+    <!-- Image + canvas -->
+    <div id="test-canvas-wrap">
+      <canvas id="test-canvas"></canvas>
+    </div>
+    <!-- Detection result -->
+    <div id="test-result-panel" style="padding:10px 14px; display:none;">
+      <span id="test-no-detect" style="color:#e07; display:none;">⚠ Không phát hiện được công tơ</span>
+      <span id="test-det-info" style="display:none"></span>
+    </div>
+    <!-- Stats panel -->
+    <div id="test-stats-panel" style="padding:8px 14px; margin-top:4px; border-top:1px solid var(--line);">
+      <span id="test-stats-text" class="crop-info"></span>
+    </div>
+  </section>
+</main>
+
+<main id="review-view">
+  <aside class="sidebar" id="review-list"></aside>
+  <section id="review-main">
+    <div class="crop-top">
+      <button id="btn-rv-prev">◀</button>
+      <button id="btn-rv-next">▶</button>
+      <button id="btn-rv-ok" class="good">✅ Đúng <kbd>1</kbd></button>
+      <button id="btn-rv-flag" style="background:#7a4500">🚩 Cần sửa <kbd>2</kbd></button>
+      <select id="rv-class-select" style="padding:4px 8px; border-radius:4px; background:var(--panel2); color:white; border:1px solid var(--line); margin-left:8px;"></select>
+      <button id="btn-rv-save" style="background:#1a5a3a">💾 Lưu <kbd>S</kbd></button>
+      <button id="btn-rv-edit" style="background:#1a3a6a">✏️ Tab gốc <kbd>E</kbd></button>
+      <button id="btn-rv-delete" style="background:#5a1020">🗑 Xóa <kbd>Del</kbd></button>
+      <span id="rv-progress" class="crop-info" style="margin-left:8px"></span>
+    </div>
+    <div class="crop-top" style="margin-top:0">
+      <span class="hint">Lọc: </span>
+      <button class="btn-sm rv-filter-btn active" data-filter="all">Tất cả</button>
+      <button class="btn-sm rv-filter-btn" data-filter="unreviewed">Chưa xét</button>
+      <button class="btn-sm rv-filter-btn" data-filter="ok">✅ Đúng</button>
+      <button class="btn-sm rv-filter-btn" data-filter="flagged">🚩 Sai</button>
+      <span id="rv-stats-text" class="crop-info" style="margin-left:12px"></span>
+    </div>
+    <div id="rv-canvas-wrap">
+      <canvas id="rv-canvas"></canvas>
+    </div>
+    <div id="rv-box-info" style="padding:8px 14px; font-size:13px; border-top:1px solid var(--line);"></div>
+  </section>
+</main>
+
+<main id="ocr-view">
+  <aside class="sidebar" id="ocr-list"></aside>
+  <section class="main-area" id="ocr-main" style="display:flex; flex-direction:column; align-items:center; padding-top:20px; overflow-y:auto; outline:none;" tabindex="0">
+    <h2 style="margin: 0; color:var(--text); padding-bottom:10px;">Gán nhãn chỉ số công tơ <span id="ocr-mode-badge" style="background:#555; padding:2px 8px; border-radius:4px; font-size:14px; vertical-align:middle;"></span></h2>
+    <div style="font-size:14px; color:#aaa; margin-bottom:10px;" id="ocr-meta-info"></div>
+    <div id="ocr-mech-hint" style="font-size:13px; color:#888; margin-bottom:20px; text-align:center;">
+      Kéo chuột vẽ box. Click để chọn. Nhấn <code>0-9</code> gán số, <code>U</code> cho unreadable.<br>
+      Nhấn <code>B</code> nếu số bị cuộn giữa 2 giá trị. Nhấn <code>.</code> nếu là số thập phân.<br>
+      Nhấn <code>Delete</code> để xóa box. Kéo các góc để thu phóng.
+    </div>
+    
+    <div id="ocr-canvas-wrap" style="position:relative; margin-bottom:30px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); background:#000; cursor:crosshair;">
+      <canvas id="ocr-canvas"></canvas>
+    </div>
+    
+    <div style="font-size:1.2rem; display:flex; gap:10px; align-items:center;">
+      <div id="ocr-result-text" style="font-size:2rem; font-family:monospace; background:#222; padding:5px 20px; border-radius:6px; min-width:150px; text-align:center; color:#0f0; letter-spacing:4px;"></div>
+      <input type="text" id="ocr-string-input" placeholder="Nhập dãy số..." style="display:none; font-size:1.5rem; padding:8px 12px; width:300px; text-align:center; border-radius:6px; border:1px solid #555; background:#222; color:#fff;" autocomplete="off">
+      <button id="btn-ocr-save" style="font-size:1.2rem; padding:8px 20px; background:#1a5a3a; color:white; border:none; border-radius:6px; cursor:pointer;">💾 Lưu (Enter)</button>
+      <button id="btn-ocr-skip" style="font-size:1.2rem; padding:8px 20px; background:#444; color:white; border:none; border-radius:6px; cursor:pointer;">Bỏ qua ⏭</button>
+      <button id="btn-ocr-yolo" style="font-size:1.2rem; padding:8px 20px; background:#553300; color:white; border:none; border-radius:6px; cursor:pointer;" title="Chạy YOLO detect lại, thay thế box hiện tại (Phím Y)">🤖 YOLO (Y)</button>
+      <button id="btn-ocr-clear" style="font-size:1.2rem; padding:8px 20px; background:#881111; color:white; border:none; border-radius:6px; cursor:pointer;" title="Xóa toàn bộ box (Phím X)">🗑 Xóa tất cả (X)</button>
+
+    </div>
+    <div style="margin-top:20px; color:#aaa; font-size:14px;" id="ocr-progress"></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const reasons = {};
+let names = [];
+let filterIdx = 0;
+let cropIdx = 0;
+let state = {};
+
+/* label-tool state */
+let curImg = null;       // Image
+let curBox = null;       // {cx, cy, w, h, angle} image px; angle deg, 0 = axis-aligned
+let boxDirty = false;    // drawn, not yet saved
+let labels = new Set();  // stems with saved labels
+let dragging = null;     // 0..3 corner, 'rot', 'move', or 'draw'
+let dragStart = null;
+let scale = 1, offset = { x: 0, y: 0 };
+
+let meterClasses = {};
+let defaultMeterClass = "1pha_co";
+let meterState = {};
+
+/* ---------------------------------------------------------------- */
+/* boot                                                              */
+/* ---------------------------------------------------------------- */
+async function boot() {
+  const r = await fetch("/api/images").then(x => x.json());
+  names = r.names;
+  Object.assign(reasons, r.reasons);
+  meterClasses = r.meterClasses || {};
+  defaultMeterClass = r.defaultMeterClass || "1pha_co";
+  meterState = r.meterState || {};
+  
+  // Populate meter class select dropdown
+  const sel = $("meter-class-select");
+  sel.innerHTML = "";
+  // Sort keys by id for stable order
+  const keys = Object.keys(meterClasses).sort((a,b) => meterClasses[a].id - meterClasses[b].id);
+  for (const k of keys) {
+    const opt = document.createElement("option");
+    opt.value = k;
+    opt.textContent = meterClasses[k].label;
+    if (k === defaultMeterClass) opt.selected = true;
+    sel.appendChild(opt);
+  }
+
+  $("img-count").textContent = `${names.length} images`;
+  if (!names.length) return;
+  await refreshState();
+  buildThumbs();
+  buildButtons();
+  buildCropList();
+  await refreshLabels();
+  selectFilter(0);
+  selectCrop(0);
+  updateStats();
+  $("yolo-status").textContent = await fetch("/api/yolo_status").then(x => x.json()).then(
+    s => s.model ? "🤖 YOLO model active" : (s.labels ? `labels: ${s.labels}` : "no labels yet"));
+}
+
+async function refreshState() {
+  state = await fetch("/api/progress").then(x => x.json()).then(x => x.state || {});
+}
+
+async function refreshLabels() {
+  const r = await fetch("/api/labeled").then(x => x.json());
+  labels = new Set(r.labels);
+  renderCropGrid();
+}
+
+function log(msg) {
+  const el = $("log");
+  el.textContent += (el.textContent ? "\n" : "") + msg;
+  el.scrollTop = el.scrollHeight;
+}
+
+/* ---------------------------------------------------------------- */
+/* tabs                                                              */
+/* ---------------------------------------------------------------- */
+let testViewLoaded   = false;
+let reviewViewLoaded = false;
+let ocrViewLoaded    = false;
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x === t));
+  document.querySelectorAll("main").forEach(m =>
+    m.classList.toggle("active", m.id === t.dataset.view + "-view"));
+  if (t.dataset.view === "test" && !testViewLoaded) {
+    testViewLoaded = true;
+    bootTestView();
+  }
+  if (t.dataset.view === "review" && !reviewViewLoaded) {
+    reviewViewLoaded = true;
+    bootReviewView();
+  }
+  if (t.dataset.view === "ocr" && !ocrViewLoaded) {
+    ocrViewLoaded = true;
+    bootOcrView();
+  }
+}));
+
+/* ---------------------------------------------------------------- */
+/* filter                                                            */
+/* ---------------------------------------------------------------- */
+function buildThumbs() {
+  const list = $("thumb-list");
+  list.innerHTML = '<h3>samples</h3>';
+  names.forEach((n, i) => {
+    const img = document.createElement("img");
+    img.className = "thumb";
+    img.src = `/images/${encodeURIComponent(n)}/thumb`;
+    img.alt = n;
+    img.title = n;
+    img.dataset.i = i;
+    img.addEventListener("click", () => selectFilter(i));
+    list.appendChild(img);
+  });
+}
+
+function buildButtons() {
+  const box = $("filter-buttons");
+  box.innerHTML = "";
+  for (const [label, desc] of Object.entries(reasons)) {
+    const b = document.createElement("button");
+    b.textContent = (label === "keep" ? "✓ " : "✕ ") + desc;
+    if (label === "keep") b.className = "good";
+    else if (label.startsWith("reject")) b.className = "bad";
+    b.addEventListener("click", () => classify(label));
+    box.appendChild(b);
+  }
+  const area = $("export-area");
+  area.innerHTML = "";
+  const exp = document.createElement("button");
+  exp.className = "btn-sm";
+  exp.textContent = "📤 Export filtered dataset (copy)";
+  exp.addEventListener("click", () => exportFiltered("copy"));
+  const sym = document.createElement("button");
+  sym.className = "btn-sm";
+  sym.textContent = "🔗 Export as symlinks";
+  sym.addEventListener("click", () => exportFiltered("symlink"));
+  area.append(exp, sym);
+}
+
+function renderThumbStatus() {
+  document.querySelectorAll(".thumb").forEach(t => {
+    const lbl = state[names[+t.dataset.i]];
+    t.classList.remove("keep", "reject", "decided");
+    if (lbl) { t.classList.add("decided");
+      if (lbl.label === "keep") t.classList.add("keep");
+      else if (lbl.label.startsWith("reject")) t.classList.add("reject");
+    }
+  });
+}
+
+function selectFilter(i) {
+  if (i < 0 || i >= names.length) return;
+  filterIdx = i;
+  const n = names[i];
+  $("filter-img").src = `/images/${encodeURIComponent(n)}`;
+  $("filter-filename").textContent =
+    `${i + 1} / ${names.length} — ${n}` + (state[n] ? `  [${reasons[state[n].label] || state[n].label}]` : "");
+  document.querySelectorAll(".thumb").forEach(t =>
+    t.style.outline = +t.dataset.i === i ? "2px solid var(--accent)" : "none");
+  const el = $("thumb-list");
+  const active = el.querySelector(`.thumb[data-i="${i}"]`);
+  if (active) active.scrollIntoView({ block: "nearest" });
+}
+
+async function classify(label) {
+  const n = names[filterIdx];
+  await fetch("/api/classify", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: n, label })
+  });
+  await refreshState();
+  renderThumbStatus();
+  updateStats();
+  selectFilter(filterIdx);
+  if (filterIdx + 1 < names.length) selectFilter(filterIdx + 1);
+}
+
+async function undo() {
+  const n = names[filterIdx];
+  await fetch("/api/classify/undo", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: n })
+  });
+  await refreshState();
+  renderThumbStatus();
+  updateStats();
+  selectFilter(filterIdx);
+}
+
+async function updateStats() {
+  const s = await fetch("/api/stats").then(x => x.json());
+  $("stats").textContent =
+    `${s.done}/${s.total} done (${s.remaining} left) · ` +
+    Object.entries(s.by_label).map(([k, v]) =>
+      `${reasons[k] || k}: ${v}`).join(" · ") || "no decisions yet";
+  $("progress-fill").style.width = (s.total ? s.done / s.total * 100 : 0) + "%";
+}
+
+async function exportFiltered(mode) {
+  log(`Exporting (${mode})...`);
+  const r = await fetch("/api/export", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mode, keep_only: false })
+  }).then(x => x.json());
+  log(`Exported → filtered/  keep:${r.keep} reject:${r.reject}`);
+}
+
+$("btn-prev").addEventListener("click", () => selectFilter(filterIdx - 1));
+$("btn-next").addEventListener("click", () => selectFilter(filterIdx + 1));
+$("btn-undo").addEventListener("click", undo);
+
+/* ---------------------------------------------------------------- */
+/* label tool (crop)                                                 */
+/* ---------------------------------------------------------------- */
+const canvas = $("crop-canvas");
+const ctx = canvas.getContext("2d");
+
+function buildCropList() {
+  const list = $("crop-list");
+  list.innerHTML = '<h3>annotated <span id="crop-count"></span></h3>';
+  names.forEach((n, i) => {
+    const img = document.createElement("img");
+    img.className = "thumb";
+    img.src = `/images/${encodeURIComponent(n)}/thumb`;
+    img.alt = n;
+    img.title = n;
+    img.dataset.i = i;
+    img.addEventListener("click", () => { saveCurrentBox(); selectCrop(i); });
+    list.appendChild(img);
+  });
+}
+
+function renderCropGrid() {
+  if (!$("crop-list").children.length) return;
+  document.querySelectorAll("#crop-list .thumb").forEach(t => {
+    const has = labels.has(names[+t.dataset.i].replace(/\.[^.]+$/, ""));
+    t.classList.toggle("lab", has);
+    t.style.outline = +t.dataset.i === cropIdx ? "2px solid var(--accent)" : "none";
+  });
+  $("crop-count").textContent = `(${labels.size}/${names.length})`;
+}
+
+function stemOf(n) { return n.replace(/\.[^.]+$/, ""); }
+
+function loadImage(n) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = `/images/${encodeURIComponent(n)}`;
+  });
+}
+
+async function selectCrop(i) {
+  if (i < 0 || i >= names.length) return;
+  cropIdx = i;
+  const n = names[i];
+  curImg = await loadImage(n);
+  if (!curImg) { log("failed to load " + n); return; }
+  $("img-size").textContent = `${curImg.width}×${curImg.height}`;
+  
+  // Set meter class select
+  const sel = $("meter-class-select");
+  sel.value = meterState[n] || defaultMeterClass;
+
+  curBox = null;
+  boxDirty = false;
+  fitCanvas();
+  draw();
+  updateStatus();
+  renderCropGrid();
+  const active = $("crop-list").querySelector(`.thumb[data-i="${i}"]`);
+  if (active) active.scrollIntoView({ block: "nearest" });
+}
+
+async function saveCurrentBox() {
+  /* called before navigating: persist a drawn box so nothing is lost */
+  if (!curImg || !curBox || curBox.w < MIN_SIZE || curBox.h < MIN_SIZE) return;
+  const n = names[cropIdx];
+  const mclass = $("meter-class-select").value;
+  const r = await fetch("/api/label", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: n, box: {
+      cx: curBox.cx, cy: curBox.cy, w: curBox.w, h: curBox.h,
+      angleDeg: curBox.angle
+    }, meterClass: mclass })
+  }).then(x => x.json());
+  if (r.ok) {
+    labels.add(stemOf(n));
+    meterState[n] = mclass;
+    boxDirty = false;
+    renderCropGrid();
+    updateStatus();
+  } else {
+    log("save failed: " + (r.error || "?"));
+  }
+}
+
+function fitCanvas() {
+  const wrap = $("canvas-wrap");
+  // Use the crop-main container width (reliable even before canvas is drawn)
+  const mainW = ($("crop-main").clientWidth || 800) - 28;
+  const maxW = Math.max(300, mainW);
+  // Available height = window minus header + toolbars (~160px)
+  const maxH = Math.max(400, window.innerHeight - 200);
+  scale = Math.min(maxW / curImg.width, maxH / curImg.height);
+  canvas.width = Math.round(curImg.width * scale);
+  canvas.height = Math.round(curImg.height * scale);
+  offset = { x: 0, y: 0 };
+}
+
+function toImg(x, y) { return { x: (x - offset.x) / scale, y: (y - offset.y) / scale }; }
+function toCv(x, y) { return { x: x * scale + offset.x, y: y * scale + offset.y }; }
+
+/* oriented-box geometry ------------------------------------------------ */
+// A box is {cx, cy, w, h, angle}; angle in degrees (0 = axis aligned). The
+// width axis points along (cos a, sin a) in screen coords (y down), so a
+// positive angle tilts the top edge down to the right (clockwise).
+function boxCorners(b) {
+  // 4 corners in image px, clockwise from the top-left: TL, TR, BR, BL
+  const a = b.angle * Math.PI / 180, cos = Math.cos(a), sin = Math.sin(a);
+  const ux = cos, uy = sin, vx = -sin, vy = cos;   // width axis u, height axis v
+  const hw = b.w / 2, hh = b.h / 2;
+  return [
+    [b.cx - hw * ux - hh * vx, b.cy - hw * uy - hh * vy],
+    [b.cx + hw * ux - hh * vx, b.cy + hw * uy - hh * vy],
+    [b.cx + hw * ux + hh * vx, b.cy + hw * uy + hh * vy],
+    [b.cx - hw * ux + hh * vx, b.cy - hw * uy + hh * vy],
+  ];
+}
+function toCan(p) { return { x: p[0] * scale + offset.x, y: p[1] * scale + offset.y }; }
+function axisBox(x0, y0, x1, y1) {
+  // axis-aligned box from two dragged corners
+  return { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2,
+           w: Math.max(MIN_SIZE, Math.abs(x1 - x0)),
+           h: Math.max(MIN_SIZE, Math.abs(y1 - y0)), angle: 0 };
+}
+function clampCenter(b) {
+  // keep the box's axis-aligned extent inside the image (same feel as before)
+  if (b.w >= curImg.width) b.cx = curImg.width / 2;
+  else b.cx = Math.max(b.w / 2, Math.min(curImg.width - b.w / 2, b.cx));
+  if (b.h >= curImg.height) b.cy = curImg.height / 2;
+  else b.cy = Math.max(b.h / 2, Math.min(curImg.height - b.h / 2, b.cy));
+  return b;
+}
+function rotPts(cs) {
+  // rotate-lever geometry in canvas px: top-edge midpoint + knob tip
+  const cen = toCan([curBox.cx, curBox.cy]);
+  const mx = (cs[0].x + cs[1].x) / 2, my = (cs[0].y + cs[1].y) / 2;
+  let dx = mx - cen.x, dy = my - cen.y;
+  const L = Math.hypot(dx, dy) || 1;
+  dx /= L; dy /= L;
+  return { cen, top: { x: mx, y: my }, tip: { x: mx + dx * ROT_STEM, y: my + dy * ROT_STEM } };
+}
+function inPoly(pts, x, y) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const xi = pts[i].x, yi = pts[i].y, xj = pts[j].x, yj = pts[j].y;
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+function fmtDeg(a) { a = Math.round(a * 10) / 10; return Number.isInteger(a) ? String(a) : a.toFixed(1); }
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!curImg) return;
+  ctx.drawImage(curImg, offset.x, offset.y, curImg.width * scale, curImg.height * scale);
+  if (!curBox) return;
+  const color = boxDirty ? "#ffb340" : "#37c978";
+  const cs = boxCorners(curBox).map(toCan);
+  // box body + outline
+  ctx.beginPath();
+  ctx.moveTo(cs[0].x, cs[0].y);
+  for (let i = 1; i < 4; i++) ctx.lineTo(cs[i].x, cs[i].y);
+  ctx.closePath();
+  ctx.fillStyle = boxDirty ? "rgba(255,179,64,0.10)" : "rgba(55,201,120,0.10)";
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  // 4 corner handles — each drags its own corner (box stays a rectangle)
+  const hs = 16;
+  cs.forEach(p => {
+    ctx.fillStyle = color;
+    ctx.fillRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+    ctx.strokeStyle = "#0f1216";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+  });
+  // rotate lever above the top edge
+  const rp = rotPts(cs);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(rp.top.x, rp.top.y); ctx.lineTo(rp.tip.x, rp.tip.y); ctx.stroke();
+  ctx.beginPath(); ctx.arc(rp.tip.x, rp.tip.y, 7.5, 0, Math.PI * 2);
+  ctx.fillStyle = boxDirty ? "rgba(255,179,64,0.85)" : "rgba(55,201,120,0.85)";
+  ctx.fill();
+  ctx.strokeStyle = "#0f1216";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function updateStatus() {
+  const n = names[cropIdx];
+  const saved = labels.has(stemOf(n));
+  const badge = $("crop-status");
+  if (saved) { badge.textContent = "✓ saved"; badge.className = "status-badge badge-saved"; }
+  else if (curBox) { badge.textContent = "drawn — not saved"; badge.className = "status-badge badge-new"; }
+  else { badge.textContent = "no box"; badge.className = "status-badge"; }
+  const co = $("box-coords");
+  if (curBox) {
+    co.textContent = `box ${Math.round(curBox.cx)}, ${Math.round(curBox.cy)}  ` +
+      `${Math.round(curBox.w)}×${Math.round(curBox.h)}  @ ${fmtDeg(curBox.angle)}°`;
+    co.className = "crop-info" + (boxDirty ? " dirty" : " saved");
+  } else {
+    co.textContent = "";
+  }
+}
+
+/* canvas interactions -------------------------------------------------- */
+function canvasPos(e) {
+  const r = canvas.getBoundingClientRect();
+  return { mx: e.clientX - r.left, my: e.clientY - r.top };
+}
+
+const HANDLE_R = 22;   // canvas-px grab radius around a corner or the rotate knob
+const MIN_SIZE = 6;    // min box side in image px (corner drag can't collapse it)
+const ROT_STEM = 34;   // canvas-px length of the rotate lever
+
+function findHandle(m) {
+  // m in canvas px (shape {mx, my} from canvasPos); returns a corner index, 'rot', 'move', or null
+  if (!curBox) return null;
+  const cs = boxCorners(curBox).map(toCan);
+  for (let i = 0; i < 4; i++) {
+    if (Math.hypot(m.mx - cs[i].x, m.my - cs[i].y) < HANDLE_R) return i;
+  }
+  const rp = rotPts(cs);
+  if (Math.hypot(m.mx - rp.tip.x, m.my - rp.tip.y) < HANDLE_R + 4) return "rot";
+  if (inPoly(cs, m.mx, m.my)) return "move";
+  return null;
+}
+
+function handleCursor(i) {
+  // TL/BR drag along the nw-se diagonal, TR/BL along ne-sw (at angle ~0)
+  return (i % 2 === 0) ? "nwse-resize" : "nesw-resize";
+}
+
+canvas.addEventListener("mousedown", (e) => {
+  if (!curImg) return;
+  const p = canvasPos(e);
+  if (curBox) {
+    const h = findHandle(p);
+    if (h !== null) {
+      dragging = h;
+      dragStart = { mx: p.mx, my: p.my, box: { ...curBox } };
+      e.preventDefault();
+      return;
+    }
+  }
+  const m = toImg(p.mx, p.my);
+  dragging = "draw";
+  dragStart = { mx: p.mx, my: p.my, ox: m.x, oy: m.y };
+  curBox = axisBox(m.x, m.y, m.x, m.y);
+  boxDirty = true;
+  draw();
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (!curImg) return;
+  const p = canvasPos(e);
+  // hover cursor feedback, even when not dragging
+  if (!dragging) {
+    let c = "crosshair";
+    if (curBox) {
+      const h = findHandle(p);
+      if (h === "move") c = "move";
+      else if (h === "rot") c = "grab";
+      else if (h !== null) c = handleCursor(h);
+    }
+    canvas.style.cursor = c;
+    return;
+  }
+  const m = toImg(p.mx, p.my);
+  const X = Math.max(0, Math.min(curImg.width, m.x));
+  const Y = Math.max(0, Math.min(curImg.height, m.y));
+  if (dragging === "draw") {
+    curBox = axisBox(dragStart.ox, dragStart.oy, X, Y);
+    boxDirty = true;
+  } else if (dragging === "move") {
+    const ref = toImg(dragStart.mx, dragStart.my);
+    const dx = X - ref.x, dy = Y - ref.y;
+    const b = dragStart.box;
+    curBox = clampCenter({ cx: b.cx + dx, cy: b.cy + dy, w: b.w, h: b.h, angle: b.angle });
+    boxDirty = true;
+  } else if (dragging === "rot") {
+    const cen = toCan([curBox.cx, curBox.cy]);
+    let a = Math.atan2(p.my - cen.y, p.mx - cen.x) * 180 / Math.PI + 90;
+    curBox.angle = Math.round(a * 10) / 10;
+    boxDirty = true;
+  } else {
+    // corner resize: keep the box's angle; the opposite corner stays fixed
+    const SU = [-1, 1, 1, -1], SV = [-1, -1, 1, 1];   // TL,TR,BR,BL
+    const b = dragStart.box;
+    const rad = b.angle * Math.PI / 180;
+    const ux = Math.cos(rad), uy = Math.sin(rad), vx = -uy, vy = ux;
+    const hw = b.w / 2, hh = b.h / 2;
+    const o = (dragging + 2) % 4;                     // opposite corner
+    const Px = b.cx + SU[o] * hw * ux + SV[o] * hh * vx;
+    const Py = b.cy + SU[o] * hw * uy + SV[o] * hh * vy;
+    let wN = SU[dragging] * ((X - Px) * ux + (Y - Py) * uy);
+    let hN = SV[dragging] * ((X - Px) * vx + (Y - Py) * vy);
+    if (wN < MIN_SIZE) wN = MIN_SIZE;
+    if (hN < MIN_SIZE) hN = MIN_SIZE;
+    curBox = {
+      cx: Px + SU[dragging] * (wN / 2) * ux + SV[dragging] * (hN / 2) * vx,
+      cy: Py + SU[dragging] * (wN / 2) * uy + SV[dragging] * (hN / 2) * vy,
+      w: wN, h: hN, angle: b.angle
+    };
+    boxDirty = true;
+  }
+  draw();
+  updateStatus();
+});
+
+window.addEventListener("mouseup", () => {
+  dragging = null;
+  dragStart = null;
+  canvas.style.cursor = "crosshair";
+});
+
+// rotate the current box about its centre by `d` degrees (or reset with null).
+function nudgeAngle(d) {
+  if (!curBox) return;
+  curBox.angle = (curBox.angle + d) % 360;
+  if (curBox.angle > 180) curBox.angle -= 360;
+  if (curBox.angle < -180) curBox.angle += 360;
+  boxDirty = true;
+  draw();
+  updateStatus();
+}
+function resetAngle() {
+  if (!curBox || curBox.angle === 0) return;
+  curBox.angle = 0;
+  boxDirty = true;
+  draw();
+  updateStatus();
+}
+
+/* actions --------------------------------------------------------------- */
+$("btn-save").addEventListener("click", async () => {
+  await saveCurrentBox();
+  if (cropIdx + 1 < names.length) selectCrop(cropIdx + 1);
+});
+
+$("btn-clear").addEventListener("click", async () => {
+  const n = names[cropIdx];
+  curBox = null; boxDirty = false;
+  draw(); updateStatus();
+  const r = await fetch("/api/label/delete", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: n })
+  }).then(x => x.json());
+  labels.delete(stemOf(n));
+  renderCropGrid();
+});
+
+$("btn-detect").addEventListener("click", async () => {
+  const n = names[cropIdx];
+  const r = await fetch(`/api/detect/${encodeURIComponent(n)}`).then(x => x.json());
+  if (r.kind && r.w > 0 && r.h > 0) {
+    curBox = clampCenter({ cx: r.cx, cy: r.cy, w: r.w, h: r.h,
+                           angle: r.angleDeg ? Math.round(r.angleDeg * 10) / 10 : 0 });
+    boxDirty = true;
+    if (r.meterClass && meterClasses[r.meterClass]) {
+      $("meter-class-select").value = r.meterClass;
+    }
+    draw();
+    const a = curBox.angle;
+    $("crop-strategy").textContent = `suggested (${r.strategy})` +
+      (a ? ` @ ${fmtDeg(a)}°` : "") + " — adjust, then save";
+    log(`suggested ${r.strategy}${a ? ` @ ${fmtDeg(a)}°` : ""}: ` +
+        `[${Math.round(curBox.cx)}, ${Math.round(curBox.cy)} ` +
+        `${Math.round(curBox.w)}×${Math.round(curBox.h)}]`);
+  } else {
+    $("crop-strategy").textContent = "no suggestion — draw manually";
+  }
+  updateStatus();
+});
+
+$("btn-next-unlabeled").addEventListener("click", () => {
+  saveCurrentBox();
+  for (let k = 1; k < names.length; k++) {
+    const i = (cropIdx + k) % names.length;
+    if (!labels.has(stemOf(names[i]))) { selectCrop(i); return; }
+  }
+});
+
+$("btn-export-ds").addEventListener("click", async () => {
+  log("Exporting YOLO dataset...");
+  const r = await fetch("/api/export_yolo_dataset", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ val_frac: 0.15 })
+  }).then(x => x.json());
+  if (r.error) { log("Error: " + r.error); return; }
+  log(`Dataset → ${r.out}`);
+  log(`train:${r.train}  val:${r.val}`);
+  log("Then train with:  .venv/bin/python train_yolo.py");
+});
+
+$("meter-class-select").addEventListener("change", () => {
+  if (curBox) saveCurrentBox();
+});
+
+/* keyboard -------------------------------------------------------------- */
+document.addEventListener("keydown", (e) => {
+  const inCrop = $("crop-view").classList.contains("active");
+  const inFilter = $("filter-view").classList.contains("active");
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (inFilter) {
+    if (e.key === "ArrowRight") selectFilter(filterIdx + 1);
+    if (e.key === "ArrowLeft") selectFilter(filterIdx - 1);
+    if (e.key === "1") classify("keep");
+    if (e.key === "2") classify("reject-blur");
+    if (e.key === "3") classify("reject-partial");
+  }
+  if (inCrop) {
+    if (e.key === "ArrowRight") { saveCurrentBox(); selectCrop(cropIdx + 1); }
+    if (e.key === "ArrowLeft") { saveCurrentBox(); selectCrop(cropIdx - 1); }
+    if (e.key === "s" || e.key === "S") $("btn-save").click();
+    if (e.key === "x" || e.key === "X") $("btn-clear").click();
+    if (e.key === "d" || e.key === "D") $("btn-detect").click();
+    if (e.key === "n" || e.key === "N") $("btn-next-unlabeled").click();
+    if (e.code === "BracketLeft") nudgeAngle(e.shiftKey ? -5 : -1);
+    if (e.code === "BracketRight") nudgeAngle(e.shiftKey ? 5 : 1);
+    if (e.key === "r" || e.key === "R") resetAngle();
+  }
+  const inTest = $("test-view").classList.contains("active");
+  if (inTest) {
+    if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") $("btn-test-run").click();
+    if (e.key === "1") $("btn-test-ok").click();
+    if (e.key === "2") $("btn-test-fail").click();
+    if (e.key === "s" || e.key === "S") $("btn-test-skip").click();
+    if (e.key === "e" || e.key === "E") $("btn-test-save").click();
+    if (e.key === "Delete") $("btn-test-reject").click();
+    if (e.key === "ArrowLeft") testSelect(testIdx - 1);
+  }
+  const inReview = $("review-view").classList.contains("active");
+  if (inReview) {
+    if (e.key === "1") rvMark("ok");
+    if (e.key === "2") rvMark("flagged");
+    if (e.key === "s" || e.key === "S") rvSaveExplicit();
+    if (e.key === "e" || e.key === "E") rvEditLabel();
+    if (e.key === "Delete") rvDelete();
+    if (e.key === "ArrowRight") rvSelect(rvIdx + 1);
+    if (e.key === "ArrowLeft")  rvSelect(rvIdx - 1);
+  }
+  const inOcr = $("ocr-view").classList.contains("active");
+  if (inOcr) {
+    if (e.key === "y" || e.key === "Y") { e.preventDefault(); $("btn-ocr-yolo").click(); }
+    if (e.key === "x" || e.key === "X") { e.preventDefault(); $("btn-ocr-clear").click(); }
+  }
+});
+
+// Redraw when window is resized
+window.addEventListener("resize", () => {
+  if (curImg) { fitCanvas(); draw(); }
+  if (testImg) testDraw();
+  if (rvImg)   { rvFitCanvas(); rvDraw(); }
+});
+
+/* ================================================================
+   TEST SCREEN
+   ================================================================ */
+const testCanvas = $("test-canvas");
+const testCtx = testCanvas.getContext("2d");
+let testImages = [];      // [{name, rejectLabel, result}]
+let testIdx = 0;
+let testImg = null;       // current HTMLImageElement
+let testBoxes = [];       // current detection results
+let testMeterClasses = {};// same as meterClasses
+let testScale = 1;
+
+let testCurBox = null;
+let testBoxDirty = false;
+let testDragging = null;
+let testDragStart = null;
+
+function testFitCanvas() {
+  const mainW = ($("test-main").clientWidth || 800) - 28;
+  const maxW = Math.max(300, mainW);
+  const maxH = Math.max(400, window.innerHeight - 230);
+  testScale = Math.min(maxW / testImg.width, maxH / testImg.height);
+  testCanvas.width  = Math.round(testImg.width  * testScale);
+  testCanvas.height = Math.round(testImg.height * testScale);
+}
+
+function toTestCan(p) { return { x: p[0] * testScale, y: p[1] * testScale }; }
+function toTestImg(x, y) { return { x: x / testScale, y: y / testScale }; }
+
+function testRotPts(cs) {
+  const cen = toTestCan([testCurBox.cx, testCurBox.cy]);
+  const mx = (cs[0].x + cs[1].x) / 2, my = (cs[0].y + cs[1].y) / 2;
+  let dx = mx - cen.x, dy = my - cen.y;
+  const L = Math.hypot(dx, dy) || 1;
+  dx /= L; dy /= L;
+  return { cen, top: { x: mx, y: my }, tip: { x: mx + dx * ROT_STEM, y: my + dy * ROT_STEM } };
+}
+
+function testDraw() {
+  if (!testImg) return;
+  testCtx.clearRect(0, 0, testCanvas.width, testCanvas.height);
+  testCtx.drawImage(testImg, 0, 0, testCanvas.width, testCanvas.height);
+
+  if (!testCurBox) return;
+
+  const color = testBoxDirty ? "#ffb340" : "#00e5ff";
+  const b = testCurBox;
+  b.angle = b.angleDeg || b.angle || 0; // normalize
+  const cs = boxCorners(b).map(toTestCan);
+
+  // Box body
+  testCtx.beginPath();
+  testCtx.moveTo(cs[0].x, cs[0].y);
+  for (let i = 1; i < 4; i++) testCtx.lineTo(cs[i].x, cs[i].y);
+  testCtx.closePath();
+  testCtx.fillStyle = testBoxDirty ? "rgba(255,179,64,0.15)" : "rgba(0,229,255,0.15)";
+  testCtx.fill();
+  testCtx.strokeStyle = color;
+  testCtx.lineWidth = 2.5;
+  testCtx.stroke();
+
+  // 4 corner handles
+  const hs = 16;
+  cs.forEach(p => {
+    testCtx.fillStyle = color;
+    testCtx.fillRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+    testCtx.strokeStyle = "#0f1216";
+    testCtx.lineWidth = 2;
+    testCtx.strokeRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+  });
+
+  // Rotate lever
+  const rp = testRotPts(cs);
+  testCtx.strokeStyle = color;
+  testCtx.lineWidth = 2;
+  testCtx.beginPath(); testCtx.moveTo(rp.top.x, rp.top.y); testCtx.lineTo(rp.tip.x, rp.tip.y); testCtx.stroke();
+  testCtx.beginPath(); testCtx.arc(rp.tip.x, rp.tip.y, 7.5, 0, Math.PI * 2);
+  testCtx.fillStyle = testBoxDirty ? "rgba(255,179,64,0.85)" : "rgba(0,229,255,0.85)";
+  testCtx.fill();
+  testCtx.strokeStyle = "#0f1216";
+  testCtx.lineWidth = 2;
+  testCtx.stroke();
+
+  // Label badge
+  const label = testBoxDirty ? `${b.classLabel}  ${b.angle.toFixed(1)}°` : `${b.classLabel}  ${(b.conf*100).toFixed(0)}%`;
+  testCtx.font = "bold 13px system-ui";
+  const tw = testCtx.measureText(label).width + 12;
+  const lx = cs[0].x, ly = cs[0].y - 24;
+  testCtx.fillStyle = color + "cc";
+  testCtx.fillRect(lx, ly, tw, 20);
+  testCtx.fillStyle = "#000";
+  testCtx.fillText(label, lx + 6, ly + 14);
+}
+
+function testFindHandle(m) {
+  if (!testCurBox) return null;
+  const cs = boxCorners(testCurBox).map(toTestCan);
+  for (let i = 0; i < 4; i++) {
+    if (Math.hypot(m.mx - cs[i].x, m.my - cs[i].y) < HANDLE_R) return i;
+  }
+  const rp = testRotPts(cs);
+  if (Math.hypot(m.mx - rp.tip.x, m.my - rp.tip.y) < HANDLE_R + 4) return "rot";
+  if (inPoly(cs, m.mx, m.my)) return "move";
+  return null;
+}
+
+testCanvas.addEventListener("mousedown", (e) => {
+  if (!testImg || !testCurBox) return;
+  const r = testCanvas.getBoundingClientRect();
+  const p = { mx: e.clientX - r.left, my: e.clientY - r.top };
+  const h = testFindHandle(p);
+  if (h !== null) {
+    testDragging = h;
+    testDragStart = { mx: p.mx, my: p.my, box: { ...testCurBox } };
+    e.preventDefault();
+  }
+});
+
+testCanvas.addEventListener("mousemove", (e) => {
+  if (!testImg || !testCurBox) return;
+  const r = testCanvas.getBoundingClientRect();
+  const p = { mx: e.clientX - r.left, my: e.clientY - r.top };
+
+  if (!testDragging) {
+    let c = "crosshair";
+    const h = testFindHandle(p);
+    if (h === "move") c = "move";
+    else if (h === "rot") c = "grab";
+    else if (h !== null) c = handleCursor(h);
+    testCanvas.style.cursor = c;
+    return;
+  }
+
+  const m = toTestImg(p.mx, p.my);
+  const X = Math.max(0, Math.min(testImg.width, m.x));
+  const Y = Math.max(0, Math.min(testImg.height, m.y));
+
+  if (testDragging === "move") {
+    const ref = toTestImg(testDragStart.mx, testDragStart.my);
+    const dx = X - ref.x, dy = Y - ref.y;
+    const b = testDragStart.box;
+    let ncx = b.cx + dx, ncy = b.cy + dy;
+    if (b.w >= testImg.width) ncx = testImg.width / 2;
+    else ncx = Math.max(b.w / 2, Math.min(testImg.width - b.w / 2, ncx));
+    if (b.h >= testImg.height) ncy = testImg.height / 2;
+    else ncy = Math.max(b.h / 2, Math.min(testImg.height - b.h / 2, ncy));
+    testCurBox = { ...b, cx: ncx, cy: ncy };
+    testBoxDirty = true;
+  } else if (testDragging === "rot") {
+    const cen = toTestCan([testCurBox.cx, testCurBox.cy]);
+    let a = Math.atan2(p.my - cen.y, p.mx - cen.x) * 180 / Math.PI + 90;
+    testCurBox.angle = Math.round(a * 10) / 10;
+    testCurBox.angleDeg = testCurBox.angle;
+    testBoxDirty = true;
+  } else {
+    const SU = [-1, 1, 1, -1], SV = [-1, -1, 1, 1];
+    const b = testDragStart.box;
+    const rad = b.angle * Math.PI / 180;
+    const ux = Math.cos(rad), uy = Math.sin(rad), vx = -uy, vy = ux;
+    const hw = b.w / 2, hh = b.h / 2;
+    const o = (testDragging + 2) % 4;
+    const Px = b.cx + SU[o] * hw * ux + SV[o] * hh * vx;
+    const Py = b.cy + SU[o] * hw * uy + SV[o] * hh * vy;
+    let wN = SU[testDragging] * ((X - Px) * ux + (Y - Py) * uy);
+    let hN = SV[testDragging] * ((X - Px) * vx + (Y - Py) * vy);
+    if (wN < MIN_SIZE) wN = MIN_SIZE;
+    if (hN < MIN_SIZE) hN = MIN_SIZE;
+    testCurBox = {
+      ...b,
+      w: wN, h: hN,
+      cx: Px + SU[o] * (wN / 2) * ux + SV[o] * (hN / 2) * vx,
+      cy: Py + SU[o] * (wN / 2) * uy + SV[o] * (hN / 2) * vy
+    };
+    testBoxDirty = true;
+  }
+  
+  if (testBoxDirty) {
+    $("btn-test-save").style.display = "";
+    $("test-class-select").style.display = "";
+  }
+  testDraw();
+});
+
+window.addEventListener("mouseup", () => {
+  if (testDragging) {
+    testDragging = null;
+    testDraw();
+  }
+});
+
+async function testLoadImage(name) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = `/images/${encodeURIComponent(name)}`;
+  });
+}
+
+async function testSelect(i) {
+  if (i < 0 || i >= testImages.length) return;
+  testIdx = i;
+  testBoxes = [];
+  testCurBox = null;
+  testBoxDirty = false;
+  testImg = null;
+  
+  // Reset result UI
+  $("test-result-panel").style.display = "none";
+  $("test-no-detect").style.display = "none";
+  $("test-det-info").style.display = "none";
+  $("test-class-select").style.display = "none";
+  $("btn-test-save").style.display = "none";
+  $("btn-test-ok").disabled = true;
+  $("btn-test-fail").disabled = true;
+  $("btn-test-skip").disabled = true;
+
+  const item = testImages[i];
+  testImg = await testLoadImage(item.name);
+  if (!testImg) return;
+  testFitCanvas();
+
+  // If already detected before, show previous result
+  if (item.result && item.result.boxes) {
+    testBoxes = item.result.boxes;
+    showTestResult(item.result.boxes);
+    testDraw();
+  } else {
+    testDraw();
+  }
+
+  // Update sidebar highlight
+  document.querySelectorAll("#test-list .tthumb").forEach((el, idx) => {
+    el.classList.toggle("t-active", idx === i);
+  });
+  const active = $("test-list").querySelector(".tthumb.t-active");
+  if (active) active.scrollIntoView({ block: "nearest" });
+
+  $("btn-test-skip").disabled = false;
+  updateTestProgress();
+}
+
+function showTestResult(boxes) {
+  $("test-result-panel").style.display = "";
+  if (!boxes || boxes.length === 0) {
+    $("test-no-detect").style.display = "";
+    $("test-det-info").style.display = "none";
+    testCurBox = null;
+    $("test-class-select").style.display = "none";
+    $("btn-test-save").style.display = "none";
+  } else {
+    $("test-no-detect").style.display = "none";
+    $("test-det-info").style.display = "";
+    $("test-det-info").innerHTML = boxes.map(b =>
+      `<span class="det-box-tag">${b.classLabel} <span class="conf">${(b.conf*100).toFixed(0)}%</span></span>`
+    ).join("");
+    testCurBox = { ...boxes[0], angle: boxes[0].angleDeg };
+    $("test-class-select").value = testCurBox.classKey || defaultMeterClass;
+    $("test-class-select").style.display = "";
+    $("btn-test-save").style.display = "";
+  }
+  $("btn-test-ok").disabled = false;
+  $("btn-test-fail").disabled = false;
+}
+
+function updateTestProgress() {
+  const done = testImages.filter(x => x.result !== null && x.result !== undefined).length;
+  $("test-progress").textContent = `${done}/${testImages.length} đã đánh giá`;
+}
+
+function buildTestList() {
+  const list = $("test-list");
+  list.innerHTML = "<h3>Test images</h3>";
+  const REJECT_LABELS = {
+    "reject-blur": "Mờ", "reject-dark": "Tối",
+    "reject-partial": "Bị cắt", "reject-nometer": "Không công tơ",
+    "reject-other": "Khác"
+  };
+  testImages.forEach((item, i) => {
+    const img = document.createElement("img");
+    img.className = "tthumb";
+    img.src = `/images/${encodeURIComponent(item.name)}/thumb`;
+    img.title = `${REJECT_LABELS[item.rejectLabel] || item.rejectLabel}\n${item.name}`;
+    img.addEventListener("click", () => testSelect(i));
+    if (item.result !== null && item.result !== undefined) {
+      img.classList.add(item.result.ok ? "t-ok" : "t-fail");
+    }
+    list.appendChild(img);
+  });
+}
+
+async function testRun() {
+  if (!testImages.length) return;
+  const name = testImages[testIdx].name;
+  $("btn-test-run").disabled = true;
+  $("btn-test-run").textContent = "⏳ Detecting…";
+  try {
+    const r = await fetch(`/api/test_detect/${encodeURIComponent(name)}`).then(x => x.json());
+    if (r.error) { alert(r.error); return; }
+    testBoxes = r.detected ? r.boxes : [];
+    showTestResult(testBoxes);
+    testDraw();
+  } finally {
+    $("btn-test-run").disabled = false;
+    $("btn-test-run").innerHTML = "🔍 Detect <kbd>D</kbd>";
+  }
+}
+
+async function testFeedback(ok) {
+  const name = testImages[testIdx].name;
+  const r = await fetch("/api/test_feedback", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, ok, boxes: testBoxes })
+  }).then(x => x.json());
+  if (!r.ok) return;
+  testImages[testIdx].result = { ok, boxes: testBoxes };
+  // Update sidebar thumb
+  const thumb = $("test-list").querySelectorAll(".tthumb")[testIdx];
+  if (thumb) {
+    thumb.classList.remove("t-ok", "t-fail");
+    thumb.classList.add(ok ? "t-ok" : "t-fail");
+  }
+  updateTestProgress();
+  await updateTestStats();
+  // Auto-advance to next unevaluated image
+  let next = -1;
+  for (let k = 1; k < testImages.length; k++) {
+    const ni = (testIdx + k) % testImages.length;
+    if (!testImages[ni].result) { next = ni; break; }
+  }
+  if (next !== -1) testSelect(next);
+}
+
+async function updateTestStats() {
+  const s = await fetch("/api/test_stats").then(x => x.json());
+  if (!s.evaluated) {
+    $("test-stats-text").textContent = "Chưa đánh giá ảnh nào";
+    return;
+  }
+  const acc = s.accuracy !== null ? `${(s.accuracy * 100).toFixed(1)}%` : "—";
+  $("test-stats-text").innerHTML =
+    `Đánh giá: <b>${s.evaluated}/${s.total}</b> · ` +
+    `✅ ${s.ok} · ❌ ${s.fail} · ` +
+    `Độ chính xác: <b style="color:var(--accent)">${acc}</b>`;
+}
+
+async function testRejectImage() {
+  if (!testImages.length) return;
+  const item = testImages[testIdx];
+  if (!confirm(`Xóa hoàn toàn ảnh này khỏi hệ thống:\n${item.name}?`)) return;
+  
+  await fetch("/api/image_delete", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: item.name })
+  });
+  
+  testImages.splice(testIdx, 1);
+  buildTestList();
+  updateTestProgress();
+  await updateTestStats();
+  
+  const nextIdx = Math.min(testIdx, testImages.length - 1);
+  if (nextIdx >= 0) testSelect(nextIdx);
+}
+
+async function testSaveExplicit() {
+  if (!testImages.length || !testCurBox) return;
+  const item = testImages[testIdx];
+  const b = testCurBox;
+  await fetch("/api/label", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: item.name,
+      box: { cx: b.cx, cy: b.cy, w: b.w, h: b.h, angleDeg: b.angle || 0 },
+      meterClass: b.classKey
+    })
+  });
+  
+  // Update its state to 'keep'
+  await fetch("/api/classify", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: item.name, label: "keep" })
+  });
+
+  testImages.splice(testIdx, 1);
+  buildTestList();
+  updateTestProgress();
+  await updateTestStats();
+  
+  const nextIdx = Math.min(testIdx, testImages.length - 1);
+  if (nextIdx >= 0) testSelect(nextIdx);
+}
+
+async function bootTestView() {
+  const r = await fetch("/api/test_images").then(x => x.json());
+  testImages = r.images;
+  testMeterClasses = r.meterClasses || {};
+  
+  const testSel = $("test-class-select");
+  testSel.innerHTML = "";
+  for (const [k, v] of Object.entries(meterClasses)) {
+    testSel.appendChild(new Option(v.label, k));
+  }
+  
+  buildTestList();
+  updateTestProgress();
+  await updateTestStats();
+  if (testImages.length) await testSelect(0);
+}
+
+$("btn-test-run").addEventListener("click",  () => testRun());
+$("btn-test-ok").addEventListener("click",   () => testFeedback(true));
+$("btn-test-fail").addEventListener("click", () => testFeedback(false));
+$("btn-test-skip").addEventListener("click", () => testSelect(testIdx + 1));
+$("btn-test-reject").addEventListener("click", () => testRejectImage());
+$("btn-test-save").addEventListener("click", () => testSaveExplicit());
+$("btn-test-prev").addEventListener("click", () => testSelect(testIdx - 1));
+$("btn-test-next").addEventListener("click", () => testSelect(testIdx + 1));
+
+$("test-class-select").addEventListener("change", (e) => {
+  if (testCurBox) {
+    testCurBox.classKey = e.target.value;
+    testCurBox.classLabel = meterClasses[e.target.value].label;
+    testBoxDirty = true;
+    $("btn-test-save").style.display = "";
+    testDraw();
+  }
+});
+
+/* ============================================================== */
+/* REVIEW SCREEN                                                  */
+/* ============================================================== */
+const rvCanvas = $("rv-canvas");
+const rvCtx    = rvCanvas.getContext("2d");
+let rvAllImages = [];     // all labeled images from API [{name, boxes, review, W, H}]
+let rvFiltered  = [];     // after applying filter
+let rvIdx  = 0;
+let rvImg  = null;
+let rvScale = 1;
+let rvFilter = "all";
+
+let rvCurBox = null;
+let rvBoxDirty = false;
+let rvDragging = null;
+let rvDragStart = null;
+
+function rvFitCanvas() {
+  const mainW = ($("review-main").clientWidth || 800) - 28;
+  const maxW  = Math.max(300, mainW);
+  const maxH  = Math.max(400, window.innerHeight - 230);
+  rvScale = Math.min(maxW / rvImg.width, maxH / rvImg.height);
+  rvCanvas.width  = Math.round(rvImg.width  * rvScale);
+  rvCanvas.height = Math.round(rvImg.height * rvScale);
+}
+
+function toRvCan(p) { return { x: p[0] * rvScale, y: p[1] * rvScale }; }
+function toRvImg(x, y) { return { x: x / rvScale, y: y / rvScale }; }
+
+function rvRotPts(cs) {
+  const cen = toRvCan([rvCurBox.cx, rvCurBox.cy]);
+  const mx = (cs[0].x + cs[1].x) / 2, my = (cs[0].y + cs[1].y) / 2;
+  let dx = mx - cen.x, dy = my - cen.y;
+  const L = Math.hypot(dx, dy) || 1;
+  dx /= L; dy /= L;
+  return { cen, top: { x: mx, y: my }, tip: { x: mx + dx * ROT_STEM, y: my + dy * ROT_STEM } };
+}
+
+function rvDraw() {
+  if (!rvImg) return;
+  rvCtx.clearRect(0, 0, rvCanvas.width, rvCanvas.height);
+  rvCtx.drawImage(rvImg, 0, 0, rvCanvas.width, rvCanvas.height);
+  const item = rvFiltered[rvIdx];
+  if (!item || !rvCurBox) return;
+
+  const color = rvBoxDirty ? "#ffb340" : "#37c978";
+  const cs = boxCorners(rvCurBox).map(toRvCan);
+
+  // Box body
+  rvCtx.beginPath();
+  rvCtx.moveTo(cs[0].x, cs[0].y);
+  for (let i = 1; i < 4; i++) rvCtx.lineTo(cs[i].x, cs[i].y);
+  rvCtx.closePath();
+  rvCtx.fillStyle = rvBoxDirty ? "rgba(255,179,64,0.15)" : "rgba(55,201,120,0.15)";
+  rvCtx.fill();
+  rvCtx.strokeStyle = color;
+  rvCtx.lineWidth = 2.5;
+  rvCtx.stroke();
+
+  // 4 corner handles
+  const hs = 16;
+  cs.forEach(p => {
+    rvCtx.fillStyle = color;
+    rvCtx.fillRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+    rvCtx.strokeStyle = "#0f1216";
+    rvCtx.lineWidth = 2;
+    rvCtx.strokeRect(p.x - hs / 2, p.y - hs / 2, hs, hs);
+  });
+
+  // Rotate lever
+  const rp = rvRotPts(cs);
+  rvCtx.strokeStyle = color;
+  rvCtx.lineWidth = 2;
+  rvCtx.beginPath(); rvCtx.moveTo(rp.top.x, rp.top.y); rvCtx.lineTo(rp.tip.x, rp.tip.y); rvCtx.stroke();
+  rvCtx.beginPath(); rvCtx.arc(rp.tip.x, rp.tip.y, 7.5, 0, Math.PI * 2);
+  rvCtx.fillStyle = rvBoxDirty ? "rgba(255,179,64,0.85)" : "rgba(55,201,120,0.85)";
+  rvCtx.fill();
+  rvCtx.strokeStyle = "#0f1216";
+  rvCtx.lineWidth = 2;
+  rvCtx.stroke();
+
+  // Label badge
+  const statusColor = { ok: "#69ff47", flagged: "#ff4444", null: "#00e5ff", undefined: "#00e5ff" };
+  const badgeCol = statusColor[item.review] || "#00e5ff";
+  const label = `${rvCurBox.classLabel}  ${rvCurBox.angle.toFixed(1)}°`;
+  rvCtx.font = "bold 13px system-ui";
+  const tw = rvCtx.measureText(label).width + 12;
+  const lx = cs[0].x, ly = cs[0].y - 24;
+  rvCtx.fillStyle = badgeCol + "cc";
+  rvCtx.fillRect(lx, ly, tw, 20);
+  rvCtx.fillStyle = "#000";
+  rvCtx.fillText(label, lx + 6, ly + 14);
+}
+
+function rvFindHandle(m) {
+  if (!rvCurBox) return null;
+  const cs = boxCorners(rvCurBox).map(toRvCan);
+  for (let i = 0; i < 4; i++) {
+    if (Math.hypot(m.mx - cs[i].x, m.my - cs[i].y) < HANDLE_R) return i;
+  }
+  const rp = rvRotPts(cs);
+  if (Math.hypot(m.mx - rp.tip.x, m.my - rp.tip.y) < HANDLE_R + 4) return "rot";
+  if (inPoly(cs, m.mx, m.my)) return "move";
+  return null;
+}
+
+rvCanvas.addEventListener("mousedown", (e) => {
+  if (!rvImg || !rvCurBox) return;
+  const r = rvCanvas.getBoundingClientRect();
+  const p = { mx: e.clientX - r.left, my: e.clientY - r.top };
+  const h = rvFindHandle(p);
+  if (h !== null) {
+    rvDragging = h;
+    rvDragStart = { mx: p.mx, my: p.my, box: { ...rvCurBox } };
+    e.preventDefault();
+  }
+});
+
+rvCanvas.addEventListener("mousemove", (e) => {
+  if (!rvImg || !rvCurBox) return;
+  const r = rvCanvas.getBoundingClientRect();
+  const p = { mx: e.clientX - r.left, my: e.clientY - r.top };
+
+  if (!rvDragging) {
+    let c = "crosshair";
+    const h = rvFindHandle(p);
+    if (h === "move") c = "move";
+    else if (h === "rot") c = "grab";
+    else if (h !== null) c = handleCursor(h);
+    rvCanvas.style.cursor = c;
+    return;
+  }
+
+  const m = toRvImg(p.mx, p.my);
+  const X = Math.max(0, Math.min(rvImg.width, m.x));
+  const Y = Math.max(0, Math.min(rvImg.height, m.y));
+
+  if (rvDragging === "move") {
+    const ref = toRvImg(rvDragStart.mx, rvDragStart.my);
+    const dx = X - ref.x, dy = Y - ref.y;
+    const b = rvDragStart.box;
+    // Basic clamp without referencing curImg global
+    let ncx = b.cx + dx, ncy = b.cy + dy;
+    if (b.w >= rvImg.width) ncx = rvImg.width / 2;
+    else ncx = Math.max(b.w / 2, Math.min(rvImg.width - b.w / 2, ncx));
+    if (b.h >= rvImg.height) ncy = rvImg.height / 2;
+    else ncy = Math.max(b.h / 2, Math.min(rvImg.height - b.h / 2, ncy));
+    rvCurBox = { ...b, cx: ncx, cy: ncy };
+    rvBoxDirty = true;
+  } else if (rvDragging === "rot") {
+    const cen = toRvCan([rvCurBox.cx, rvCurBox.cy]);
+    let a = Math.atan2(p.my - cen.y, p.mx - cen.x) * 180 / Math.PI + 90;
+    rvCurBox.angle = Math.round(a * 10) / 10;
+    rvBoxDirty = true;
+  } else {
+    // corner resize
+    const SU = [-1, 1, 1, -1], SV = [-1, -1, 1, 1];
+    const b = rvDragStart.box;
+    const rad = b.angle * Math.PI / 180;
+    const ux = Math.cos(rad), uy = Math.sin(rad), vx = -uy, vy = ux;
+    const hw = b.w / 2, hh = b.h / 2;
+    const o = (rvDragging + 2) % 4;
+    const Px = b.cx + SU[o] * hw * ux + SV[o] * hh * vx;
+    const Py = b.cy + SU[o] * hw * uy + SV[o] * hh * vy;
+    let wN = SU[rvDragging] * ((X - Px) * ux + (Y - Py) * uy);
+    let hN = SV[rvDragging] * ((X - Px) * vx + (Y - Py) * vy);
+    if (wN < MIN_SIZE) wN = MIN_SIZE;
+    if (hN < MIN_SIZE) hN = MIN_SIZE;
+    rvCurBox = {
+      ...b,
+      w: wN, h: hN,
+      cx: Px + SU[o] * (wN / 2) * ux + SV[o] * (hN / 2) * vx,
+      cy: Py + SU[o] * (wN / 2) * uy + SV[o] * (hN / 2) * vy
+    };
+    rvBoxDirty = true;
+  }
+  rvDraw();
+  rvUpdateBoxInfo(rvFiltered[rvIdx]);
+});
+
+window.addEventListener("mouseup", () => {
+  if (rvDragging) {
+    rvDragging = null;
+    rvDraw();
+  }
+});
+
+async function rvLoadImage(name) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload  = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = `/images/${encodeURIComponent(name)}`;
+  });
+}
+
+function rvApplyFilter() {
+  const f = rvFilter;
+  rvFiltered = rvAllImages.filter(item => {
+    if (f === "all")        return true;
+    if (f === "unreviewed") return !item.review;
+    return item.review === f;
+  });
+}
+
+async function rvSelect(i) {
+  if (i < 0 || i >= rvFiltered.length) return;
+  rvIdx = i;
+  rvImg = null;
+  rvBoxDirty = false;
+  const item = rvFiltered[i];
+  if (item.boxes && item.boxes.length > 0) {
+    rvCurBox = { ...item.boxes[0], angle: item.boxes[0].angleDeg };
+    $("rv-class-select").value = rvCurBox.classKey || defaultMeterClass;
+    $("rv-class-select").style.display = "";
+  } else {
+    rvCurBox = null;
+    $("rv-class-select").style.display = "none";
+  }
+  rvImg = await rvLoadImage(item.name);
+  if (!rvImg) return;
+  rvFitCanvas();
+  rvDraw();
+  rvUpdateBoxInfo(item);
+  rvUpdateProgress();
+  // Sidebar highlight
+  document.querySelectorAll("#review-list .rvthumb").forEach((el, idx) => {
+    el.classList.toggle("rv-active", idx === i);
+  });
+  const active = $("review-list").querySelector(".rvthumb.rv-active");
+  if (active) active.scrollIntoView({ block: "nearest" });
+}
+
+function rvUpdateBoxInfo(item) {
+  const STATUS = { ok: "✅ Đúng", flagged: "🚩 Cần sửa" };
+  const status = STATUS[item.review] || "⬜ Chưa xét";
+  const boxStr = item.boxes.map(b =>
+    `<span class="det-box-tag">${b.classLabel} ${b.angleDeg.toFixed(1)}° ` +
+    `${Math.round(b.w)}×${Math.round(b.h)}px</span>`
+  ).join("");
+  $("rv-box-info").innerHTML =
+    `<b>${item.name}</b>  ${status}  &nbsp;&nbsp;  ${boxStr}` +
+    (rvBoxDirty ? ` <span style="color:var(--warn); margin-left:12px">⚠ Đã sửa (Lưu để cập nhật)</span>` : "");
+}
+
+function rvUpdateProgress() {
+  const done = rvAllImages.filter(x => x.review).length;
+  $("rv-progress").textContent =
+    `${rvIdx + 1}/${rvFiltered.length} (hiển thị) · ${done}/${rvAllImages.length} đã xét`;
+}
+
+function buildReviewList() {
+  const list = $("review-list");
+  list.innerHTML = "<h3>Nhãn đã lưu</h3>";
+  rvFiltered.forEach((item, i) => {
+    const img = document.createElement("img");
+    img.className = "rvthumb";
+    img.src   = `/images/${encodeURIComponent(item.name)}/thumb`;
+    img.title = item.name;
+    img.addEventListener("click", () => rvSelect(i));
+    if (item.review === "ok")      img.classList.add("rv-ok");
+    if (item.review === "flagged") img.classList.add("rv-flagged");
+    list.appendChild(img);
+  });
+}
+
+async function rvMark(status) {
+  if (!rvFiltered.length) return;
+  const item = rvFiltered[rvIdx];
+
+  // Save the modified box if it was touched
+  if (rvBoxDirty && rvCurBox) {
+    const b = rvCurBox;
+    await fetch("/api/label", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: item.name,
+        box: { cx: b.cx, cy: b.cy, w: b.w, h: b.h, angleDeg: b.angle || 0 },
+        meterClass: b.classKey
+      })
+    });
+    // Update local item
+    item.boxes[0] = { ...b, angleDeg: b.angle || 0 };
+    rvBoxDirty = false;
+  }
+
+  await fetch("/api/review_mark", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: item.name, status })
+  });
+  // Update local state
+  item.review = status;
+  const all = rvAllImages.find(x => x.name === item.name);
+  if (all) all.review = status;
+  // Update sidebar thumb colour
+  const thumb = $("review-list").querySelectorAll(".rvthumb")[rvIdx];
+  if (thumb) {
+    thumb.classList.remove("rv-ok", "rv-flagged");
+    thumb.classList.add(status === "ok" ? "rv-ok" : "rv-flagged");
+  }
+  rvDraw();
+  rvUpdateBoxInfo(item);
+  rvUpdateProgress();
+  await rvUpdateStats();
+  // Auto-advance to next unreviewed in current filter
+  const nextUnreviewed = (() => {
+    for (let k = 1; k < rvFiltered.length; k++) {
+      const ni = (rvIdx + k) % rvFiltered.length;
+      if (!rvFiltered[ni].review) return ni;
+    }
+    return rvIdx < rvFiltered.length - 1 ? rvIdx + 1 : rvIdx;
+  })();
+  rvSelect(nextUnreviewed);
+}
+
+async function rvDelete() {
+  if (!rvFiltered.length) return;
+  const item = rvFiltered[rvIdx];
+  if (!confirm(`Xóa nhãn của ảnh:\n${item.name}?\n\nẢnh sẽ trở về trạng thái chưa có nhãn.`)) return;
+  await fetch("/api/review_delete", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: item.name })
+  });
+  rvAllImages = rvAllImages.filter(x => x.name !== item.name);
+  rvApplyFilter();
+  buildReviewList();
+  rvUpdateProgress();
+  await rvUpdateStats();
+  const nextIdx = Math.min(rvIdx, rvFiltered.length - 1);
+  if (nextIdx >= 0) rvSelect(nextIdx);
+}
+
+async function rvSaveExplicit() {
+  if (!rvFiltered.length || !rvCurBox) return;
+  const item = rvFiltered[rvIdx];
+  const b = rvCurBox;
+  await fetch("/api/label", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: item.name,
+      box: { cx: b.cx, cy: b.cy, w: b.w, h: b.h, angleDeg: b.angle || 0 },
+      meterClass: b.classKey
+    })
+  });
+  item.boxes[0] = { ...b, angleDeg: b.angle || 0 };
+  rvBoxDirty = false;
+  rvDraw();
+  rvUpdateBoxInfo(item);
+}
+
+function rvEditLabel() {
+  if (!rvFiltered.length) return;
+  const item = rvFiltered[rvIdx];
+  // Find index in crop names array and navigate there
+  const cropNameIdx = names.indexOf(item.name);
+  // Switch to Label boxes tab
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.dataset.view === "crop");
+  });
+  document.querySelectorAll("main").forEach(m => {
+    m.classList.toggle("active", m.id === "crop-view");
+  });
+  if (cropNameIdx >= 0) {
+    selectCrop(cropNameIdx);
+  }
+}
+
+async function rvUpdateStats() {
+  const s = await fetch("/api/review_stats").then(x => x.json());
+  $("rv-stats-text").innerHTML =
+    `รวม: <b>${s.total}</b> · ✅ ${s.ok} · 🚩 ${s.flagged} · ⬜ ${s.remaining} chưa xét`;
+}
+
+function rvSetFilter(f) {
+  rvFilter = f;
+  document.querySelectorAll(".rv-filter-btn").forEach(b =>
+    b.classList.toggle("active", b.dataset.filter === f));
+  rvApplyFilter();
+  buildReviewList();
+  rvUpdateProgress();
+  if (rvFiltered.length) rvSelect(0);
+}
+
+async function bootReviewView() {
+  const r = await fetch("/api/review_images").then(x => x.json());
+  rvAllImages = r.images;
+
+  // Populate dropdown
+  const rvSel = $("rv-class-select");
+  rvSel.innerHTML = "";
+  for (const [k, v] of Object.entries(meterClasses)) {
+    rvSel.appendChild(new Option(v.label, k));
+  }
+
+  rvApplyFilter();
+  buildReviewList();
+  await rvUpdateStats();
+  if (rvFiltered.length) await rvSelect(0);
+}
+
+$("btn-rv-ok").addEventListener("click",     () => rvMark("ok"));
+$("btn-rv-flag").addEventListener("click",   () => rvMark("flagged"));
+$("btn-rv-save").addEventListener("click",   () => rvSaveExplicit());
+$("btn-rv-edit").addEventListener("click",   () => rvEditLabel());
+$("btn-rv-delete").addEventListener("click", () => rvDelete());
+
+$("rv-class-select").addEventListener("change", (e) => {
+  if (rvCurBox) {
+    rvCurBox.classKey = e.target.value;
+    rvCurBox.classLabel = meterClasses[e.target.value].label;
+    rvBoxDirty = true;
+    rvDraw();
+    rvUpdateBoxInfo(rvFiltered[rvIdx]);
+  }
+});
+$("btn-rv-prev").addEventListener("click",   () => rvSelect(rvIdx - 1));
+$("btn-rv-next").addEventListener("click",   () => rvSelect(rvIdx + 1));
+document.querySelectorAll(".rv-filter-btn").forEach(b =>
+  b.addEventListener("click", () => rvSetFilter(b.dataset.filter)));
+
+/* ============================================================== */
+
+/* ============================================================== */
+/* ============================================================== */
+/* OCR SCREEN                                                     */
+/* ============================================================== */
+let ocrImages = [];
+let ocrIdx = 0;
+
+let ocrImgData = null; // warped image
+let ocrImgW = 0;
+let ocrImgH = 0;
+let ocrCorners = [];
+let ocrMatrix = [];
+let ocrDigits = []; // {cx, cy, w, h, label}
+
+let ocrScale = 1;
+let ocrSelIdx = -1;
+let ocrDragging = null; // 'create', 'move', 'tl', 'tr', 'bl', 'br'
+let ocrDragStart = null;
+let ocrHover = null; // {idx, part}
+
+function getCan() { return $("ocr-canvas"); }
+function getCtx() { return $("ocr-canvas").getContext("2d"); }
+
+let ocrFilter = "all";
+
+async function bootOcrView() {
+  const r = await fetch("/api/ocr_images").then(x => x.json());
+  ocrImages = r.images;
+  buildOcrList();
+  updateOcrProgress();
+  if (ocrImages.length) { let idx = ocrImages.findIndex(x => !x.text); if (idx === -1) idx = 0; await ocrSelect(idx); }
+}
+
+function buildOcrList() {
+  const list = $("ocr-list");
+  list.innerHTML = `
+    <h3 style="margin-top:0;">OCR images</h3>
+    <select id="ocr-filter" style="width:100%; margin-bottom:10px; padding:5px; background:#222; color:#fff; border:1px solid #444; border-radius:4px;">
+      <option value="all" ${ocrFilter === "all" ? "selected" : ""}>Tất cả</option>
+      <option value="minority" ${ocrFilter === "minority" ? "selected" : ""}>Ca thiểu số (Minority)</option>
+      <option value="dientu" ${ocrFilter === "dientu" ? "selected" : ""}>Công tơ điện tử</option>
+      <option value="co" ${ocrFilter === "co" ? "selected" : ""}>Công tơ cơ</option>
+    </select>
+    <div id="ocr-thumbs" style="display:flex; flex-wrap:wrap; gap:5px;"></div>
+  `;
+  
+  $("ocr-filter").addEventListener("change", (e) => {
+    ocrFilter = e.target.value;
+    buildOcrList();
+  });
+  
+  const thumbs = $("ocr-thumbs");
+  ocrImages.forEach((item, i) => {
+    if (ocrFilter === "minority" && !item.minority) return;
+    if (ocrFilter === "dientu" && item.meter_class !== "dientu") return;
+    if (ocrFilter === "co" && item.meter_class !== "co") return;
+    
+    const img = document.createElement("img");
+    img.className = "tthumb";
+    img.src = `/images/${encodeURIComponent(item.name)}/thumb`;
+    if (item.text) img.classList.add("t-ok");
+    
+    if (item.minority) {
+      img.style.borderBottom = "4px solid #e74c3c"; // Highlight minority cases
+      img.title = "Ca thiểu số: " + item.minority;
+    }
+    
+    img.addEventListener("click", () => ocrSelect(i));
+    thumbs.appendChild(img);
+  });
+}
+
+function updateOcrProgress() {
+  const done = ocrImages.filter(x => x.text).length;
+  $("ocr-progress").textContent = `${done}/${ocrImages.length} ảnh đã gán chỉ số`;
+}
+
+function getNextOcrIdx(startIdx) {
+    for (let i = startIdx; i < ocrImages.length; i++) {
+        const item = ocrImages[i];
+        if (ocrFilter === "minority" && !item.minority) continue;
+        if (ocrFilter === "dientu" && item.meter_class !== "dientu") continue;
+        if (ocrFilter === "co" && item.meter_class !== "co") continue;
+        return i;
+    }
+    return -1;
+}
+
+let ocrClassId = 0;
+
+async function ocrSelect(i) {
+  if (i < 0 || i >= ocrImages.length) return;
+  ocrIdx = i;
+  const item = ocrImages[i];
+  
+  const thumbs = document.querySelectorAll("#ocr-list .tthumb");
+  let visualIdx = 0;
+  // We need to find which visual index corresponds to i
+  for (let idx = 0; idx < ocrImages.length; idx++) {
+      const it = ocrImages[idx];
+      if (ocrFilter === "minority" && !it.minority) continue;
+      if (ocrFilter === "dientu" && it.meter_class !== "dientu") continue;
+      if (ocrFilter === "co" && it.meter_class !== "co") continue;
+      
+      if (thumbs[visualIdx]) {
+          thumbs[visualIdx].classList.toggle("t-active", idx === i);
+      }
+      visualIdx++;
+  }
+  
+  const active = $("ocr-list").querySelector(".tthumb.t-active");
+  if (active) active.scrollIntoView({ block: "nearest" });
+
+  const minorityHtml = item.minority ? `<span style="color:#e74c3c; margin-left:10px; font-weight:bold;">[Bất thường: ${item.minority}]</span>` : "";
+  $("ocr-meta-info").innerHTML = `${item.name}${minorityHtml}`;
+  $("ocr-canvas").style.display = "none";
+  ocrSelIdx = -1;
+  ocrDigits = [];
+
+  const r = await fetch(`/api/rectified_crop/${encodeURIComponent(item.name)}`).then(x => x.json());
+  if (!r.ok) return;
+  
+  ocrCorners = r.corners;
+  ocrMatrix = r.matrix;
+  ocrImgW = r.w;
+  ocrImgH = r.h;
+  ocrClassId = r.class_id || 0;
+  ocrDigits = r.digits || [];
+  
+  if (ocrClassId === 1) { // Điện tử
+    $("ocr-mode-badge").textContent = "Điện tử (Chuỗi)";
+    $("ocr-mode-badge").style.background = "#0055aa";
+    $("ocr-mech-hint").style.display = "";
+    $("ocr-mech-hint").innerHTML = "Gõ dãy số vào ô bên dưới.<br><i>(Tùy chọn)</i> Nếu ảnh có nhiều chữ rác, hãy kéo chuột vẽ 1 box bao trọn dãy số.";
+    $("ocr-result-text").style.display = "none";
+    $("ocr-string-input").style.display = "";
+    $("ocr-string-input").value = r.full_text || "";
+    $("ocr-string-input").focus();
+  } else { // Cơ
+    $("ocr-mode-badge").textContent = "Cơ (Từng số)";
+    $("ocr-mode-badge").style.background = "#aa5500";
+    $("ocr-mech-hint").style.display = "";
+    $("ocr-mech-hint").innerHTML = "Kéo chuột vẽ box. Click để chọn. Nhấn <code>0-9</code> gán số, <code>U</code> cho unreadable.<br>Nhấn <code>B</code> nếu số bị cuộn giữa 2 giá trị. Nhấn <code>.</code> nếu là số thập phân.<br>Nhấn <code>Delete</code> để xóa box. Kéo các góc để thu phóng.";
+    $("ocr-result-text").style.display = "";
+    $("ocr-string-input").style.display = "none";
+    if (ocrDigits.length > 0) ocrSelIdx = 0;
+    $("ocr-main").focus();
+  }
+  ocrImgData = new Image();
+  ocrImgData.onload = () => {
+    $("ocr-canvas").style.display = "";
+    ocrFitCanvas();
+    ocrDraw();
+    if (ocrClassId !== 1) updateOcrText();
+  };
+  ocrImgData.src = "data:image/jpeg;base64," + r.image_b64;
+}
+
+function ocrFitCanvas() {
+  const targetH = 200;
+  ocrScale = targetH / ocrImgH;
+  $("ocr-canvas").width = ocrImgW * ocrScale;
+  $("ocr-canvas").height = targetH;
+}
+
+function getAABB(d) {
+  return {
+    x: (d.cx - d.w/2) * ocrImgW * ocrScale,
+    y: (d.cy - d.h/2) * ocrImgH * ocrScale,
+    w: d.w * ocrImgW * ocrScale,
+    h: d.h * ocrImgH * ocrScale
+  };
+}
+
+function ocrDraw() {
+  if (!ocrImgData) return;
+  getCtx().clearRect(0, 0, $("ocr-canvas").width, $("ocr-canvas").height);
+  getCtx().drawImage(ocrImgData, 0, 0, $("ocr-canvas").width, $("ocr-canvas").height);
+  
+  ocrDigits.forEach((d, i) => {
+    const isSel = i === ocrSelIdx;
+    const isHover = ocrHover && ocrHover.idx === i;
+    const b = getAABB(d);
+    
+    getCtx().fillStyle = isSel ? "rgba(0,255,100,0.3)" : (isHover ? "rgba(255,255,255,0.2)" : "rgba(0,150,255,0.2)");
+    getCtx().fillRect(b.x, b.y, b.w, b.h);
+    
+    getCtx().strokeStyle = d.is_decimal ? "#ffa500" : (isSel ? "#0f0" : "#0af");
+    if (d.is_between) {
+      getCtx().setLineDash([4, 4]);
+    } else {
+      getCtx().setLineDash([]);
+    }
+    getCtx().lineWidth = isSel ? 2 : 1;
+    getCtx().strokeRect(b.x, b.y, b.w, b.h);
+    getCtx().setLineDash([]);
+    
+    if (d.label) {
+      getCtx().fillStyle = isSel ? "#0f0" : "#fff";
+      getCtx().font = "bold 24px monospace";
+      getCtx().textAlign = "center";
+      getCtx().textBaseline = "middle";
+      let text = d.label.toUpperCase();
+      if (d.is_between) text += "↕";
+      if (d.is_decimal) text = "." + text;
+      getCtx().fillText(text, b.x + b.w/2, b.y + b.h/2);
+    }
+    
+    if (isSel) {
+      const hs = 8;
+      getCtx().fillStyle = "#fff";
+      const pts = [
+        {x: b.x, y: b.y}, {x: b.x+b.w, y: b.y},
+        {x: b.x, y: b.y+b.h}, {x: b.x+b.w, y: b.y+b.h}
+      ];
+      pts.forEach(p => getCtx().fillRect(p.x - hs/2, p.y - hs/2, hs, hs));
+    }
+  });
+}
+
+function updateOcrText() {
+  const txt = ocrDigits.map(d => {
+    let t = d.label ? (d.label === "unreadable" ? "_" : d.label) : "?";
+    if (d.is_between) t += "↕";
+    if (d.is_decimal) t = "." + t;
+    return t;
+  }).join("");
+  $("ocr-result-text").textContent = txt || "---";
+}
+
+let ocrCreateStart = null;
+
+function ocrCanPt(e) {
+  const r = $("ocr-canvas").getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function ocrHitTest(pt) {
+  if (ocrSelIdx >= 0 && ocrSelIdx < ocrDigits.length) {
+    const b = getAABB(ocrDigits[ocrSelIdx]);
+    const hs = 8;
+    const check = (x,y) => Math.abs(pt.x - x) <= hs && Math.abs(pt.y - y) <= hs;
+    if (check(b.x, b.y)) return {idx: ocrSelIdx, part: "tl"};
+    if (check(b.x+b.w, b.y)) return {idx: ocrSelIdx, part: "tr"};
+    if (check(b.x, b.y+b.h)) return {idx: ocrSelIdx, part: "bl"};
+    if (check(b.x+b.w, b.y+b.h)) return {idx: ocrSelIdx, part: "br"};
+  }
+  for (let i = ocrDigits.length - 1; i >= 0; i--) {
+    const b = getAABB(ocrDigits[i]);
+    if (pt.x >= b.x && pt.x <= b.x+b.w && pt.y >= b.y && pt.y <= b.y+b.h) {
+      return {idx: i, part: "body"};
+    }
+  }
+  return null;
+}
+
+$("ocr-canvas").addEventListener("mousemove", e => {
+  const pt = ocrCanPt(e);
+  ocrHover = ocrHitTest(pt);
+  
+  if (ocrDragging === 'create' || ocrCreateStart) {
+    $("ocr-canvas").style.cursor = 'crosshair';
+    const start = ocrCreateStart || ocrDragStart;
+    const b = ocrDigits[ocrDigits.length - 1];
+    const x0 = Math.min(pt.x, start.x) / (ocrImgW * ocrScale);
+    const y0 = Math.min(pt.y, start.y) / (ocrImgH * ocrScale);
+    const x1 = Math.max(pt.x, start.x) / (ocrImgW * ocrScale);
+    const y1 = Math.max(pt.y, start.y) / (ocrImgH * ocrScale);
+    b.cx = (x0 + x1) / 2; b.cy = (y0 + y1) / 2;
+    b.w = x1 - x0; b.h = y1 - y0;
+  } else if (ocrDragging && ocrSelIdx >= 0) {
+    const b = ocrDigits[ocrSelIdx];
+    let x0 = (b.cx - b.w/2); let y0 = (b.cy - b.h/2);
+    let x1 = (b.cx + b.w/2); let y1 = (b.cy + b.h/2);
+    
+    const nx = pt.x / (ocrImgW * ocrScale);
+    const ny = pt.y / (ocrImgH * ocrScale);
+    
+    if (ocrDragging === 'move') {
+      const dx = (pt.x - ocrDragStart.x) / (ocrImgW * ocrScale);
+      const dy = (pt.y - ocrDragStart.y) / (ocrImgH * ocrScale);
+      b.cx += dx; b.cy += dy;
+      ocrDragStart = pt;
+    } else {
+      if (ocrDragging === 'tl') { x0 = nx; y0 = ny; }
+      if (ocrDragging === 'tr') { x1 = nx; y0 = ny; }
+      if (ocrDragging === 'bl') { x0 = nx; y1 = ny; }
+      if (ocrDragging === 'br') { x1 = nx; y1 = ny; }
+      const fx0 = Math.min(x0, x1), fx1 = Math.max(x0, x1);
+      const fy0 = Math.min(y0, y1), fy1 = Math.max(y0, y1);
+      b.cx = (fx0 + fx1)/2; b.cy = (fy0 + fy1)/2;
+      b.w = fx1 - fx0; b.h = fy1 - fy0;
+    }
+  } else {
+    if (ocrHover) {
+      if (ocrHover.part.startsWith("t") || ocrHover.part.startsWith("b")) $("ocr-canvas").style.cursor = "pointer";
+      else $("ocr-canvas").style.cursor = "move";
+    } else {
+      $("ocr-canvas").style.cursor = "crosshair";
+    }
+  }
+  ocrDraw();
+});
+
+$("ocr-canvas").addEventListener("mousedown", e => {
+  const pt = ocrCanPt(e);
+  
+  if (ocrCreateStart) {
+    ocrCreateStart = null;
+    ocrDragging = null;
+    if (ocrSelIdx >= 0 && ocrSelIdx < ocrDigits.length) {
+      const selBox = ocrDigits[ocrSelIdx];
+      ocrDigits.sort((a,b) => a.cx - b.cx);
+      ocrSelIdx = ocrDigits.indexOf(selBox);
+    }
+    updateOcrText();
+    ocrDraw();
+    $("ocr-main").focus();
+    return;
+  }
+  
+  ocrDragStart = pt;
+  const hit = ocrHitTest(pt);
+  if (hit) {
+    ocrSelIdx = hit.idx;
+    ocrDragging = hit.part === "body" ? "move" : hit.part;
+  } else {
+    ocrDigits.push({ cx: pt.x / (ocrImgW * ocrScale), cy: pt.y / (ocrImgH * ocrScale), w: 0, h: 0, label: "" });
+    ocrSelIdx = ocrDigits.length - 1;
+    ocrDragging = 'create';
+  }
+  ocrDraw();
+  $("ocr-main").focus();
+});
+
+window.addEventListener("mouseup", e => {
+  if (ocrDragging === 'create') {
+    const b = ocrDigits[ocrDigits.length - 1];
+    const pixelW = b.w * ocrImgW * ocrScale;
+    const pixelH = b.h * ocrImgH * ocrScale;
+    if (pixelW < 5 || pixelH < 5) {
+      ocrCreateStart = ocrDragStart;
+      ocrDragging = null;
+      return;
+    }
+  }
+  
+  if (ocrDragging || ocrCreateStart) {
+    if (ocrCreateStart && e.target.id !== "ocr-canvas") {
+      ocrCreateStart = null; // Cancel if clicked outside
+    }
+    ocrDragging = null;
+    ocrDragStart = null;
+    if (ocrSelIdx >= 0 && ocrSelIdx < ocrDigits.length) {
+      const selBox = ocrDigits[ocrSelIdx];
+      ocrDigits.sort((a,b) => a.cx - b.cx);
+      ocrSelIdx = ocrDigits.indexOf(selBox);
+    }
+    updateOcrText();
+    ocrDraw();
+  }
+});
+
+$("ocr-main").addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT") return;
+  const inOcr = $("ocr-view").classList.contains("active");
+  if (!inOcr) return;
+  if (e.key === "Enter") { e.preventDefault(); ocrSave(); return; }
+
+  if (ocrSelIdx >= 0 && ocrSelIdx < ocrDigits.length) {
+    const k = e.key.toLowerCase();
+    const d = ocrDigits[ocrSelIdx];
+    if (k >= "0" && k <= "9") {
+      d.label = k;
+      if (ocrSelIdx < ocrDigits.length - 1) ocrSelIdx++;
+      updateOcrText(); ocrDraw();
+    } else if (k === "u") {
+      d.label = "unreadable";
+      if (ocrSelIdx < ocrDigits.length - 1) ocrSelIdx++;
+      updateOcrText(); ocrDraw();
+    } else if (k === "b") {
+      d.is_between = !d.is_between;
+      updateOcrText(); ocrDraw();
+    } else if (e.key === "." || e.key === ",") {
+      d.is_decimal = !d.is_decimal;
+      updateOcrText(); ocrDraw();
+    } else if (e.key === "Delete" || e.key === "Backspace") {
+      ocrDigits.splice(ocrSelIdx, 1);
+      if (ocrSelIdx >= ocrDigits.length) ocrSelIdx = ocrDigits.length - 1;
+      updateOcrText(); ocrDraw();
+    } else if (e.key === "ArrowLeft") {
+      ocrSelIdx = Math.max(0, ocrSelIdx - 1);
+      ocrDraw();
+    } else if (e.key === "ArrowRight") {
+      ocrSelIdx = Math.min(ocrDigits.length - 1, ocrSelIdx + 1);
+      ocrDraw();
+    }
+  }
+});
+
+$("ocr-string-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); ocrSave(); }
+});
+async function ocrSave() {
+  if (!ocrImages.length) return;
+  const item = ocrImages[ocrIdx];
+  const fullText = $("ocr-string-input").value.trim();
+  
+  await fetch("/api/digit_labels", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      name: item.name, 
+      corners: ocrCorners, 
+      matrix: ocrMatrix, 
+      class_id: ocrClassId,
+      digits: ocrDigits,
+      full_text: fullText
+    })
+  });
+  
+  let text = "";
+  if (ocrClassId === 1) {
+    text = fullText;
+  } else {
+    text = ocrDigits.map(d => {
+      let t = d.label ? (d.label === "unreadable" ? "_" : d.label) : "?";
+      if (d.is_between) t += "↕";
+      if (d.is_decimal) t = "." + t;
+      return t;
+    }).join("");
+  }
+  
+  item.text = text;
+  const thumb = $("ocr-list").querySelectorAll(".tthumb")[ocrIdx];
+  if (thumb) {
+    if (text) thumb.classList.add("t-ok");
+    else thumb.classList.remove("t-ok");
+  }
+  updateOcrProgress();
+  
+  let nextIdx = getNextOcrIdx(ocrIdx + 1);
+  if (nextIdx !== -1) {
+      ocrSelect(nextIdx);
+  } else {
+      alert("Đã hết danh sách cho bộ lọc hiện tại!");
+  }
+}
+$("btn-ocr-save").addEventListener("click", ocrSave);
+$("btn-ocr-skip").addEventListener("click", () => {
+  let nextIdx = getNextOcrIdx(ocrIdx + 1);
+  if (nextIdx !== -1) ocrSelect(nextIdx);
+});
+$("btn-ocr-clear").addEventListener("click", () => {
+  ocrDigits = [];
+  ocrSelIdx = -1;
+  ocrDraw();
+  updateOcrText();
+});
+$("btn-ocr-yolo").addEventListener("click", async () => {
+  if (!ocrImages.length) return;
+  const item = ocrImages[ocrIdx];
+  const btn = $("btn-ocr-yolo");
+  btn.disabled = true;
+  btn.textContent = "⏳ Đang detect...";
+  try {
+    const r = await fetch(`/api/yolo_detect_digits/${encodeURIComponent(item.name)}`).then(x => x.json());
+    if (!r.ok) { alert("YOLO lỗi: " + (r.error || "unknown")); return; }
+    if (!r.digits || r.digits.length === 0) { alert("YOLO không detect được box nào."); return; }
+    ocrDigits = r.digits;
+    ocrSelIdx = 0;
+    ocrDraw();
+    if (ocrClassId !== 1) updateOcrText();
+  } catch(e) {
+    alert("Lỗi kết nối: " + e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🤖 YOLO";
+  }
+});
+
+boot();
+</script>
+</body>
+</html>

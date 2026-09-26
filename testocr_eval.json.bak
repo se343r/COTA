@@ -1,0 +1,1582 @@
+{
+  "2aoboqyumng5vzlvp6m37uga33gxx15mpxppsctq1.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "410.1",
+    "digit_details": [
+      {
+        "actual": "410.1",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumogfwvc9fiskxwswtdkljso9hh2he6i02.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "222485",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumpn8qgheae66zhky3xgu8y4rlfc13ia83.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "405215",
+    "digit_details": [
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumqov5dnsuzgcs3pcc3gmpmk0rxcub8aw4.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "20705_",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "_",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumrtcw06kbzznv3wrpzdoeoaxwkkowixw5.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "114577",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumsyur6wsr6z0d7nvmd96ltlenhwxucuq6.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "148448",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumu45onjchsya5sv7kwyqdecnq1kamuly7.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "13974",
+    "digit_details": [
+      {
+        "actual": "13974",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumvadacht3dvtojvxsgvlnvcqyq0ultxa8.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "013380.4",
+    "digit_details": [
+      {
+        "actual": "013380.4",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumwhdmqcwublpnv7m3oam69yf9cz0r9gu9.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "306185",
+    "digit_details": [
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumxdajywrmijzblg8tonwtija44k8e1pi10.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "356916",
+    "digit_details": [
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumyj5aeqdejifpdylmae9cazda2bigzqg11.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "109115",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyumzntys23k4bthwoh1xulh5dsoypfv5ge12.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "67410",
+    "digit_details": [
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun0nxwhdlcyw78lmnate01f6xzud0ihkk13.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "2996",
+    "digit_details": [
+      {
+        "actual": "2996",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun1tofw1nrrmvxffw8wu7zdaatx7vnsgs14.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": false,
+    "actual_text": "20897",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "blurry_occluded",
+    "expected_digit_count": 6
+  },
+  "2aoboqyun2wmjwwysralziiryp8sadtmhmosyzfw15.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "555356",
+    "digit_details": [
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun3a2uxbz42kyfxoxo0hqlxnoav7orhwg16.jpg": {
+    "type": "other",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "071",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun4cojtlr5rnxmsh9tzmxkwjtiim7vjda17.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": false,
+    "actual_text": "33930",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": true
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "half_digit_not_trained",
+    "expected_digit_count": 6
+  },
+  "2aoboqyun5hk09lzgpjlbmgv4md51zk7gz4o5wam18.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "371332",
+    "digit_details": [
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun6drs2dagdomefv1fwkjii92d2pxbhxq19.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "164397",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun7kfu9qkbyrl0axcvoiicn8ulaj5txuq20.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "263045",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun8nnc4tcafmshhuk9vy7ydyosqzjj0ca21.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "225093",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyun9wwgkn4h03k0vljsy7k5oqcmnwwzlt622.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "20387",
+    "digit_details": [
+      {
+        "actual": "20387",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunb9en9aqemf3ggzfeygybarvyktqrylu23.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "319601",
+    "digit_details": [
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuncpszuikkp5yunohvlfikm7gdfshw08g24.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "524508",
+    "digit_details": [
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyundjqhtiepaz2uv6hhq4ogi1ae5nwe1iw25.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "090093",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyundyjbmrxwgjxtdk4umgzyiprty09el4i35.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "3416",
+    "digit_details": [
+      {
+        "actual": "3416",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunf5irwuyrq5npqwiye11o8b8heu6lgby26.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": false,
+    "actual_text": "24878",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "blurry_occluded",
+    "expected_digit_count": 6
+  },
+  "2aoboqyungmba3t6iuxsqdbx6vhoy0juagptr4s027.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "110769",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunhj9qgc2qy78z0d2xuoomwalsxranwgg28.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "230520",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": true
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunj2bwpn1o2dj0kfzwhzj5mdmkbmpookc29.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "090607",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunka86lsljzseq1mbysofm2osh4d8lctk30.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": false,
+    "actual_text": "2331_",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "_",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "blurry_occluded",
+    "expected_digit_count": 6
+  },
+  "2aoboqyunlb9lfvfwgylx3lrcmynnwkgcw5rkxcw36.jpg": {
+    "type": "mechanical",
+    "obb": false,
+    "digits_bbox_correct": false,
+    "actual_text": "02",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "out_of_frame",
+    "expected_digit_count": 6
+  },
+  "2aoboqyunmlub0obsmvj8tze1a3ai1boim53x4ua32.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "25317_",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "_",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunpx3ahcdxxfp5tqrys29tnyspukyodom33.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "131020.81",
+    "digit_details": [
+      {
+        "actual": "131020.81",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyunthcvammyvvwepsyngvjxhgg9llvk1l634.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "156435",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuntzaivakbk7fb1j2weyj3mbshanveiec37.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "131020.81",
+    "digit_details": [
+      {
+        "actual": "131020.81",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuomwassxpgqoj8jd2kc1wzlyrkpt2uqdy39.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "134820",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "3",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuopihynohv5eh7inavl5f8epviz4epye840.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "052798",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuos8ukec1hei4nhro9r2ceygorq4pofdk41.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "606",
+    "digit_details": [
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "6",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuotzmbeuemyqln9baoazmanx3r7apwzne42.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "190592",
+    "digit_details": [
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuoujybtsawcgh1lm1fymrddcjqqk7pscq43.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": false,
+    "actual_text": "09440",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": "blurry_occluded",
+    "expected_digit_count": 6
+  },
+  "2aoboqyuovn6jovs5jboisinup2zvx5e9gunsqiw44.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "012877",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "1",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "7",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuowpjedjo6ja1c19uvaywcvlkielpi1qa45.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "28205_",
+    "digit_details": [
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "5",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "_",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuoxqqxbzas7tiye1krt1kxfntp26nslf246.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "09220_",
+    "digit_details": [
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "_",
+        "is_half": true,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuoytaljd4yk4vonzulqxpesc2snwugnhe47.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "02833.1",
+    "digit_details": [
+      {
+        "actual": "02833.1",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyuoznlptzvm5i4dtqgdqwtx11pxmmrwbig48.jpg": {
+    "type": "mechanical",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "080442",
+    "digit_details": [
+      {
+        "actual": "9",
+        "is_half": false,
+        "is_spurious": true
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "8",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "0",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "4",
+        "is_half": false,
+        "is_spurious": false
+      },
+      {
+        "actual": "2",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyup0l4gr6ts80p0tydmcaw1yx4th2zxqvw49.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "0.0",
+    "digit_details": [
+      {
+        "actual": "0.0",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  },
+  "2aoboqyup1zxm6mzirearexlgltbgvbphsbeznkk50.jpg": {
+    "type": "electronic",
+    "obb": true,
+    "digits_bbox_correct": true,
+    "actual_text": "10.2",
+    "digit_details": [
+      {
+        "actual": "10.2",
+        "is_half": false,
+        "is_spurious": false
+      }
+    ],
+    "bbox_miss_reason": null,
+    "expected_digit_count": null
+  }
+}
