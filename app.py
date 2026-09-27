@@ -660,6 +660,177 @@ def api_label_delete():
     return jsonify({"ok": True})
 
 
+
+def select_best_meter_obb(obb):
+    """
+    Intelligently select the best OBB candidate for the meter reading window:
+    1. Evaluates all OBB detections (sorted by confidence).
+    2. Overlap resolution: If a high-confidence candidate is an inner subset (e.g. 5-digit window on a 6-digit meter)
+       and there exists an overlapping complete candidate (AR >= 4.2), prefers the complete window.
+    3. Aspect-Ratio Guard:
+       - Mechanical meters physically require AR >= 4.0 (5 or 6 rotating digit drums).
+       - If a detection is classified as Class 0 (Cơ) but AR < 4.0 (e.g. 2.29 on CE-38), corrects class to 1 (Điện tử).
+    """
+    if obb is None or len(obb) == 0:
+        return None
+        
+    import numpy as np
+    try:
+        from shapely.geometry import Polygon
+    except ImportError:
+        Polygon = None
+
+    candidates = []
+    for i in range(len(obb)):
+        c = int(obb.cls[i].item())
+        conf = float(obb.conf[i].item())
+        quad = [tuple(p) for p in obb.xyxyxyxy[i].tolist()]
+        
+        pts_sum = [p[0] + p[1] for p in quad]
+        pts_diff = [p[0] - p[1] for p in quad]
+        tl = quad[np.argmin(pts_sum)]
+        br = quad[np.argmax(pts_sum)]
+        tr = quad[np.argmax(pts_diff)]
+        bl = quad[np.argmin(pts_diff)]
+        ordered_pts = np.array([tl, tr, br, bl], dtype=np.float32)
+        
+        w1 = np.linalg.norm(ordered_pts[0] - ordered_pts[1])
+        w2 = np.linalg.norm(ordered_pts[2] - ordered_pts[3])
+        h1 = np.linalg.norm(ordered_pts[1] - ordered_pts[2])
+        h2 = np.linalg.norm(ordered_pts[0] - ordered_pts[3])
+        max_w = max(w1, w2)
+        max_h = max(h1, h2)
+        ar = max_w / (max_h + 1e-6)
+        
+        poly = Polygon(quad) if Polygon is not None else None
+        candidates.append({
+            'idx': i,
+            'cls': c,
+            'conf': conf,
+            'quad': [tl, tr, br, bl],
+            'ordered_pts': ordered_pts,
+            'poly': poly,
+            'max_w': max_w,
+            'max_h': max_h,
+            'ar': ar,
+            'area': poly.area if (poly is not None and poly.is_valid) else (max_w * max_h)
+        })
+        
+    if len(candidates) == 1:
+        best = candidates[0]
+        if best['cls'] == 0 and best['ar'] < 4.0:
+            best['cls'] = 1
+        return best
+
+    candidates.sort(key=lambda x: x['conf'], reverse=True)
+    primary = candidates[0]
+    
+    if Polygon is not None:
+        for other in candidates[1:]:
+            if not primary['poly'].is_valid or not other['poly'].is_valid:
+                continue
+            inter = primary['poly'].intersection(other['poly']).area
+            min_area = min(primary['area'], other['area'])
+            containment = inter / (min_area + 1e-6)
+            iou = inter / (primary['poly'].union(other['poly']).area + 1e-6)
+            
+            if containment > 0.40 or iou > 0.25:
+                # Case 1: If other is a full mechanical window (AR >= 4.2) and primary is clipped (AR < 4.0)
+                if other['ar'] >= 4.2 and primary['ar'] < 4.0 and other['conf'] > 0.35:
+                    primary = other
+                    break
+                # Case 2: If primary is cls 0 with AR < 4.0 and other is cls 1
+                if primary['cls'] == 0 and primary['ar'] < 4.0 and other['cls'] == 1:
+                    primary = other
+                    break
+                # Case 3: If both are cls 0 and other has substantially larger width and comparable confidence
+                if primary['cls'] == 0 and other['cls'] == 0:
+                    if other['max_w'] > primary['max_w'] * 1.20 and other['conf'] >= primary['conf'] - 0.15:
+                        primary = other
+                        break
+
+    if primary['cls'] == 0 and primary['ar'] < 4.0:
+        primary['cls'] = 1
+        
+    return primary
+
+
+def warp_meter_display(img, best_det, cls_id):
+    """
+    Asymmetric adaptive warping:
+    - pad_x: generous horizontal padding (35px) ensures leftmost and rightmost digits (especially red decimal digit)
+      are NEVER clipped.
+    - pad_y: tight vertical padding (12px) prevents external text ("CÔNG TƠ ĐIỆN", "10000 1000...") from entering.
+    """
+    import cv2
+    import numpy as np
+    pts = best_det['ordered_pts']
+    max_w = int(best_det['max_w'])
+    max_h = int(best_det['max_h'])
+    
+    if cls_id == 1:
+        pad_x = 20
+        pad_y = 20
+    else:
+        pad_x = max(35, int(max_w * 0.08))
+        pad_y = 12
+        
+    dst = np.array([
+        [pad_x, pad_y],
+        [pad_x + max_w, pad_y],
+        [pad_x + max_w, pad_y + max_h],
+        [pad_x, pad_y + max_h]
+    ], dtype=np.float32)
+    
+    M = cv2.getPerspectiveTransform(pts, dst)
+    warped = cv2.warpPerspective(img, M, (max_w + 2 * pad_x, max_h + 2 * pad_y))
+    return warped, M, pad_x, pad_y, max_w, max_h
+
+
+def filter_mechanical_digit_boxes(boxes, pad_x, pad_y, max_w, max_h):
+    """
+    Filter detected digit bounding boxes for mechanical meters:
+    1. Filter out boxes outside the active display area.
+    2. Spatial row coherence: Ensure all boxes belong to the primary horizontal digit row,
+       filtering out stray text or markings above/below the counter window.
+    """
+    if not boxes:
+        return []
+        
+    import numpy as np
+    in_bounds = []
+    margin_x = pad_x
+    margin_y = pad_y
+    for bx in boxes:
+        cx = (bx["x1"] + bx["x2"]) / 2.0
+        cy = (bx["y1"] + bx["y2"]) / 2.0
+        if (cx >= pad_x - margin_x and cx <= pad_x + max_w + margin_x and
+            cy >= pad_y - margin_y and cy <= pad_y + max_h + margin_y):
+            in_bounds.append(bx)
+            
+    if len(in_bounds) <= 1:
+        return in_bounds
+        
+    heights = [b["y2"] - b["y1"] for b in in_bounds]
+    cys = [(b["y1"] + b["y2"]) / 2.0 for b in in_bounds]
+    med_h = float(np.median(heights))
+    med_cy = float(np.median(cys))
+    
+    row_filtered = []
+    for b in in_bounds:
+        h = b["y2"] - b["y1"]
+        cy = (b["y1"] + b["y2"]) / 2.0
+        # Reject boxes whose vertical center deviates significantly from the median digit row
+        if abs(cy - med_cy) > 0.35 * med_h:
+            continue
+        # Reject tiny fragments (< 55% median digit height)
+        if h < 0.55 * med_h:
+            continue
+        row_filtered.append(b)
+        
+    return row_filtered if row_filtered else in_bounds
+
+
 @app.route("/api/detect/<name>")
 def api_detect(name):
     """Auto-suggest a starting box (OBB-aware). The user still confirms and
@@ -676,19 +847,20 @@ def api_detect(name):
 
     model = _load_model()
     if model is not None:
-        results = model.predict(str(IMAGES_DIR / name), conf=0.25, verbose=False)
+        results = model.predict(str(IMAGES_DIR / name), conf=0.10, verbose=False)
         r = results[0]
         obb = getattr(r, "obb", None)
         if obb is not None and len(obb) > 0:
-            # xyxyxyxy is (N,4,2): four corner points [x,y]; take the top box.
-            quad = [tuple(p) for p in obb.xyxyxyxy[0].tolist()]
-            cx, cy, bw, bh, ang = quad_to_box(quad)
-            class_id = int(obb.cls[0].item()) if getattr(obb, "cls", None) is not None else -1
-            predicted_class_key = next((k for k, v in METER_CLASSES.items() if v["id"] == class_id), None)
-            return jsonify({"kind": "obb", "cx": cx, "cy": cy, "w": bw,
-                            "h": bh, "angleDeg": 0.0 if abs(ang) < 1 else ang,
-                            "strategy": "yolo", "W": W, "H": H,
-                            "meterClass": predicted_class_key})
+            best_det = select_best_meter_obb(obb)
+            if best_det is not None:
+                quad = best_det["quad"]
+                cx, cy, bw, bh, ang = quad_to_box(quad)
+                class_id = best_det["cls"]
+                predicted_class_key = next((k for k, v in METER_CLASSES.items() if v["id"] == class_id), None)
+                return jsonify({"kind": "obb", "cx": cx, "cy": cy, "w": bw,
+                                "h": bh, "angleDeg": 0.0 if abs(ang) < 1 else ang,
+                                "strategy": "yolo", "W": W, "H": H,
+                                "meterClass": predicted_class_key})
         boxes = getattr(r, "boxes", None)
         if boxes is not None and len(boxes) > 0:
             x0, y0, x1, y1 = boxes.xyxy[0].tolist()
@@ -1494,24 +1666,10 @@ def api_validate1_export_to_train():
         if img is None: continue
         
         # OBB
-        res_obb = obb_model(img, conf=0.25, verbose=False)
-        if len(res_obb[0].obb) == 0: continue
-        best_obb = max(res_obb[0].obb, key=lambda x: x.conf[0].item())
-        quad = [tuple(p) for p in best_obb.xyxyxyxy[0].tolist()]
-        pts_sum = [p[0] + p[1] for p in quad]
-        pts_diff = [p[0] - p[1] for p in quad]
-        tl = quad[np.argmin(pts_sum)]
-        br = quad[np.argmax(pts_sum)]
-        tr = quad[np.argmax(pts_diff)]
-        bl = quad[np.argmin(pts_diff)]
-        
-        pad = 20
-        max_w = max(int(np.linalg.norm(np.array(tl) - np.array(tr))), int(np.linalg.norm(np.array(bl) - np.array(br))))
-        max_h = max(int(np.linalg.norm(np.array(tl) - np.array(bl))), int(np.linalg.norm(np.array(tr) - np.array(br))))
-        pts = np.array([tl, tr, br, bl], dtype=np.float32)
-        dst = np.array([[pad, pad], [pad + max_w, pad], [pad + max_w, pad + max_h], [pad, pad + max_h]], dtype=np.float32)
-        M = cv2.getPerspectiveTransform(pts, dst)
-        warped = cv2.warpPerspective(img, M, (max_w + 2*pad, max_h + 2*pad))
+        res_obb = obb_model(img, conf=0.10, verbose=False)
+        best_obb = select_best_meter_obb(getattr(res_obb[0], "obb", None))
+        if best_obb is None: continue
+        warped, M, pad_x, pad_y, max_w, max_h = warp_meter_display(img, best_obb, best_obb["cls"])
         
         W_warp, H_warp = warped.shape[1], warped.shape[0]
         
@@ -1690,11 +1848,10 @@ def api_testocr_batch_classes():
             if p.suffix.lower() in [".jpg", ".jpeg", ".png"]:
                 img = cv2.imread(str(p))
                 if img is None: continue
-                res = obb_model(img, verbose=False, conf=0.15)
-                obb = getattr(res[0], "obb", None)
-                if obb is not None and len(obb) > 0:
-                    best_idx = int(torch.argmax(obb.conf).item()) if hasattr(torch, "argmax") else 0
-                    classes[p.name] = int(obb.cls[best_idx].item())
+                res = obb_model(img, verbose=False, conf=0.10)
+                best_det = select_best_meter_obb(getattr(res[0], "obb", None))
+                if best_det is not None:
+                    classes[p.name] = best_det["cls"]
                 else:
                     classes[p.name] = -1
     _batch_classes_cache[batch] = classes
@@ -1939,49 +2096,16 @@ def api_testocr_infer(name):
     if not obb_model:
         return jsonify({"error": "OBB model not loaded"}), 503
         
-    results = obb_model(img, verbose=False, conf=0.15)
+    results = obb_model(img, verbose=False, conf=0.10)
     r = results[0]
-    obb = getattr(r, "obb", None)
-    if obb is None or len(obb) == 0:
+    best_obb = select_best_meter_obb(getattr(r, "obb", None))
+    if best_obb is None:
         return jsonify({"error": "No OBB detected"}), 400
         
-    best_idx = 0
-    best_conf = 0
-    for i in range(len(obb)):
-        c = float(obb.conf[i].item())
-        if c > best_conf:
-            best_conf = c
-            best_idx = i
-            
-    quad = [tuple(p) for p in obb.xyxyxyxy[best_idx].tolist()]
-    cls_id = int(obb.cls[best_idx].item())
+    quad = best_obb["quad"]
+    cls_id = best_obb["cls"]
     
-    pts_sum = [p[0] + p[1] for p in quad]
-    pts_diff = [p[0] - p[1] for p in quad]
-    tl = quad[np.argmin(pts_sum)]
-    br = quad[np.argmax(pts_sum)]
-    tr = quad[np.argmax(pts_diff)]
-    bl = quad[np.argmin(pts_diff)]
-    quad = [tl, tr, br, bl]
-    
-    pts = np.array(quad, dtype=np.float32)
-    pad = 20
-    w1 = int(np.linalg.norm(pts[0] - pts[1]))
-    w2 = int(np.linalg.norm(pts[2] - pts[3]))
-    h1 = int(np.linalg.norm(pts[1] - pts[2]))
-    h2 = int(np.linalg.norm(pts[0] - pts[3]))
-    max_w = max(w1, w2)
-    max_h = max(h1, h2)
-    
-    dst = np.array([
-        [pad, pad],
-        [pad + max_w, pad],
-        [pad + max_w, pad + max_h],
-        [pad, pad + max_h]
-    ], dtype=np.float32)
-    
-    M = cv2.getPerspectiveTransform(pts, dst)
-    warped = cv2.warpPerspective(img, M, (max_w + 2*pad, max_h + 2*pad))
+    warped, M, pad_x, pad_y, max_w, max_h = warp_meter_display(img, best_obb, cls_id)
     
     if cls_id == 1:
         model_bbox = get_yolo_electronic()
@@ -2005,14 +2129,17 @@ def api_testocr_infer(name):
         
     boxes.sort(key=lambda b: b["x1"])
     
-    filtered_boxes = []
-    margin = pad
-    for bx in boxes:
-        cx = (bx["x1"] + bx["x2"]) / 2
-        cy = (bx["y1"] + bx["y2"]) / 2
-        if cx >= pad - margin and cx <= pad + max_w + margin and cy >= pad - margin and cy <= pad + max_h + margin:
-            filtered_boxes.append(bx)
-    boxes = filtered_boxes
+    if cls_id == 0:
+        boxes = filter_mechanical_digit_boxes(boxes, pad_x, pad_y, max_w, max_h)
+    else:
+        margin = pad_x
+        filtered_boxes = []
+        for bx in boxes:
+            cx = (bx["x1"] + bx["x2"]) / 2
+            cy = (bx["y1"] + bx["y2"]) / 2
+            if cx >= pad_x - margin and cx <= pad_x + max_w + margin and cy >= pad_y - margin and cy <= pad_y + max_h + margin:
+                filtered_boxes.append(bx)
+        boxes = filtered_boxes
     
     import torch
     digits = []
@@ -2141,8 +2268,8 @@ def api_testocr_infer(name):
         "class_id": cls_id,
         "quad": quad,
         "digits": digits,
-        "warped_w": max_w + 2*pad,
-        "warped_h": max_h + 2*pad,
+        "warped_w": max_w + 2*pad_x,
+        "warped_h": max_h + 2*pad_y,
         "warped_b64": warped_b64,
         "image_b64": warped_b64,
         "M": M.tolist()
